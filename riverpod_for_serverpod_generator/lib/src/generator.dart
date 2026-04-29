@@ -1,0 +1,463 @@
+import 'dart:async';
+
+import 'package:analyzer/dart/analysis/utilities.dart';
+import 'package:analyzer/dart/ast/ast.dart';
+import 'package:build/build.dart';
+import 'package:code_builder/code_builder.dart';
+import 'package:dart_style/dart_style.dart';
+import 'package:glob/glob.dart';
+import 'package:recase/recase.dart';
+import 'package:riverpod_for_serverpod_generator/src/ast_helpers.dart';
+import 'package:riverpod_for_serverpod_generator/src/build_provider_field.dart';
+import 'package:riverpod_for_serverpod_generator/src/build_provider_variant.dart';
+import 'package:riverpod_for_serverpod_generator/src/read_annotations.dart';
+import 'package:riverpod_for_serverpod_generator/src/types.dart';
+
+final _timerCode = '''
+final link = ref.keepAlive();
+
+final timer = Timer(const Duration(minutes: 3), link.close);
+
+ref
+  ..onDispose(timer.cancel)
+  ..watch(refUpdateAllGeneratedProviders)
+  ..watch(refUpdateAll);
+''';
+
+class RefEndpointBuilder implements Builder {
+  @override
+  Map<String, List<String>> get buildExtensions => const {
+    'pubspec.yaml': ['lib/src/generated/ref_endpoints.dart'],
+  };
+
+  @override
+  FutureOr<void> build(BuildStep buildStep) async {
+    final serverPackageName = buildStep.inputId.package;
+    final clientPackageName = deriveClientPackageName(serverPackageName);
+    final clientLibrary = '$clientPackageName.dart';
+    final endpoints = <_EndpointMeta>[];
+
+    await for (final id in buildStep.findAssets(Glob('lib/**.dart'))) {
+      if (id.path.contains('/generated/')) continue;
+
+      final content = await buildStep.readAsString(id);
+      final parsed = parseString(content: content, path: id.path);
+      final unit = parsed.unit;
+
+      for (final decl in unit.declarations.whereType<ClassDeclaration>()) {
+        final className = classDeclarationName(decl);
+        final superName =
+            decl.extendsClause?.superclass is NamedType
+                ? namedTypeName(decl.extendsClause!.superclass)
+                : '';
+
+        if (className.startsWith('_') ||
+            decl.abstractKeyword != null ||
+            !superName.endsWith('Endpoint') ||
+            hasDoNotGenerateAnnotation(decl)) {
+          continue;
+        }
+
+        final methods = <MyMethodMeta>[];
+        for (final member in decl.members.whereType<MethodDeclaration>()) {
+          if (member.isGetter || member.isSetter) continue;
+
+          final methodName = member.name.lexeme;
+          final returnType = member.returnType?.toSource() ?? '';
+          if (!returnType.startsWith('Future')) continue;
+          if (methodName.startsWith('_') || hasDoNotGenerateAnnotation(member)) {
+            continue;
+          }
+
+          final parsedParams = _parseParametersFromMethod(member);
+          final positionalParams = <MyParamMeta>[];
+          final namedParams = <MyParamMeta>[];
+
+          var startIndex = 0;
+          if (parsedParams.isNotEmpty && parsedParams.first.type == 'Session') {
+            startIndex = 1;
+          }
+
+          for (var i = startIndex; i < parsedParams.length; i++) {
+            final param = parsedParams[i];
+            if (param.isNamed) {
+              namedParams.add(
+                MyParamMeta(
+                  param.name,
+                  param.type,
+                  param.defaultValue ??
+                      (param.type.trim().endsWith('?') ? 'null' : null),
+                ),
+              );
+            } else {
+              positionalParams.add(
+                MyParamMeta(
+                  param.name,
+                  param.type,
+                  param.defaultValue ??
+                      (param.type.trim().endsWith('?') ? 'null' : null),
+                ),
+              );
+            }
+          }
+
+          methods.add(
+            MyMethodMeta(
+              methodName,
+              returnType,
+              positionalParams,
+              namedParams,
+              positionalParams.isNotEmpty,
+              namedParams.isNotEmpty,
+              extractCacheTtlLiteral(member) ?? 'Duration(minutes: 3)',
+              'Ref$className',
+              extractTimeoutLiteral(member),
+              normalizeHookTargets(
+                extractInvalidateTargets(member),
+              ),
+              extractInvalidateIncludesSelf(member),
+            ),
+          );
+        }
+
+        if (methods.isNotEmpty) {
+          endpoints.add(_EndpointMeta(className, methods));
+        }
+      }
+    }
+
+    final code = _buildLibrary(
+      endpoints: endpoints,
+      clientPackageName: clientPackageName,
+      clientLibrary: clientLibrary,
+    );
+    final out = AssetId(
+      buildStep.inputId.package,
+      'lib/src/generated/ref_endpoints.dart',
+    );
+    await buildStep.writeAsString(out, code);
+  }
+}
+
+String deriveClientPackageName(String serverPackageName) {
+  if (serverPackageName.endsWith('_server')) {
+    return '${serverPackageName.substring(0, serverPackageName.length - 7)}_client';
+  }
+  return '${serverPackageName}_client';
+}
+
+List<String> collectRequiredDartImports(String emittedCode) {
+  final imports = <String>[];
+
+  if (_needsConvertImport(emittedCode)) {
+    imports.add('dart:convert');
+  }
+  if (_needsTypedDataImport(emittedCode)) {
+    imports.add('dart:typed_data');
+  }
+
+  return imports;
+}
+
+bool _needsConvertImport(String emittedCode) {
+  return emittedCode.contains(RegExp(r'\b(jsonDecode|jsonEncode|utf8|base64)\b'));
+}
+
+bool _needsTypedDataImport(String emittedCode) {
+  return emittedCode.contains(RegExp(r'\b(ByteData|Uint8List)\b'));
+}
+
+List<String> normalizeHookTargets(Iterable<String> targets) {
+  final normalized = <String>{};
+  for (final raw in targets) {
+    var value = raw.trim();
+    if (value.isEmpty) continue;
+    if (!value.startsWith('Ref')) value = 'Ref$value';
+    normalized.add(value);
+  }
+  return normalized.toList(growable: false);
+}
+
+String _buildLibrary({
+  required List<_EndpointMeta> endpoints,
+  required String clientPackageName,
+  required String clientLibrary,
+}) {
+  final baseDartImports = <String>[
+    'dart:async',
+  ];
+  final basePackageImports = <String>[
+    'package:riverpod/riverpod.dart',
+    'package:$clientPackageName/$clientLibrary',
+    'package:serverpod_auth_client/serverpod_auth_client.dart',
+  ];
+
+  final library = Library((b) {
+    b.body.add(
+      Code('''
+typedef Reader = T Function<T>(ProviderListenable<T> provider);
+
+final clientProvider = Provider<Client>((ref) {
+  const serverUrlFromEnv = String.fromEnvironment('SERVER_URL');
+  final serverUrl =
+      serverUrlFromEnv.isEmpty ? 'http://localhost:8080/' : serverUrlFromEnv;
+  return Client(serverUrl);
+});
+
+class Counter extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void updateAll() => state++;
+}
+
+final refUpdateAllGeneratedProviders = NotifierProvider<Counter, int>(
+  Counter.new,
+);
+'''),
+    );
+
+    b.body.addAll(
+      endpoints.map((endpoint) {
+        final endpointClass = endpoint.name;
+        final clientField = _clientFieldName(endpointClass);
+
+        return Class((cb) {
+          cb
+            ..name = 'Ref$endpointClass'
+            ..abstract = true
+            ..constructors.add(Constructor((c) => c..constant = true))
+            ..methods.add(
+              Method((mb) {
+                mb
+                  ..name = 'updateAll'
+                  ..static = true
+                  ..returns = refer('void')
+                  ..requiredParameters.add(
+                    Parameter(
+                      (p) => p
+                        ..name = 'read'
+                        ..type = refer('Reader'),
+                    ),
+                  )
+                  ..body = const Code(
+                    'read(refUpdateAll.notifier).updateAll();',
+                  );
+              }),
+            )
+            ..fields.add(
+              Field((fb) {
+                fb
+                  ..name = 'refUpdateAll'
+                  ..static = true
+                  ..modifier = FieldModifier.final$
+                  ..type = refer(
+                    'NotifierProvider<Counter, int>',
+                    'package:riverpod/riverpod.dart',
+                  )
+                  ..assignment = Code(
+                    'NotifierProvider<Counter, int>(Counter.new)',
+                  );
+              }),
+            )
+            ..fields.addAll(
+              endpoint.methods.expand((method) {
+                final rawReturn = method.returnType;
+                final unwrappedReturnType =
+                    rawReturn.startsWith('Future<') && rawReturn.endsWith('>')
+                        ? rawReturn.substring(7, rawReturn.length - 1)
+                        : rawReturn;
+
+                final mainField = buildProviderField(
+                  method,
+                  unwrappedReturnType,
+                  _timerCode.replaceAll(
+                    'Duration(minutes: 3)',
+                    method.cacheTtl,
+                  ),
+                  clientField,
+                );
+                final variants = buildProviderVariants(
+                  method,
+                  unwrappedReturnType,
+                  '',
+                  clientField,
+                  'Ref$endpointClass',
+                );
+                return <Field>[mainField, ...variants];
+              }),
+            )
+            ..methods.addAll(
+              endpoint.methods.map(
+                (method) => _buildInvalidateHookMethod(
+                  currentEndpoint: endpointClass,
+                  method: method,
+                ),
+              ),
+            );
+        });
+      }),
+    );
+  });
+
+  final emitted = library.accept(DartEmitter()).toString();
+  final extraDartImports = collectRequiredDartImports(emitted);
+  final requiredImports = [
+    ...baseDartImports,
+    ...extraDartImports,
+    ...basePackageImports,
+  ];
+
+  final fullSource = '''
+// GENERATED - DO NOT MODIFY
+// @dart=3.0
+
+${requiredImports.map((importPath) => "import '$importPath';").join('\n')}
+
+$emitted
+''';
+  try {
+    return DartFormatter(
+      languageVersion: DartFormatter.latestLanguageVersion,
+    ).format(fullSource);
+  } catch (_) {
+    return fullSource;
+  }
+}
+
+Method _buildInvalidateHookMethod({
+  required String currentEndpoint,
+  required MyMethodMeta method,
+}) {
+  final methodName = 'invalidateAfter${ReCase(method.name).pascalCase}';
+  final targets = <String>{
+    if (method.includeSelfInHook) 'Ref$currentEndpoint',
+    ...method.invalidateTargets,
+  };
+
+  final body = StringBuffer();
+  for (final target in targets) {
+    body.writeln('$target.updateAll(read);');
+  }
+
+  return Method((mb) {
+    mb
+      ..name = methodName
+      ..static = true
+      ..returns = refer('void')
+      ..requiredParameters.add(
+        Parameter(
+          (p) => p
+            ..name = 'read'
+            ..type = refer('Reader'),
+        ),
+      )
+      ..body = Code(body.toString());
+  });
+}
+
+String _clientFieldName(String endpointClass) {
+  final baseName = endpointClass.replaceAll(RegExp(r'Endpoint$'), '');
+  return ReCase(baseName).camelCase;
+}
+
+class _EndpointMeta {
+  const _EndpointMeta(this.name, this.methods);
+
+  final String name;
+  final List<MyMethodMeta> methods;
+}
+
+class _ParsedParam {
+  const _ParsedParam({
+    required this.name,
+    required this.type,
+    required this.isNamed,
+    this.defaultValue,
+  });
+
+  final String name;
+  final String type;
+  final bool isNamed;
+  final String? defaultValue;
+}
+
+List<_ParsedParam> _parseParametersFromMethod(MethodDeclaration method) {
+  final parsed = <_ParsedParam>[];
+  for (final parameter in method.parameters!.parameters) {
+    final single = _parseSingleParam(
+      parameter.toSource(),
+      parameter.isNamed,
+    );
+    if (single != null) {
+      parsed.add(single);
+    }
+  }
+  return parsed;
+}
+
+_ParsedParam? _parseSingleParam(String source, bool isNamed) {
+  source = source.trim();
+  if (source.startsWith('required ')) {
+    source = source.substring('required '.length).trim();
+  }
+  if (source.startsWith('covariant ')) {
+    source = source.substring('covariant '.length).trim();
+  }
+  if (source.startsWith('final ')) {
+    source = source.substring('final '.length).trim();
+  }
+
+  String? defaultValue;
+  final eqIndex = _topLevelIndexOf(source, '=');
+  if (eqIndex >= 0) {
+    defaultValue = source.substring(eqIndex + 1).trim();
+    source = source.substring(0, eqIndex).trim();
+  }
+
+  final match = RegExp(r'(.+)\s+([A-Za-z_]\w*)$').firstMatch(source);
+  if (match == null) return null;
+
+  return _ParsedParam(
+    name: match.group(2)!.trim(),
+    type: match.group(1)!.trim(),
+    isNamed: isNamed,
+    defaultValue: defaultValue,
+  );
+}
+
+int _topLevelIndexOf(String source, String char) {
+  var angle = 0;
+  var round = 0;
+  var square = 0;
+  var curly = 0;
+  for (var i = 0; i < source.length; i++) {
+    final ch = source[i];
+    switch (ch) {
+      case '<':
+        angle++;
+      case '>':
+        if (angle > 0) angle--;
+      case '(':
+        round++;
+      case ')':
+        if (round > 0) round--;
+      case '[':
+        square++;
+      case ']':
+        if (square > 0) square--;
+      case '{':
+        curly++;
+      case '}':
+        if (curly > 0) curly--;
+    }
+    if (ch == char &&
+        angle == 0 &&
+        round == 0 &&
+        square == 0 &&
+        curly == 0) {
+      return i;
+    }
+  }
+  return -1;
+}
