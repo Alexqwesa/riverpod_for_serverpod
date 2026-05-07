@@ -66,6 +66,161 @@ Future<Data> getData() {}
     });
   });
 
+  group('extractCachedQueryMeta', () {
+    test('extracts cached query defaults', () {
+      const source = '''
+@CachedQuery(entity: UserSummary)
+Future<List<UserSummary>> listUsers(Session session) async => [];
+''';
+      final parsed = parseString(content: source);
+      final node = parsed.unit.declarations.first;
+      final meta = extractCachedQueryMeta(node);
+
+      expect(meta, isNotNull);
+      expect(meta!.entity, 'UserSummary');
+      expect(meta.idField, 'id');
+      expect(meta.maxItems, 1000);
+      expect(meta.ttl, 'Duration(minutes: 3)');
+      expect(meta.secure, isFalse);
+      expect(meta.byIdMethod, isNull);
+      expect(meta.mergePolicy, 'CacheMergePolicy.refetchById');
+      expect(meta.cacheVersion, 1);
+      expect(meta.backgroundRefresh, isTrue);
+    });
+
+    test('extracts explicit cached query metadata', () {
+      const source = '''
+@CachedQuery(
+  entity: UserSummary,
+  idField: 'uuid',
+  maxItems: 250,
+  ttl: Duration(minutes: 10),
+  secure: true,
+  byIdMethod: 'getUserSummaryById',
+  mergePolicy: CacheMergePolicy.mergeReturnedEntity,
+  cacheVersion: 2,
+  backgroundRefresh: false,
+)
+Future<List<UserSummary>> listUsers(Session session) async => [];
+''';
+      final parsed = parseString(content: source);
+      final node = parsed.unit.declarations.first;
+      final meta = extractCachedQueryMeta(node)!;
+
+      expect(meta.entity, 'UserSummary');
+      expect(meta.idField, 'uuid');
+      expect(meta.maxItems, 250);
+      expect(meta.ttl, 'Duration(minutes: 10)');
+      expect(meta.secure, isTrue);
+      expect(meta.byIdMethod, 'getUserSummaryById');
+      expect(meta.mergePolicy, 'CacheMergePolicy.mergeReturnedEntity');
+      expect(meta.cacheVersion, 2);
+      expect(meta.backgroundRefresh, isFalse);
+    });
+  });
+
+  group('extractMutationCommandMeta', () {
+    test('extracts mutation defaults', () {
+      const source = '''
+@MutationCommand(affects: UserSummary)
+Future<UserSummary> updateUser(Session session) async => UserSummary();
+''';
+      final parsed = parseString(content: source);
+      final node = parsed.unit.declarations.first;
+      final meta = extractMutationCommandMeta(node);
+
+      expect(meta, isNotNull);
+      expect(meta!.affects, 'UserSummary');
+      expect(meta.idArg, isNull);
+      expect(meta.idField, 'id');
+      expect(meta.byIdMethod, isNull);
+      expect(meta.invalidate, isEmpty);
+      expect(meta.optimistic, 'OptimisticPolicy.none');
+      expect(meta.retry, 'RetryPolicy.connectionOnly');
+      expect(meta.refetch, 'RefetchPolicy.byId');
+      expect(meta.idempotent, isFalse);
+      expect(meta.idempotencyKeyArg, isNull);
+      expect(meta.closeDialog, 'DialogPolicy.onSuccessOnly');
+    });
+
+    test('extracts mutation command metadata and invalidation descriptors', () {
+      const source = '''
+@MutationCommand(
+  affects: UserSummary,
+  idArg: 'userId',
+  idField: 'uuid',
+  byIdMethod: 'getUserSummaryById',
+  invalidate: [
+    Invalidate.all('listUsersByRole'),
+    Invalidate.family('getUserSummaryById', argFrom: 'userId'),
+  ],
+  optimistic: OptimisticPolicy.patchLocalCache,
+  retry: RetryPolicy.connectionOnly,
+  refetch: RefetchPolicy.mergeReturnedEntity,
+  idempotent: true,
+  idempotencyKeyArg: 'clientRequestId',
+  closeDialog: DialogPolicy.never,
+)
+Future<UserSummary> updateUser(Session session) async => UserSummary();
+''';
+      final parsed = parseString(content: source);
+      final node = parsed.unit.declarations.first;
+      final meta = extractMutationCommandMeta(node)!;
+
+      expect(meta.affects, 'UserSummary');
+      expect(meta.idArg, 'userId');
+      expect(meta.idField, 'uuid');
+      expect(meta.byIdMethod, 'getUserSummaryById');
+      expect(meta.invalidate, hasLength(2));
+      expect(meta.invalidate.first.provider, 'listUsersByRole');
+      expect(meta.invalidate.first.family, isFalse);
+      expect(meta.invalidate.last.provider, 'getUserSummaryById');
+      expect(meta.invalidate.last.argFrom, 'userId');
+      expect(meta.invalidate.last.family, isTrue);
+      expect(meta.optimistic, 'OptimisticPolicy.patchLocalCache');
+      expect(meta.refetch, 'RefetchPolicy.mergeReturnedEntity');
+      expect(meta.idempotent, isTrue);
+      expect(meta.idempotencyKeyArg, 'clientRequestId');
+      expect(meta.closeDialog, 'DialogPolicy.never');
+    });
+  });
+
+  group('validation metadata extractors', () {
+    test('extracts string, number, and list validation metadata', () {
+      const source = '''
+@ValidateString(
+  arg: 'roleName',
+  notEmpty: true,
+  minLength: 2,
+  maxLength: 50,
+  pattern: r'^[a-z_]+\$',
+)
+@ValidateNumber(arg: 'age', min: 18, max: 99.5)
+@ValidateList(arg: 'userIds', notEmpty: true, maxLength: 100)
+Future<void> updateUser(Session session) async {}
+''';
+      final parsed = parseString(content: source);
+      final node = parsed.unit.declarations.first;
+
+      final stringMeta = extractValidateStringMeta(node).single;
+      expect(stringMeta.arg, 'roleName');
+      expect(stringMeta.notEmpty, isTrue);
+      expect(stringMeta.minLength, 2);
+      expect(stringMeta.maxLength, 50);
+      expect(stringMeta.pattern, r'^[a-z_]+$');
+
+      final numberMeta = extractValidateNumberMeta(node).single;
+      expect(numberMeta.arg, 'age');
+      expect(numberMeta.min, 18);
+      expect(numberMeta.max, 99.5);
+
+      final listMeta = extractValidateListMeta(node).single;
+      expect(listMeta.arg, 'userIds');
+      expect(listMeta.notEmpty, isTrue);
+      expect(listMeta.maxLength, 100);
+    });
+  });
+
   group('extractInvalidateTargets', () {
     test('extracts endpoint targets from RefInvalidate', () {
       const source = '''

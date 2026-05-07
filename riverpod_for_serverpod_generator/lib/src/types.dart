@@ -16,10 +16,117 @@ class ParamInfo {
   // }
 }
 
+class CachedQueryMeta {
+  final String entity;
+  final String idField;
+  final int maxItems;
+  final String ttl;
+  final bool secure;
+  final String? byIdMethod;
+  final String mergePolicy;
+  final int cacheVersion;
+  final bool backgroundRefresh;
+
+  const CachedQueryMeta({
+    required this.entity,
+    this.idField = 'id',
+    this.maxItems = 1000,
+    this.ttl = 'Duration(minutes: 3)',
+    this.secure = false,
+    this.byIdMethod,
+    this.mergePolicy = 'CacheMergePolicy.refetchById',
+    this.cacheVersion = 1,
+    this.backgroundRefresh = true,
+  });
+}
+
+class MutationCommandMeta {
+  final String affects;
+  final String? idArg;
+  final String idField;
+  final String? byIdMethod;
+  final List<InvalidateMeta> invalidate;
+  final String optimistic;
+  final String retry;
+  final String refetch;
+  final bool idempotent;
+  final String? idempotencyKeyArg;
+  final String closeDialog;
+
+  const MutationCommandMeta({
+    required this.affects,
+    this.idArg,
+    this.idField = 'id',
+    this.byIdMethod,
+    this.invalidate = const [],
+    this.optimistic = 'OptimisticPolicy.none',
+    this.retry = 'RetryPolicy.connectionOnly',
+    this.refetch = 'RefetchPolicy.byId',
+    this.idempotent = false,
+    this.idempotencyKeyArg,
+    this.closeDialog = 'DialogPolicy.onSuccessOnly',
+  });
+}
+
+class InvalidateMeta {
+  final String provider;
+  final String? argFrom;
+  final bool family;
+
+  const InvalidateMeta.all(this.provider)
+      : argFrom = null,
+        family = false;
+
+  const InvalidateMeta.family(this.provider, {required this.argFrom})
+      : family = true;
+}
+
+class ValidateStringMeta {
+  final String arg;
+  final bool notEmpty;
+  final int? minLength;
+  final int? maxLength;
+  final String? pattern;
+
+  const ValidateStringMeta({
+    required this.arg,
+    this.notEmpty = false,
+    this.minLength,
+    this.maxLength,
+    this.pattern,
+  });
+}
+
+class ValidateNumberMeta {
+  final String arg;
+  final num? min;
+  final num? max;
+
+  const ValidateNumberMeta({
+    required this.arg,
+    this.min,
+    this.max,
+  });
+}
+
+class ValidateListMeta {
+  final String arg;
+  final bool notEmpty;
+  final int? minLength;
+  final int? maxLength;
+
+  const ValidateListMeta({
+    required this.arg,
+    this.notEmpty = false,
+    this.minLength,
+    this.maxLength,
+  });
+}
+
 class MyParamMeta {
   final String name;
-  final String type;              // e.g. 'int?', 'bool', 'String?'
-  final String? defaultValue;     // raw default literal text from code, or null
+  final String type; // e.g. 'int?', 'bool', 'String?'
+  final String? defaultValue; // raw default literal text from code, or null
 
   const MyParamMeta(this.name, this.type, this.defaultValue);
 
@@ -47,13 +154,12 @@ class MyMethodMeta {
   final List<String> invalidateTargets;
   final bool includeSelfInHook;
 
-
   // computed by constructor
-  late final String recordArgType;        // e.g. '({int? a, bool b})' or '()'
-  late final String unwrappedReturnType;  // e.g. 'List<WorkType>'
+  late final String recordArgType; // e.g. '({int? a, bool b})' or '()'
+  late final String unwrappedReturnType; // e.g. 'List<WorkType>'
 
   /// Name of generated inner provider, e.g. 'RefWorkTypeEndpoint.filtered'
-   final String innerProviderName;
+  final String innerProviderName;
 
   MyMethodMeta(
     this.name,
@@ -63,12 +169,11 @@ class MyMethodMeta {
     this.hasPositionalParams,
     this.hasNamedParams, [
     this.cacheTtl = 'Duration(minutes: 3)',
-    this.innerProviderName='refERROR',
+    this.innerProviderName = 'refERROR',
     this.timeout,
     this.invalidateTargets = const [],
     this.includeSelfInHook = true,
-  ]
-  ) {
+  ]) {
     unwrappedReturnType = _unwrapFuture(returnType);
     recordArgType = _buildRecordArgType(namedParams);
   }
@@ -144,5 +249,5 @@ class MyMethodMeta {
     if (params.isEmpty) return '()';
     final fields = params.map((p) => '${p.type} ${p.name}').join(', ');
     return '({$fields})';
-    }
+  }
 }
