@@ -1,0 +1,19 @@
+name: riverpod_for_serverpod_hive_storage
+description: Hive storage adapter for riverpod_for_serverpod generated cache records.
+version: 3.0.0
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  hive: ^2.2.3
+  riverpod_for_serverpod_runtime: ^3.0.0
+
+dev_dependencies:
+  lints:
+  test:
+
+dependency_overrides:
+  riverpod_for_serverpod_runtime:
+    path: ../riverpod_for_serverpod_runtime

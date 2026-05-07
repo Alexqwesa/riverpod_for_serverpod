@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="Added JSON round-trip support for cached entity and index records." />
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="riverpod_for_serverpod_hive_storage">
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/riverpod_for_serverpod.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/riverpod_for_serverpod.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/implementation_plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/implementation_plan.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_hive_storage/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_hive_storage/pubspec.yaml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -220,7 +225,23 @@
       <option name="project" value="LOCAL" />
       <updated>1778159758329</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="JsonGeneratedCacheStorage and others">
+      <option name="closed" value="true" />
+      <created>1778159913461</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1778159913461</updated>
+    </task>
+    <task id="LOCAL-00017" summary="riverpod_for_serverpod_hive_storage">
+      <option name="closed" value="true" />
+      <created>1778160031692</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1778160031692</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -248,6 +269,8 @@
     <MESSAGE value="riverpod_for_serverpod_runtime" />
     <MESSAGE value="TTL freshness for indexes&#10;  LRU eviction by maxItems&#10;  pendingSync records are not evicted" />
     <MESSAGE value="Added JSON round-trip support for cached entity and index records." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added JSON round-trip support for cached entity and index records." />
+    <MESSAGE value="JsonGeneratedCacheStorage and others" />
+    <MESSAGE value="riverpod_for_serverpod_hive_storage" />
+    <option name="LAST_COMMIT_MESSAGE" value="riverpod_for_serverpod_hive_storage" />
   </component>
 </project>

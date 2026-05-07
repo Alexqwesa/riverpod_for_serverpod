@@ -9,6 +9,9 @@
       <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_annotation/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_annotation/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_annotation/build" />
+      <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_hive_storage/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_hive_storage/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_hive_storage/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

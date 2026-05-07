@@ -15,6 +15,7 @@ DONE:
   manifest diagnostics warn about invalid or risky query/mutation annotation combinations
   runtime package exists with storage interface, memory storage, entity/index records, and entity cache
   JSON cache storage adapter exists over string key-value storage
+  optional Hive storage adapter package exists for Box<String>
   generator package exists
   build_runner builder scans Serverpod Endpoint classes
   methods are guarded by Future return type + Session first parameter
@@ -1616,6 +1617,8 @@ MemoryGeneratedCacheStorage
 GeneratedKeyValueStorage
 MemoryGeneratedKeyValueStorage
 JsonGeneratedCacheStorage
+riverpod_for_serverpod_hive_storage package
+HiveGeneratedKeyValueStorage
 GeneratedEntityCache<T>
 CachedEntityRecord
 CachedIndexRecord
@@ -1634,7 +1637,7 @@ Implement:
 
 ```text
 storage adapter backed by persistent data
-Hive key-value adapter
+secure/encrypted Hive setup helpers
 ```
 
 Tests:
