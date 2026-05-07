@@ -11,6 +11,7 @@ DONE:
   future annotation API exists for @CachedQuery / @MutationCommand / validation metadata
   generator parser metadata exists for @CachedQuery / @MutationCommand / validation metadata
   internal endpoint manifest builder scans Serverpod source into query/mutation/validation metadata
+  generatedEndpointManifest const map is emitted into generated Dart output
   generator package exists
   build_runner builder scans Serverpod Endpoint classes
   methods are guarded by Future return type + Session first parameter
@@ -25,7 +26,7 @@ DONE:
   Riverpod 3 provider auto-retry is explicitly disabled for generated endpoint providers
 
 NOT DONE YET:
-  generated manifest file output for @CachedQuery / @MutationCommand annotations
+  strongly typed runtime manifest classes for @CachedQuery / @MutationCommand annotations
   runtime entity/index cache
   Hive storage adapter
   offline fallback
@@ -1555,8 +1556,10 @@ AST metadata readers for @MutationCommand
 AST metadata readers for Invalidate.all / Invalidate.family
 AST metadata readers for validation annotations
 internal endpoint manifest builder
+generatedEndpointManifest const map output
 parser tests
 manifest builder tests
+manifest emitter tests
 ```
 
 Still open:

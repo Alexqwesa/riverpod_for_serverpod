@@ -10,6 +10,8 @@ import 'package:recase/recase.dart';
 import 'package:riverpod_for_serverpod_generator/src/ast_helpers.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_field.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_variant.dart';
+import 'package:riverpod_for_serverpod_generator/src/manifest_builder.dart';
+import 'package:riverpod_for_serverpod_generator/src/manifest_emitter.dart';
 import 'package:riverpod_for_serverpod_generator/src/read_annotations.dart';
 import 'package:riverpod_for_serverpod_generator/src/types.dart';
 
@@ -30,11 +32,18 @@ class RefEndpointBuilder implements Builder {
     final serverPackageName = buildStep.inputId.package;
     final clientPackageName = deriveClientPackageName(serverPackageName);
     final endpoints = <_EndpointMeta>[];
+    final manifestEndpoints = <EndpointManifestEntry>[];
 
     await for (final id in buildStep.findAssets(Glob('lib/**.dart'))) {
       if (id.path.contains('/generated/')) continue;
 
       final content = await buildStep.readAsString(id);
+      manifestEndpoints.addAll(
+        buildEndpointManifestFromSource(
+          content: content,
+          path: id.path,
+        ).endpoints,
+      );
       final parsed = parseString(content: content, path: id.path);
       final unit = parsed.unit;
 
@@ -119,6 +128,7 @@ class RefEndpointBuilder implements Builder {
 
     final code = _buildLibrary(
       endpoints: endpoints,
+      manifest: EndpointManifestMeta(manifestEndpoints),
       clientPackageName: clientPackageName,
     );
     final out = AssetId(
@@ -178,6 +188,7 @@ bool _hasServerpodSessionParameter(List<_ParsedParam> params) {
 
 String _buildLibrary({
   required List<_EndpointMeta> endpoints,
+  required EndpointManifestMeta manifest,
   required String clientPackageName,
 }) {
   final baseDartImports = <String>['dart:async'];
@@ -188,6 +199,7 @@ String _buildLibrary({
   ];
 
   final library = Library((b) {
+    b.body.add(Code(buildEndpointManifestCode(manifest)));
     b.body.add(
       Code('''
 typedef Reader = T Function<T>(ProviderListenable<T> provider);
