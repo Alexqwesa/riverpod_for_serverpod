@@ -1,5 +1,47 @@
 # Serverpod → Riverpod Controller Generator: Implementation Plan
 
+## Current repository status
+
+This plan describes the larger controller/offline-cache generator direction.
+The current repository has completed a smaller Riverpod 2.6 foundation:
+
+```text
+DONE:
+  annotation package exists
+  generator package exists
+  build_runner builder scans Serverpod Endpoint classes
+  methods are guarded by Future return type + Session first parameter
+  generated Riverpod FutureProvider / FutureProvider.family wrappers
+  generated TTL keepAlive cache via ref.cacheFor after successful calls
+  generated timeout support
+  generated endpoint and mutation-style invalidation hooks
+  @DoNotGenerate skip support
+  auto-apply builder for dependent packages
+  copy_ref_endpoints helper
+  README / NEW_README / MIT license / Riverpod 2.6 release-line notes
+
+NOT DONE YET:
+  @CachedQuery / @MutationCommand future annotations
+  runtime entity/index cache
+  Hive storage adapter
+  offline fallback
+  mutation command controllers
+  retry queue
+  warning aggregator
+  secure cache runtime
+  validation annotations
+```
+
+Current package names are still:
+
+```text
+riverpod_for_serverpod_annotation
+riverpod_for_serverpod_generator
+```
+
+The future package names in this plan can be introduced during the larger
+runtime/cache rewrite.
+
 ## 1. Goal
 
 Build a generator that lets you write most data-access intent once on the Serverpod backend, add a small number of annotations, and get usable Flutter/Riverpod frontend code:
@@ -1444,30 +1486,34 @@ clear current user's secure cache on logout
 
 ### Phase 0 — Minimal spike
 
-Goal:
+Status: DONE, compacted.
+
+Completed in the current Riverpod 2.6 foundation:
 
 ```text
-prove that annotated endpoint metadata can generate frontend provider files
+annotation package
+build_runner builder package
+Serverpod Endpoint scanner
+Session-first-parameter safeguard
+generated static FutureProvider wrappers
+generated family providers for endpoint arguments
+generated TTL cache after successful calls
+generated invalidation hooks
+auto-applied builder with no required consumer build.yaml
 ```
 
-Tasks:
+Deferred from the larger plan:
 
 ```text
-create annotations package
-create one test endpoint with @CachedQuery and @MutationCommand
-use build_runner/source_gen to read annotation metadata
-generate one .g.dart file with static provider wrappers
-```
-
-Success criteria:
-
-```text
-serverpod generate still works
-build_runner generates frontend provider code
-Flutter app can call generated provider
+@CachedQuery
+@MutationCommand
+frontend runtime cache
+mutation command controllers
 ```
 
 ### Phase 1 — Manifest generator
+
+Status: NOT STARTED for the larger controller/runtime plan.
 
 Generate a strongly typed manifest:
 
@@ -1507,6 +1553,8 @@ It gives you one generated description of all endpoint/cache decisions.
 
 ### Phase 2 — Runtime cache
 
+Status: NOT STARTED.
+
 Implement:
 
 ```text
@@ -1531,12 +1579,22 @@ cacheVersion mismatch ignores old record
 
 ### Phase 3 — Query provider generation
 
-Generate:
+Status: PARTIAL.
+
+Done:
 
 ```text
 simple FutureProvider for non-cached reads
-AsyncNotifierProvider for cached reads
 family providers for endpoint arguments
+TTL keepAlive for successful calls
+```
+
+Still open for this phase:
+
+Generate:
+
+```text
+AsyncNotifierProvider for cached reads
 background refresh
 warning reporting on refresh failure
 ```
@@ -1551,6 +1609,18 @@ offline refresh shows cached data and reports one warning
 ```
 
 ### Phase 4 — Mutation command generation
+
+Status: PARTIAL for invalidation hooks only.
+
+Done:
+
+```text
+method-level invalidateAfter<MethodName>(ref.read) hooks
+endpoint-level updateAll(ref.read) hooks
+cross-endpoint invalidation via @RefInvalidate
+```
+
+Still open for command generation:
 
 Generate:
 
@@ -1575,6 +1645,8 @@ missing byIdMethod emits diagnostic
 
 ### Phase 5 — Retry queue
 
+Status: NOT STARTED.
+
 Implement:
 
 ```text
@@ -1596,6 +1668,8 @@ non-idempotent mutation is not persisted
 
 ### Phase 6 — Warning aggregator
 
+Status: NOT STARTED.
+
 Implement:
 
 ```text
@@ -1615,6 +1689,8 @@ success clears warning
 ```
 
 ### Phase 7 — Secure cache
+
+Status: NOT STARTED.
 
 Implement:
 
@@ -1636,6 +1712,8 @@ user A does not read user B cache
 
 ### Phase 8 — Diagnostics and lint-like warnings
 
+Status: NOT STARTED.
+
 Generate diagnostics for:
 
 ```text
@@ -1650,6 +1728,20 @@ create mutation has retry but no idempotency key
 ```
 
 ### Phase 9 — Documentation and examples
+
+Status: PARTIAL.
+
+Done:
+
+```text
+root README
+package READMEs
+NEW_README design draft
+MIT licenses
+Riverpod 2.6 compatibility notes
+```
+
+Still open:
 
 Create examples:
 
