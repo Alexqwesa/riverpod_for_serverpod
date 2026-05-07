@@ -10,6 +10,7 @@ import 'package:recase/recase.dart';
 import 'package:riverpod_for_serverpod_generator/src/ast_helpers.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_field.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_variant.dart';
+import 'package:riverpod_for_serverpod_generator/src/diagnostics.dart';
 import 'package:riverpod_for_serverpod_generator/src/manifest_builder.dart';
 import 'package:riverpod_for_serverpod_generator/src/manifest_emitter.dart';
 import 'package:riverpod_for_serverpod_generator/src/read_annotations.dart';
@@ -126,9 +127,20 @@ class RefEndpointBuilder implements Builder {
 
     if (endpoints.isEmpty) return;
 
+    final manifest = EndpointManifestMeta(manifestEndpoints);
+    for (final diagnostic in validateEndpointManifest(manifest)) {
+      final message = diagnostic.displayMessage;
+      switch (diagnostic.severity) {
+        case ManifestDiagnosticSeverity.warning:
+          log.warning(message);
+        case ManifestDiagnosticSeverity.error:
+          log.severe(message);
+      }
+    }
+
     final code = _buildLibrary(
       endpoints: endpoints,
-      manifest: EndpointManifestMeta(manifestEndpoints),
+      manifest: manifest,
       clientPackageName: clientPackageName,
     );
     final out = AssetId(

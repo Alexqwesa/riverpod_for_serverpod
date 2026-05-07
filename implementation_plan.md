@@ -12,6 +12,7 @@ DONE:
   generator parser metadata exists for @CachedQuery / @MutationCommand / validation metadata
   internal endpoint manifest builder scans Serverpod source into query/mutation/validation metadata
   generatedEndpointManifest const map is emitted into generated Dart output
+  manifest diagnostics warn about invalid or risky query/mutation annotation combinations
   generator package exists
   build_runner builder scans Serverpod Endpoint classes
   methods are guarded by Future return type + Session first parameter
@@ -1761,7 +1762,23 @@ user A does not read user B cache
 
 ### Phase 8 — Diagnostics and lint-like warnings
 
-Status: NOT STARTED.
+Status: PARTIAL.
+
+Done:
+
+```text
+conflicting @CachedQuery + @MutationCommand diagnostic
+unsupported cached query return type diagnostic
+invalid cache maxItems diagnostic
+invalid cacheVersion diagnostic
+retry without idempotent diagnostic
+idempotencyKeyArg without idempotent diagnostic
+bool mutation without byIdMethod diagnostic
+builder warning/severe logging
+diagnostics tests
+```
+
+Still open:
 
 Generate diagnostics for:
 
