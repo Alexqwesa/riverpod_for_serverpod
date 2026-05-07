@@ -6,6 +6,7 @@ This repository contains two Dart packages:
 
 - `riverpod_for_serverpod_annotation`: annotations you add to Serverpod endpoints.
 - `riverpod_for_serverpod_generator`: a `build_runner` builder that generates Riverpod providers.
+- `riverpod_for_serverpod_runtime`: cache primitives used by generated providers.
 
 The generated file is written to `lib/src/generated/ref_endpoints.dart` in the server package. Most apps copy that generated file into the matching `*_client` package as `lib/ref_endpoints.dart`.
 
@@ -91,6 +92,7 @@ In the Serverpod server package:
 ```yaml
 dependencies:
   riverpod_for_serverpod_annotation: ^3.0.0
+  riverpod_for_serverpod_runtime: ^3.0.0
 
 dev_dependencies:
   build_runner: ^2.5.0
@@ -154,6 +156,7 @@ RefAdminEndpoint.invalidateAfterUpdateUsersRole(ref.read);
 See package-level documentation:
 
 - [`riverpod_for_serverpod_annotation`](riverpod_for_serverpod_annotation/README.md)
+- [`riverpod_for_serverpod_runtime`](riverpod_for_serverpod_runtime/README.md)
 - [`riverpod_for_serverpod_generator`](riverpod_for_serverpod_generator/README.md)
 
 ## License

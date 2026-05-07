@@ -13,6 +13,7 @@ DONE:
   internal endpoint manifest builder scans Serverpod source into query/mutation/validation metadata
   generatedEndpointManifest const map is emitted into generated Dart output
   manifest diagnostics warn about invalid or risky query/mutation annotation combinations
+  runtime package exists with storage interface, memory storage, entity/index records, and entity cache
   generator package exists
   build_runner builder scans Serverpod Endpoint classes
   methods are guarded by Future return type + Session first parameter
@@ -1603,18 +1604,29 @@ It gives you one generated description of all endpoint/cache decisions.
 
 ### Phase 2 — Runtime cache
 
-Status: NOT STARTED.
+Status: PARTIAL.
+
+Done:
+
+```text
+riverpod_for_serverpod_runtime package
+GeneratedCacheStorage
+MemoryGeneratedCacheStorage
+GeneratedEntityCache<T>
+CachedEntityRecord
+CachedIndexRecord
+JSON encode/decode callbacks
+cache version support
+TTL freshness for indexes
+runtime cache tests
+```
+
+Still open:
 
 Implement:
 
 ```text
-GeneratedCacheStorage
-GeneratedEntityCache<T>
-CachedEntityRecord
-CachedIndexRecord
-JSON encode/decode helpers
 LRU eviction
-cache version support
 ```
 
 Tests:

@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="connect the parser layer into a manifest model: build endpoint/method manifests from scanned Serverpod classes">
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="manifest diagnostics warn about invalid or risky query/mutation annotation combinations">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/implementation_plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/implementation_plan.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,7 +184,23 @@
       <option name="project" value="LOCAL" />
       <updated>1778158027679</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="generated EndpointManifest const map is emitted into generated Dart output">
+      <option name="closed" value="true" />
+      <created>1778158231975</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1778158231975</updated>
+    </task>
+    <task id="LOCAL-00012" summary="manifest diagnostics warn about invalid or risky query/mutation annotation combinations">
+      <option name="closed" value="true" />
+      <created>1778158638063</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1778158638063</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -207,6 +223,8 @@
     <MESSAGE value="new annotations" />
     <MESSAGE value="Added parser metadata for future `@CachedQuery`, `@MutationCommand`, `Invalidate.*`, and validation annotations." />
     <MESSAGE value="connect the parser layer into a manifest model: build endpoint/method manifests from scanned Serverpod classes" />
-    <option name="LAST_COMMIT_MESSAGE" value="connect the parser layer into a manifest model: build endpoint/method manifests from scanned Serverpod classes" />
+    <MESSAGE value="generated EndpointManifest const map is emitted into generated Dart output" />
+    <MESSAGE value="manifest diagnostics warn about invalid or risky query/mutation annotation combinations" />
+    <option name="LAST_COMMIT_MESSAGE" value="manifest diagnostics warn about invalid or risky query/mutation annotation combinations" />
   </component>
 </project>

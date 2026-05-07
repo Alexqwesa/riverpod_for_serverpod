@@ -1,0 +1,99 @@
+import 'package:riverpod_for_serverpod_runtime/src/cache/cached_entity_record.dart';
+import 'package:riverpod_for_serverpod_runtime/src/cache/cached_index_record.dart';
+import 'package:riverpod_for_serverpod_runtime/src/cache/generated_cache_storage.dart';
+
+typedef EntityIdReader<T> = Object? Function(T entity);
+typedef EntityJsonWriter<T> = Map<String, Object?> Function(T entity);
+typedef EntityJsonReader<T> = T Function(Map<String, Object?> json);
+
+class GeneratedEntityCache<T> {
+  final GeneratedCacheStorage storage;
+  final String entityType;
+  final int cacheVersion;
+  final EntityIdReader<T> idOf;
+  final EntityJsonWriter<T> toJson;
+  final EntityJsonReader<T> fromJson;
+  final DateTime Function() now;
+
+  const GeneratedEntityCache({
+    required this.storage,
+    required this.entityType,
+    required this.cacheVersion,
+    required this.idOf,
+    required this.toJson,
+    required this.fromJson,
+    DateTime Function()? now,
+  }) : now = now ?? DateTime.now;
+
+  Future<void> putOne(T entity, {bool pendingSync = false}) async {
+    final id = idOf(entity);
+    if (id == null) {
+      throw ArgumentError.value(entity, 'entity', 'Entity id cannot be null.');
+    }
+
+    await storage.writeEntity(
+      CachedEntityRecord(
+        entityType: entityType,
+        id: '$id',
+        json: toJson(entity),
+        updatedAt: now(),
+        cacheVersion: cacheVersion,
+        pendingSync: pendingSync,
+      ),
+    );
+  }
+
+  Future<T?> getById(Object id) async {
+    final record = await storage.readEntity(entityType, '$id');
+    if (record == null || record.cacheVersion != cacheVersion) return null;
+    return fromJson(record.json);
+  }
+
+  Future<void> putList(
+    String indexKey,
+    List<T> entities, {
+    required Duration ttl,
+  }) async {
+    final ids = <String>[];
+    for (final entity in entities) {
+      final id = idOf(entity);
+      if (id == null) {
+        throw ArgumentError.value(
+          entity,
+          'entities',
+          'Entity id cannot be null.',
+        );
+      }
+      ids.add('$id');
+      await putOne(entity);
+    }
+
+    await storage.writeIndex(
+      CachedIndexRecord(
+        entityType: entityType,
+        indexKey: indexKey,
+        ids: ids,
+        updatedAt: now(),
+        ttl: ttl,
+        cacheVersion: cacheVersion,
+      ),
+    );
+  }
+
+  Future<List<T>?> readList(String indexKey) async {
+    final index = await storage.readIndex(entityType, indexKey);
+    if (index == null ||
+        index.cacheVersion != cacheVersion ||
+        !index.isFresh(now())) {
+      return null;
+    }
+
+    final entities = <T>[];
+    for (final id in index.ids) {
+      final entity = await getById(id);
+      if (entity == null) return null;
+      entities.add(entity);
+    }
+    return entities;
+  }
+}
