@@ -5,6 +5,32 @@ import 'package:riverpod_for_serverpod_generator/src/types.dart';
 String _timeoutSuffix(MyMethodMeta m) =>
     m.timeout != null ? '.timeout(const ${m.timeout})' : '';
 
+String _clientCall(MyMethodMeta m, String clientField, String args) =>
+    'ref.watch(clientProvider).$clientField.${m.name}($args)${_timeoutSuffix(m)}';
+
+String _successfulResultBody(
+  MyMethodMeta m,
+  String returnType,
+  String clientField,
+  String args,
+) {
+  final call = _clientCall(m, clientField, args);
+  final cacheFor = 'ref.cacheFor(const ${m.cacheTtl});';
+
+  if (returnType == 'void') {
+    return '''
+await $call;
+    $cacheFor
+''';
+  }
+
+  return '''
+final result = await $call;
+    $cacheFor
+    return result;
+''';
+}
+
 Field buildProviderField(
   MyMethodMeta m,
   String unWrapperReturnType,
@@ -12,18 +38,38 @@ Field buildProviderField(
   String clientField,
 ) {
   if (m.positionalParams.length == 1 && m.namedParams.isEmpty) {
-    return buildSinglePositionalField(m, unWrapperReturnType, innerCode, clientField);
+    return buildSinglePositionalField(
+      m,
+      unWrapperReturnType,
+      innerCode,
+      clientField,
+    );
   }
   if (m.positionalParams.isEmpty && m.namedParams.length == 1) {
-    return buildSingleNamedField(m, unWrapperReturnType, innerCode, clientField);
+    return buildSingleNamedField(
+      m,
+      unWrapperReturnType,
+      innerCode,
+      clientField,
+    );
   }
   if (m.hasPositionalParams || m.hasNamedParams) {
-    return buildMixedOrMultiParamField(m, unWrapperReturnType, innerCode, clientField);
+    return buildMixedOrMultiParamField(
+      m,
+      unWrapperReturnType,
+      innerCode,
+      clientField,
+    );
   }
   return buildZeroParamField(m, unWrapperReturnType, innerCode, clientField);
 }
 
-Field buildZeroParamField(MyMethodMeta m, String returnType, String innerCode, String clientField) {
+Field buildZeroParamField(
+  MyMethodMeta m,
+  String returnType,
+  String innerCode,
+  String clientField,
+) {
   return Field((mb) {
     mb
       ..static = true
@@ -31,9 +77,9 @@ Field buildZeroParamField(MyMethodMeta m, String returnType, String innerCode, S
       ..name = m.name
       ..assignment = Code('''
 FutureProvider.autoDispose<$returnType>(
-  (ref) {
+  (ref) async {
     $innerCode
-   return ref.watch(clientProvider).$clientField.${m.name}()${_timeoutSuffix(m)};
+    ${_successfulResultBody(m, returnType, clientField, '')}
    }
 )
 ''');
@@ -57,7 +103,7 @@ FutureProvider.autoDispose
     .family<$returnType, ${p.type}>(
   (ref, ${p.name}) async {
     $innerCode
-    return ref.watch(clientProvider).$clientField.${m.name}(${p.name})${_timeoutSuffix(m)} as FutureOr<$returnType>;
+    ${_successfulResultBody(m, returnType, clientField, p.name)}
     },
 )
 ''');
@@ -81,7 +127,7 @@ FutureProvider.autoDispose
     .family<$returnType, ${p.type}>(
   (ref, ${p.name}) async {
     $innerCode
-    return ref.watch(clientProvider).$clientField.${m.name}(${p.name}: ${p.name})${_timeoutSuffix(m)} as FutureOr<$returnType>;
+    ${_successfulResultBody(m, returnType, clientField, '${p.name}: ${p.name}')}
     }
 )
 ''');
@@ -106,10 +152,10 @@ Field buildMixedOrMultiParamField(
       ..name = m.name
       ..assignment = Code('''
 FutureProvider.autoDispose.family<$returnType, $recordType>(
-  (ref, args)  {
+  (ref, args) async {
     $innerCode
     $destructuredVars
-    return ref.watch(clientProvider).$clientField.${m.name}($methodCall)${_timeoutSuffix(m)} as FutureOr<$returnType>;
+    ${_successfulResultBody(m, returnType, clientField, methodCall)}
   },
 )
 ''');
@@ -135,7 +181,8 @@ ParamInfo buildRecordTypeAndDestructure(MyMethodMeta m) {
       destructuredVars = 'final $destructuringPattern = args;';
     } else {
       recordType = '(${m.positionalParams.map((p) => p.type).join(', ')})';
-      destructuringPattern = '(${m.positionalParams.map((p) => p.name).join(', ')})';
+      destructuringPattern =
+          '(${m.positionalParams.map((p) => p.name).join(', ')})';
       destructuredVars = 'final $destructuringPattern = args;';
     }
   } else if (m.hasNamedParams) {
@@ -145,8 +192,10 @@ ParamInfo buildRecordTypeAndDestructure(MyMethodMeta m) {
       destructuringPattern = '(${p.name}: ${p.name})';
       destructuredVars = 'final $destructuringPattern = args;';
     } else {
-      recordType = '({${m.namedParams.map((p) => '${p.type} ${p.name}').join(', ')}})';
-      destructuringPattern = '(${m.namedParams.map((p) => '${p.name}: ${p.name}').join(', ')})';
+      recordType =
+          '({${m.namedParams.map((p) => '${p.type} ${p.name}').join(', ')}})';
+      destructuringPattern =
+          '(${m.namedParams.map((p) => '${p.name}: ${p.name}').join(', ')})';
       destructuredVars = 'final $destructuringPattern = args;';
     }
   } else {

@@ -8,12 +8,21 @@ It scans server endpoint classes, then writes
 usually copy that generated file into their `*_client` package as
 `lib/ref_endpoints.dart`.
 
+## Compatibility
+
+This generator targets Riverpod `2.6.x`. Package versions are aligned with the
+supported Riverpod line, starting at `2.6.0`.
+
+Riverpod 3 support is planned for a separate branch/release line later.
+
 ## What it generates
 
 - `Ref...Endpoint` classes for Serverpod endpoint classes
 - `FutureProvider` / `FutureProvider.family` wrappers for endpoint methods
 - endpoint-level `updateAll(ref.read)` invalidation hooks
 - method-level `invalidateAfter<MethodName>(ref.read)` hooks
+- a small `Ref.cacheFor(...)` extension used by generated providers after a
+  request succeeds
 
 ## Supported annotations
 
@@ -28,24 +37,11 @@ Add to server `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  riverpod_for_serverpod_annotation:
-    path: ../../riverpod_for_serverpod/riverpod_for_serverpod_annotation
+  riverpod_for_serverpod_annotation: ^2.6.0
 
 dev_dependencies:
   build_runner: ^2.5.0
-  riverpod_for_serverpod_generator:
-    path: ../../riverpod_for_serverpod/riverpod_for_serverpod_generator
-```
-
-Add `build.yaml` to the server package:
-
-```yaml
-targets:
-  $default:
-    builders:
-      riverpod_for_serverpod_generator|ref_endpoint:
-        enabled: true
-        options: {}
+  riverpod_for_serverpod_generator: ^2.6.0
 ```
 
 Annotate endpoint methods:
@@ -53,26 +49,61 @@ Annotate endpoint methods:
 ```dart
 import 'package:riverpod_for_serverpod_annotation/riverpod_for_serverpod_annotation.dart';
 
-class BankManagerEndpoint extends Endpoint {
+class AdminEndpoint extends Endpoint {
   @CacheTtl(Duration(minutes: 10))
-  Future<List<Bank>> listBanks(Session session) async {
+  Future<List<Role>> listRoles(Session session) async {
     ...
   }
 
-  @RefInvalidate(['BankBalanceEndpoint'])
-  Future<BankProfile> upsertBankProfile(
+  @RefInvalidate(['UserEndpoint'])
+  Future<void> updateUsersRole(
     Session session,
-    BankProfile bankProfile,
+    List<int> userIds,
+    String roleName,
   ) async {
     ...
   }
 }
 ```
 
+The generated file includes providers like:
+
+```dart
+static final listRoles = FutureProvider.autoDispose<List<Role>>((ref) async {
+  ref
+    ..watch(refUpdateAllGeneratedProviders)
+    ..watch(refUpdateAll);
+
+  final result = await ref.watch(clientProvider).admin.listRoles();
+
+  ref.cacheFor(const Duration(minutes: 10));
+
+  return result;
+});
+```
+
+`ref.cacheFor(...)` is generated after the awaited client call, so only
+successful endpoint responses are kept alive.
+
 Generate:
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
+```
+
+No project-level `build.yaml` is required. The builder auto-applies to packages
+that depend on `riverpod_for_serverpod_generator`, then only writes output when
+it finds Serverpod endpoint methods with `Session` as the first parameter.
+
+If a package depends on the generator but should not run it, disable it in that
+package's `build.yaml`:
+
+```yaml
+targets:
+  $default:
+    builders:
+      riverpod_for_serverpod_generator|ref_endpoint:
+        enabled: false
 ```
 
 Or define a Serverpod script so generation also copies the file into the client

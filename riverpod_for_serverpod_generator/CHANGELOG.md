@@ -1,8 +1,14 @@
-## 1.0.0
+## 2.6.0
 
-- Initial version.
+- Aligned the package version with the supported Riverpod `2.6.x` line.
+- Documented that Riverpod 3 support will live on a separate future branch/release line.
+- Kept generated provider output targeting Riverpod 2.6 APIs.
 
 ## 1.0.1
 
 - Updated the generator internals for newer analyzer and build_runner APIs used with Serverpod 3.4.4.
 - No intended generated API redesign; this release is a compatibility fix so existing `ref_endpoints` generation can continue to work.
+
+## 1.0.0
+
+- Initial version.

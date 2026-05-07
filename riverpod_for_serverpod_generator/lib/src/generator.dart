@@ -13,13 +13,8 @@ import 'package:riverpod_for_serverpod_generator/src/build_provider_variant.dart
 import 'package:riverpod_for_serverpod_generator/src/read_annotations.dart';
 import 'package:riverpod_for_serverpod_generator/src/types.dart';
 
-final _timerCode = '''
-final link = ref.keepAlive();
-
-final timer = Timer(const Duration(minutes: 3), link.close);
-
+const _providerWatchesCode = '''
 ref
-  ..onDispose(timer.cancel)
   ..watch(refUpdateAllGeneratedProviders)
   ..watch(refUpdateAll);
 ''';
@@ -27,14 +22,13 @@ ref
 class RefEndpointBuilder implements Builder {
   @override
   Map<String, List<String>> get buildExtensions => const {
-    'pubspec.yaml': ['lib/src/generated/ref_endpoints.dart'],
-  };
+        'pubspec.yaml': ['lib/src/generated/ref_endpoints.dart'],
+      };
 
   @override
   FutureOr<void> build(BuildStep buildStep) async {
     final serverPackageName = buildStep.inputId.package;
     final clientPackageName = deriveClientPackageName(serverPackageName);
-    final clientLibrary = '$clientPackageName.dart';
     final endpoints = <_EndpointMeta>[];
 
     await for (final id in buildStep.findAssets(Glob('lib/**.dart'))) {
@@ -46,10 +40,9 @@ class RefEndpointBuilder implements Builder {
 
       for (final decl in unit.declarations.whereType<ClassDeclaration>()) {
         final className = classDeclarationName(decl);
-        final superName =
-            decl.extendsClause?.superclass is NamedType
-                ? namedTypeName(decl.extendsClause!.superclass)
-                : '';
+        final superName = decl.extendsClause?.superclass is NamedType
+            ? namedTypeName(decl.extendsClause!.superclass)
+            : '';
 
         if (className.startsWith('_') ||
             decl.abstractKeyword != null ||
@@ -65,20 +58,18 @@ class RefEndpointBuilder implements Builder {
           final methodName = member.name.lexeme;
           final returnType = member.returnType?.toSource() ?? '';
           if (!returnType.startsWith('Future')) continue;
-          if (methodName.startsWith('_') || hasDoNotGenerateAnnotation(member)) {
+          if (methodName.startsWith('_') ||
+              hasDoNotGenerateAnnotation(member)) {
             continue;
           }
 
           final parsedParams = _parseParametersFromMethod(member);
+          if (!_hasServerpodSessionParameter(parsedParams)) continue;
+
           final positionalParams = <MyParamMeta>[];
           final namedParams = <MyParamMeta>[];
 
-          var startIndex = 0;
-          if (parsedParams.isNotEmpty && parsedParams.first.type == 'Session') {
-            startIndex = 1;
-          }
-
-          for (var i = startIndex; i < parsedParams.length; i++) {
+          for (var i = 1; i < parsedParams.length; i++) {
             final param = parsedParams[i];
             if (param.isNamed) {
               namedParams.add(
@@ -112,9 +103,7 @@ class RefEndpointBuilder implements Builder {
               extractCacheTtlLiteral(member) ?? 'Duration(minutes: 3)',
               'Ref$className',
               extractTimeoutLiteral(member),
-              normalizeHookTargets(
-                extractInvalidateTargets(member),
-              ),
+              normalizeHookTargets(extractInvalidateTargets(member)),
               extractInvalidateIncludesSelf(member),
             ),
           );
@@ -126,10 +115,11 @@ class RefEndpointBuilder implements Builder {
       }
     }
 
+    if (endpoints.isEmpty) return;
+
     final code = _buildLibrary(
       endpoints: endpoints,
       clientPackageName: clientPackageName,
-      clientLibrary: clientLibrary,
     );
     final out = AssetId(
       buildStep.inputId.package,
@@ -160,7 +150,9 @@ List<String> collectRequiredDartImports(String emittedCode) {
 }
 
 bool _needsConvertImport(String emittedCode) {
-  return emittedCode.contains(RegExp(r'\b(jsonDecode|jsonEncode|utf8|base64)\b'));
+  return emittedCode.contains(
+    RegExp(r'\b(jsonDecode|jsonEncode|utf8|base64)\b'),
+  );
 }
 
 bool _needsTypedDataImport(String emittedCode) {
@@ -178,17 +170,20 @@ List<String> normalizeHookTargets(Iterable<String> targets) {
   return normalized.toList(growable: false);
 }
 
+bool _hasServerpodSessionParameter(List<_ParsedParam> params) {
+  if (params.isEmpty) return false;
+  final type = params.first.type;
+  return type == 'Session' || type.endsWith('.Session');
+}
+
 String _buildLibrary({
   required List<_EndpointMeta> endpoints,
   required String clientPackageName,
-  required String clientLibrary,
 }) {
-  final baseDartImports = <String>[
-    'dart:async',
-  ];
+  final baseDartImports = <String>['dart:async'];
   final basePackageImports = <String>[
     'package:riverpod/riverpod.dart',
-    'package:$clientPackageName/$clientLibrary',
+    'package:$clientPackageName/src/protocol/protocol.dart',
     'package:serverpod_auth_client/serverpod_auth_client.dart',
   ];
 
@@ -214,6 +209,15 @@ class Counter extends Notifier<int> {
 final refUpdateAllGeneratedProviders = NotifierProvider<Counter, int>(
   Counter.new,
 );
+
+extension RefCacheForExtension on Ref {
+  void cacheFor(Duration duration) {
+    final link = keepAlive();
+    final timer = Timer(duration, link.close);
+
+    onDispose(timer.cancel);
+  }
+}
 '''),
     );
 
@@ -271,10 +275,7 @@ final refUpdateAllGeneratedProviders = NotifierProvider<Counter, int>(
                 final mainField = buildProviderField(
                   method,
                   unwrappedReturnType,
-                  _timerCode.replaceAll(
-                    'Duration(minutes: 3)',
-                    method.cacheTtl,
-                  ),
+                  _providerWatchesCode,
                   clientField,
                 );
                 final variants = buildProviderVariants(
@@ -385,10 +386,7 @@ class _ParsedParam {
 List<_ParsedParam> _parseParametersFromMethod(MethodDeclaration method) {
   final parsed = <_ParsedParam>[];
   for (final parameter in method.parameters!.parameters) {
-    final single = _parseSingleParam(
-      parameter.toSource(),
-      parameter.isNamed,
-    );
+    final single = _parseSingleParam(parameter.toSource(), parameter.isNamed);
     if (single != null) {
       parsed.add(single);
     }
@@ -451,11 +449,7 @@ int _topLevelIndexOf(String source, String char) {
       case '}':
         if (curly > 0) curly--;
     }
-    if (ch == char &&
-        angle == 0 &&
-        round == 0 &&
-        square == 0 &&
-        curly == 0) {
+    if (ch == char && angle == 0 && round == 0 && square == 0 && curly == 0) {
       return i;
     }
   }

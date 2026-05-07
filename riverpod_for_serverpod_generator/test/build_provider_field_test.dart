@@ -79,8 +79,20 @@ void main() {
   });
 
   group('buildZeroParamField', () {
-    MyMethodMeta makeMethod({String name = 'getAll', String returnType = 'Future<List<User>>'}) {
-      return MyMethodMeta(name, returnType, [], [], false, false, 'Duration(minutes: 3)', 'RefTestEndpoint');
+    MyMethodMeta makeMethod({
+      String name = 'getAll',
+      String returnType = 'Future<List<User>>',
+    }) {
+      return MyMethodMeta(
+        name,
+        returnType,
+        [],
+        [],
+        false,
+        false,
+        'Duration(minutes: 3)',
+        'RefTestEndpoint',
+      );
     }
 
     test('generates static AutoDisposeFutureProvider field', () {
@@ -118,6 +130,27 @@ void main() {
       final field = buildZeroParamField(m, 'String', '', 'client');
       final code = field.assignment.toString();
       expect(code, contains('.timeout('));
+    });
+
+    test('caches only after successful result', () {
+      final m = makeMethod();
+      final field = buildZeroParamField(m, 'List<User>', '', 'user');
+      final code = field.assignment.toString();
+      expect(code, contains('final result = await'));
+      expect(code.indexOf('ref.cacheFor'), greaterThan(code.indexOf('await')));
+      expect(
+        code.indexOf('return result'),
+        greaterThan(code.indexOf('ref.cacheFor')),
+      );
+    });
+
+    test('void methods cache after awaited call', () {
+      final m = makeMethod(name: 'refresh', returnType: 'Future<void>');
+      final field = buildZeroParamField(m, 'void', '', 'user');
+      final code = field.assignment.toString();
+      expect(code, contains('await ref.watch(clientProvider).user.refresh();'));
+      expect(code.indexOf('ref.cacheFor'), greaterThan(code.indexOf('await')));
+      expect(code, isNot(contains('return result')));
     });
   });
 
@@ -292,7 +325,9 @@ void main() {
     });
 
     test('single named returns record syntax', () {
-      final m = makeMethod(namedParams: [MyParamMeta('filter', 'String?', null)]);
+      final m = makeMethod(
+        namedParams: [MyParamMeta('filter', 'String?', null)],
+      );
       final info = buildRecordTypeAndDestructure(m);
       expect(info.recordType, '({String? filter})');
       expect(info.methodCall, 'filter: filter');

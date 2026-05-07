@@ -2,6 +2,12 @@
 
 Annotations used by `riverpod_for_serverpod_generator`.
 
+## Compatibility
+
+This package follows the Riverpod compatibility line used by the generator.
+Version `2.6.x` targets Riverpod `2.6.x`; Riverpod 3 support is planned for a
+separate branch/release line later.
+
 ## Available annotations
 
 ### `@CacheTtl`
