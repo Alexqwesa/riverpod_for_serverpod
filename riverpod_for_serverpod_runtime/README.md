@@ -14,6 +14,10 @@ Current primitives:
   `pendingSync`.
 - `CachedIndexRecord` tracks index ids, TTL, and cache version.
 - `MemoryGeneratedCacheStorage` is useful for tests and non-persistent demos.
+- `JsonGeneratedCacheStorage` stores cache records as JSON strings on top of a
+  simple `GeneratedKeyValueStorage`.
+- `MemoryGeneratedKeyValueStorage` is a test-friendly key-value backend for the
+  JSON adapter.
 
 `GeneratedEntityCache<T>` supports optional `maxItems` LRU eviction. Pending-sync
 records are not evicted automatically.

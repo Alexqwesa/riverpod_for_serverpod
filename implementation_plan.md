@@ -14,6 +14,7 @@ DONE:
   generatedEndpointManifest const map is emitted into generated Dart output
   manifest diagnostics warn about invalid or risky query/mutation annotation combinations
   runtime package exists with storage interface, memory storage, entity/index records, and entity cache
+  JSON cache storage adapter exists over string key-value storage
   generator package exists
   build_runner builder scans Serverpod Endpoint classes
   methods are guarded by Future return type + Session first parameter
@@ -1612,6 +1613,9 @@ Done:
 riverpod_for_serverpod_runtime package
 GeneratedCacheStorage
 MemoryGeneratedCacheStorage
+GeneratedKeyValueStorage
+MemoryGeneratedKeyValueStorage
+JsonGeneratedCacheStorage
 GeneratedEntityCache<T>
 CachedEntityRecord
 CachedIndexRecord
@@ -1630,6 +1634,7 @@ Implement:
 
 ```text
 storage adapter backed by persistent data
+Hive key-value adapter
 ```
 
 Tests:
