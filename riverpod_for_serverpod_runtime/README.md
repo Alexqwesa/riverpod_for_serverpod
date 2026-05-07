@@ -17,3 +17,7 @@ Current primitives:
 
 `GeneratedEntityCache<T>` supports optional `maxItems` LRU eviction. Pending-sync
 records are not evicted automatically.
+
+Cache records expose `toJson`/`fromJson` so persistent storage adapters can store
+records as JSON strings. Timestamps are encoded as ISO-8601 strings and TTL is
+encoded as microseconds.

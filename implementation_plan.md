@@ -1616,6 +1616,7 @@ GeneratedEntityCache<T>
 CachedEntityRecord
 CachedIndexRecord
 JSON encode/decode callbacks
+record toJson/fromJson serialization
 cache version support
 TTL freshness for indexes
   LRU eviction by maxItems
@@ -1639,6 +1640,7 @@ putList/readIndex
 LRU removes old records
 pendingSync records are not evicted
 cacheVersion mismatch ignores old record
+record JSON round trip
 ```
 
 ### Phase 3 — Query provider generation

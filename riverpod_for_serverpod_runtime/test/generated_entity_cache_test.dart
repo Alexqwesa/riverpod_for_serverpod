@@ -232,4 +232,52 @@ void main() {
       expect(await storage.readEntity('Role', '1'), isNotNull);
     });
   });
+
+  group('cache record JSON', () {
+    test('CachedEntityRecord round trips through JSON', () {
+      final record = CachedEntityRecord(
+        entityType: 'User',
+        id: '1',
+        json: const {
+          'id': 1,
+          'name': 'Alex',
+          'tags': ['admin', 'operator'],
+        },
+        updatedAt: DateTime.utc(2026, 1, 1, 12),
+        lastAccessedAt: DateTime.utc(2026, 1, 1, 13),
+        cacheVersion: 2,
+        pendingSync: true,
+      );
+
+      final restored = CachedEntityRecord.fromJson(record.toJson());
+
+      expect(restored.entityType, record.entityType);
+      expect(restored.id, record.id);
+      expect(restored.json, record.json);
+      expect(restored.updatedAt, record.updatedAt);
+      expect(restored.lastAccessedAt, record.lastAccessedAt);
+      expect(restored.cacheVersion, record.cacheVersion);
+      expect(restored.pendingSync, isTrue);
+    });
+
+    test('CachedIndexRecord round trips through JSON', () {
+      final record = CachedIndexRecord(
+        entityType: 'User',
+        indexKey: 'listUsersByRole(admin)',
+        ids: const ['1', '2'],
+        updatedAt: DateTime.utc(2026, 1, 1, 12),
+        ttl: const Duration(minutes: 3),
+        cacheVersion: 2,
+      );
+
+      final restored = CachedIndexRecord.fromJson(record.toJson());
+
+      expect(restored.entityType, record.entityType);
+      expect(restored.indexKey, record.indexKey);
+      expect(restored.ids, record.ids);
+      expect(restored.updatedAt, record.updatedAt);
+      expect(restored.ttl, record.ttl);
+      expect(restored.cacheVersion, record.cacheVersion);
+    });
+  });
 }

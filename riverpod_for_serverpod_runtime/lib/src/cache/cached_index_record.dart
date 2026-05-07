@@ -24,6 +24,28 @@ class CachedIndexRecord {
     return !updatedAt.add(ttl).isBefore(now);
   }
 
+  Map<String, Object?> toJson() {
+    return {
+      'entityType': entityType,
+      'indexKey': indexKey,
+      'ids': ids,
+      'updatedAt': updatedAt.toIso8601String(),
+      'ttlMicroseconds': ttl.inMicroseconds,
+      'cacheVersion': cacheVersion,
+    };
+  }
+
+  factory CachedIndexRecord.fromJson(Map<String, Object?> json) {
+    return CachedIndexRecord(
+      entityType: json['entityType']! as String,
+      indexKey: json['indexKey']! as String,
+      ids: List<String>.from(json['ids']! as List),
+      updatedAt: DateTime.parse(json['updatedAt']! as String),
+      ttl: Duration(microseconds: json['ttlMicroseconds']! as int),
+      cacheVersion: json['cacheVersion']! as int,
+    );
+  }
+
   static String storageKeyFor(String entityType, String indexKey) {
     return 'index/$entityType/$indexKey';
   }

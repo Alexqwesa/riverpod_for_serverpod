@@ -34,6 +34,30 @@ class CachedEntityRecord {
     );
   }
 
+  Map<String, Object?> toJson() {
+    return {
+      'entityType': entityType,
+      'id': id,
+      'json': json,
+      'updatedAt': updatedAt.toIso8601String(),
+      'lastAccessedAt': lastAccessedAt.toIso8601String(),
+      'cacheVersion': cacheVersion,
+      'pendingSync': pendingSync,
+    };
+  }
+
+  factory CachedEntityRecord.fromJson(Map<String, Object?> json) {
+    return CachedEntityRecord(
+      entityType: json['entityType']! as String,
+      id: json['id']! as String,
+      json: Map<String, Object?>.from(json['json']! as Map),
+      updatedAt: DateTime.parse(json['updatedAt']! as String),
+      lastAccessedAt: DateTime.parse(json['lastAccessedAt']! as String),
+      cacheVersion: json['cacheVersion']! as int,
+      pendingSync: json['pendingSync'] as bool? ?? false,
+    );
+  }
+
   static String storageKeyFor(String entityType, Object id) {
     return 'entity/$entityType/$id';
   }
