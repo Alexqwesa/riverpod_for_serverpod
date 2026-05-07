@@ -1618,6 +1618,8 @@ CachedIndexRecord
 JSON encode/decode callbacks
 cache version support
 TTL freshness for indexes
+  LRU eviction by maxItems
+  pendingSync records are not evicted
 runtime cache tests
 ```
 
@@ -1626,7 +1628,7 @@ Still open:
 Implement:
 
 ```text
-LRU eviction
+storage adapter backed by persistent data
 ```
 
 Tests:

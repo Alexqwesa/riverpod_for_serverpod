@@ -13,6 +13,7 @@ class GeneratedEntityCache<T> {
   final EntityIdReader<T> idOf;
   final EntityJsonWriter<T> toJson;
   final EntityJsonReader<T> fromJson;
+  final int? maxItems;
   final DateTime Function() now;
 
   const GeneratedEntityCache({
@@ -22,6 +23,7 @@ class GeneratedEntityCache<T> {
     required this.idOf,
     required this.toJson,
     required this.fromJson,
+    this.maxItems,
     DateTime Function()? now,
   }) : now = now ?? DateTime.now;
 
@@ -41,12 +43,16 @@ class GeneratedEntityCache<T> {
         pendingSync: pendingSync,
       ),
     );
+    await evictLeastRecentlyUsed();
   }
 
   Future<T?> getById(Object id) async {
     final record = await storage.readEntity(entityType, '$id');
     if (record == null || record.cacheVersion != cacheVersion) return null;
-    return fromJson(record.json);
+
+    final accessed = record.markAccessed(now());
+    await storage.writeEntity(accessed);
+    return fromJson(accessed.json);
   }
 
   Future<void> putList(
@@ -95,5 +101,33 @@ class GeneratedEntityCache<T> {
       entities.add(entity);
     }
     return entities;
+  }
+
+  Future<void> evictLeastRecentlyUsed() async {
+    final limit = maxItems;
+    if (limit == null) return;
+    if (limit < 1) {
+      throw ArgumentError.value(
+          limit, 'maxItems', 'maxItems must be at least 1.');
+    }
+
+    final records = await storage.readEntitiesByType(entityType);
+    final currentVersionRecords = [
+      for (final record in records)
+        if (record.cacheVersion == cacheVersion) record,
+    ];
+    if (currentVersionRecords.length <= limit) return;
+
+    final evictable = [
+      for (final record in currentVersionRecords)
+        if (!record.pendingSync) record,
+    ]..sort((a, b) => a.lastAccessedAt.compareTo(b.lastAccessedAt));
+
+    var overflow = currentVersionRecords.length - limit;
+    for (final record in evictable) {
+      if (overflow <= 0) break;
+      await storage.deleteEntity(entityType, record.id);
+      overflow--;
+    }
   }
 }

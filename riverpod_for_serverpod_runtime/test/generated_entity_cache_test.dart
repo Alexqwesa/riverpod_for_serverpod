@@ -44,10 +44,13 @@ void main() {
     });
 
     test('putList/readList stores entities and index', () async {
-      await cache.putList('listUsers', const [
-        TestUser(id: 1, name: 'Alex'),
-        TestUser(id: 2, name: 'Sam'),
-      ], ttl: const Duration(minutes: 3));
+      await cache.putList(
+          'listUsers',
+          const [
+            TestUser(id: 1, name: 'Alex'),
+            TestUser(id: 2, name: 'Sam'),
+          ],
+          ttl: const Duration(minutes: 3));
 
       final users = await cache.readList('listUsers');
 
@@ -56,9 +59,12 @@ void main() {
     });
 
     test('readList returns null when index is expired', () async {
-      await cache.putList('listUsers', const [
-        TestUser(id: 1, name: 'Alex'),
-      ], ttl: const Duration(minutes: 3));
+      await cache.putList(
+          'listUsers',
+          const [
+            TestUser(id: 1, name: 'Alex'),
+          ],
+          ttl: const Duration(minutes: 3));
 
       now = now.add(const Duration(minutes: 4));
 
@@ -68,9 +74,12 @@ void main() {
     test(
       'cacheVersion mismatch ignores old entity and index records',
       () async {
-        await cache.putList('listUsers', const [
-          TestUser(id: 1, name: 'Alex'),
-        ], ttl: const Duration(minutes: 3));
+        await cache.putList(
+            'listUsers',
+            const [
+              TestUser(id: 1, name: 'Alex'),
+            ],
+            ttl: const Duration(minutes: 3));
 
         final nextVersionCache = GeneratedEntityCache<TestUser>(
           storage: storage,
@@ -99,6 +108,72 @@ void main() {
       expect(record!.pendingSync, isTrue);
     });
 
+    test('evicts least recently used non-pending records over maxItems',
+        () async {
+      cache = GeneratedEntityCache<TestUser>(
+        storage: storage,
+        entityType: 'TestUser',
+        cacheVersion: 1,
+        maxItems: 2,
+        idOf: (user) => user.id,
+        toJson: (user) => user.toJson(),
+        fromJson: TestUser.fromJson,
+        now: () => now,
+      );
+
+      await cache.putOne(const TestUser(id: 1, name: 'Alex'));
+      now = now.add(const Duration(minutes: 1));
+      await cache.putOne(const TestUser(id: 2, name: 'Sam'));
+      now = now.add(const Duration(minutes: 1));
+      await cache.getById(1);
+      now = now.add(const Duration(minutes: 1));
+      await cache.putOne(const TestUser(id: 3, name: 'Taylor'));
+
+      expect(await cache.getById(1), isNotNull);
+      expect(await cache.getById(2), isNull);
+      expect(await cache.getById(3), isNotNull);
+    });
+
+    test('does not evict pendingSync records', () async {
+      cache = GeneratedEntityCache<TestUser>(
+        storage: storage,
+        entityType: 'TestUser',
+        cacheVersion: 1,
+        maxItems: 1,
+        idOf: (user) => user.id,
+        toJson: (user) => user.toJson(),
+        fromJson: TestUser.fromJson,
+        now: () => now,
+      );
+
+      await cache.putOne(
+        const TestUser(id: 1, name: 'Alex'),
+        pendingSync: true,
+      );
+      now = now.add(const Duration(minutes: 1));
+      await cache.putOne(const TestUser(id: 2, name: 'Sam'));
+
+      expect(await cache.getById(1), isNotNull);
+      expect(await cache.getById(2), isNull);
+    });
+
+    test('throws when maxItems is invalid during eviction', () async {
+      final invalidCache = GeneratedEntityCache<TestUser>(
+        storage: storage,
+        entityType: 'TestUser',
+        cacheVersion: 1,
+        maxItems: 0,
+        idOf: (user) => user.id,
+        toJson: (user) => user.toJson(),
+        fromJson: TestUser.fromJson,
+      );
+
+      expect(
+        () => invalidCache.putOne(const TestUser(id: 1, name: 'Alex')),
+        throwsArgumentError,
+      );
+    });
+
     test('throws when entity id is null', () async {
       final cacheWithNullId = GeneratedEntityCache<TestUser>(
         storage: storage,
@@ -125,6 +200,7 @@ void main() {
           id: '1',
           json: const {'id': 1},
           updatedAt: DateTime(2026),
+          lastAccessedAt: DateTime(2026),
           cacheVersion: 1,
         ),
       );
@@ -144,6 +220,7 @@ void main() {
           id: '1',
           json: const {'id': 1},
           updatedAt: DateTime(2026),
+          lastAccessedAt: DateTime(2026),
           cacheVersion: 1,
         ),
       );
