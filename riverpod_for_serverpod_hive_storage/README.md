@@ -11,3 +11,20 @@ final box = await Hive.openBox<String>('generated_cache');
 final keyValueStorage = HiveGeneratedKeyValueStorage(box);
 final cacheStorage = JsonGeneratedCacheStorage(keyValueStorage);
 ```
+
+Or use the setup helper:
+
+```dart
+final cacheStorage = await openHiveGeneratedCacheStorage(
+  boxName: 'generated_cache',
+);
+```
+
+For encrypted cache storage, pass a 32-byte Hive AES key:
+
+```dart
+final cacheStorage = await openHiveGeneratedCacheStorage(
+  boxName: 'generated_secure_cache',
+  encryptionKey: key,
+);
+```

@@ -16,6 +16,7 @@ DONE:
   runtime package exists with storage interface, memory storage, entity/index records, and entity cache
   JSON cache storage adapter exists over string key-value storage
   optional Hive storage adapter package exists for Box<String>
+  secure/encrypted Hive setup helpers exist
   generator package exists
   build_runner builder scans Serverpod Endpoint classes
   methods are guarded by Future return type + Session first parameter
@@ -1619,6 +1620,8 @@ MemoryGeneratedKeyValueStorage
 JsonGeneratedCacheStorage
 riverpod_for_serverpod_hive_storage package
 HiveGeneratedKeyValueStorage
+openHiveGeneratedCacheStorage
+openHiveGeneratedKeyValueStorage
 GeneratedEntityCache<T>
 CachedEntityRecord
 CachedIndexRecord
@@ -1636,8 +1639,8 @@ Still open:
 Implement:
 
 ```text
-storage adapter backed by persistent data
-secure/encrypted Hive setup helpers
+offline fallback
+retry queue integration
 ```
 
 Tests:
