@@ -4,20 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="working on version 3 for riverpod 3+">
-      <change afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/test/annotation_test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/riverpod_for_serverpod.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/riverpod_for_serverpod.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/implementation_plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/implementation_plan.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/lib/src/annotation.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/lib/src/annotation.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_field.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_field.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_variant.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_variant.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/pubspec.yaml" afterDir="false" />
-    </list>
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="Added parser metadata for future `@CachedQuery`, `@MutationCommand`, `Invalidate.*`, and validation annotations." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -86,7 +73,12 @@
     &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
 }</component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Dart Test.Tests in riverpod_for_serverpod_generator">
+    <configuration name="Tests in riverpod_for_serverpod_annotation" type="DartTestRunConfigurationType" factoryName="Dart Test" temporary="true" nameIsGenerated="true">
+      <option name="filePath" value="$PROJECT_DIR$/riverpod_for_serverpod_annotation" />
+      <option name="scope" value="FOLDER" />
+      <method v="2" />
+    </configuration>
     <configuration name="Tests in riverpod_for_serverpod_generator" type="DartTestRunConfigurationType" factoryName="Dart Test" temporary="true" nameIsGenerated="true">
       <option name="filePath" value="$PROJECT_DIR$/riverpod_for_serverpod_generator" />
       <option name="scope" value="FOLDER" />
@@ -95,6 +87,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Dart Test.Tests in riverpod_for_serverpod_generator" />
+        <item itemvalue="Dart Test.Tests in riverpod_for_serverpod_annotation" />
       </list>
     </recent_temporary>
   </component>
@@ -162,7 +155,23 @@
       <option name="project" value="LOCAL" />
       <updated>1778156257185</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="new annotations">
+      <option name="closed" value="true" />
+      <created>1778157311335</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1778157311335</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Added parser metadata for future `@CachedQuery`, `@MutationCommand`, `Invalidate.*`, and validation annotations.">
+      <option name="closed" value="true" />
+      <created>1778157853083</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1778157853083</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -182,6 +191,8 @@
     <MESSAGE value="working on new api" />
     <MESSAGE value="working on new api2" />
     <MESSAGE value="working on version 3 for riverpod 3+" />
-    <option name="LAST_COMMIT_MESSAGE" value="working on version 3 for riverpod 3+" />
+    <MESSAGE value="new annotations" />
+    <MESSAGE value="Added parser metadata for future `@CachedQuery`, `@MutationCommand`, `Invalidate.*`, and validation annotations." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added parser metadata for future `@CachedQuery`, `@MutationCommand`, `Invalidate.*`, and validation annotations." />
   </component>
 </project>

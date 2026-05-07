@@ -3,6 +3,7 @@
 - Migrated the generated provider output to the Riverpod `3.x` release line.
 - Disabled Riverpod 3's default automatic retry for generated endpoint providers with `retry: _noProviderRetry` so generation preserves explicit endpoint-call semantics until the planned retry queue is implemented.
 - Added parser metadata for future `@CachedQuery`, `@MutationCommand`, `Invalidate.*`, and validation annotations.
+- Added an internal endpoint manifest builder that scans Serverpod endpoint source and attaches query, mutation, invalidation, and validation metadata without changing generated provider output yet.
 - Documented that Riverpod `2.6.x` users should stay on the `2.6.x` package line/branch.
 
 ## 2.6.0

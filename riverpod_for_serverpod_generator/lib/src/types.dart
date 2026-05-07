@@ -123,6 +123,46 @@ class ValidateListMeta {
   });
 }
 
+class EndpointManifestMeta {
+  final List<EndpointManifestEntry> endpoints;
+
+  const EndpointManifestMeta(this.endpoints);
+}
+
+class EndpointManifestEntry {
+  final String name;
+  final List<MethodManifestEntry> methods;
+
+  const EndpointManifestEntry({
+    required this.name,
+    required this.methods,
+  });
+}
+
+class MethodManifestEntry {
+  final String name;
+  final String returnType;
+  final List<MyParamMeta> positionalParams;
+  final List<MyParamMeta> namedParams;
+  final CachedQueryMeta? cachedQuery;
+  final MutationCommandMeta? mutationCommand;
+  final List<ValidateStringMeta> validateStrings;
+  final List<ValidateNumberMeta> validateNumbers;
+  final List<ValidateListMeta> validateLists;
+
+  const MethodManifestEntry({
+    required this.name,
+    required this.returnType,
+    required this.positionalParams,
+    required this.namedParams,
+    this.cachedQuery,
+    this.mutationCommand,
+    this.validateStrings = const [],
+    this.validateNumbers = const [],
+    this.validateLists = const [],
+  });
+}
+
 class MyParamMeta {
   final String name;
   final String type; // e.g. 'int?', 'bool', 'String?'
