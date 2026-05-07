@@ -80,7 +80,8 @@ FutureProvider.autoDispose<$returnType>(
   (ref) async {
     $innerCode
     ${_successfulResultBody(m, returnType, clientField, '')}
-   }
+   },
+   retry: _noProviderRetry,
 )
 ''');
   });
@@ -105,6 +106,7 @@ FutureProvider.autoDispose
     $innerCode
     ${_successfulResultBody(m, returnType, clientField, p.name)}
     },
+    retry: _noProviderRetry,
 )
 ''');
   });
@@ -128,7 +130,8 @@ FutureProvider.autoDispose
   (ref, ${p.name}) async {
     $innerCode
     ${_successfulResultBody(m, returnType, clientField, '${p.name}: ${p.name}')}
-    }
+    },
+    retry: _noProviderRetry,
 )
 ''');
   });
@@ -157,6 +160,7 @@ FutureProvider.autoDispose.family<$returnType, $recordType>(
     $destructuredVars
     ${_successfulResultBody(m, returnType, clientField, methodCall)}
   },
+  retry: _noProviderRetry,
 )
 ''');
   });

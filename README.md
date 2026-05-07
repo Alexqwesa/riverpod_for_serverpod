@@ -15,9 +15,9 @@ Serverpod already generates a typed client. This package adds a Riverpod layer o
 
 ## Compatibility
 
-This line targets Riverpod `2.6.x`. Package versions are aligned with the supported Riverpod line, starting at `2.6.0`.
+This line targets Riverpod `3.x`. Package versions are aligned with the supported Riverpod line, starting at `3.0.0`.
 
-Riverpod 3 support is planned for a separate branch/release line later.
+For Riverpod `2.6.x`, use the `2.6.x` package line/branch.
 
 ## You Write
 
@@ -80,17 +80,21 @@ abstract class RefAdminEndpoint {
 
 `cacheFor` is called after the endpoint call succeeds, so failed requests are not kept alive as successful cached values.
 
+Generated endpoint providers also disable Riverpod 3's default automatic retry
+with `retry: _noProviderRetry`; explicit offline/retry behavior belongs in the
+future generated retry queue.
+
 ## Install
 
 In the Serverpod server package:
 
 ```yaml
 dependencies:
-  riverpod_for_serverpod_annotation: ^2.6.0
+  riverpod_for_serverpod_annotation: ^3.0.0
 
 dev_dependencies:
   build_runner: ^2.5.0
-  riverpod_for_serverpod_generator: ^2.6.0
+  riverpod_for_serverpod_generator: ^3.0.0
 ```
 
 Generate:

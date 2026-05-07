@@ -3,7 +3,7 @@
 ## Current repository status
 
 This plan describes the larger controller/offline-cache generator direction.
-The current repository has completed a smaller Riverpod 2.6 foundation:
+The current repository has completed a smaller Riverpod 3 foundation:
 
 ```text
 DONE:
@@ -18,7 +18,8 @@ DONE:
   @DoNotGenerate skip support
   auto-apply builder for dependent packages
   copy_ref_endpoints helper
-  README / NEW_README / MIT license / Riverpod 2.6 release-line notes
+  README / NEW_README / MIT license / Riverpod 3 release-line notes
+  Riverpod 3 provider auto-retry is explicitly disabled for generated endpoint providers
 
 NOT DONE YET:
   @CachedQuery / @MutationCommand future annotations
@@ -1488,7 +1489,7 @@ clear current user's secure cache on logout
 
 Status: DONE, compacted.
 
-Completed in the current Riverpod 2.6 foundation:
+Completed in the current Riverpod 3 foundation:
 
 ```text
 annotation package
@@ -1498,6 +1499,7 @@ Session-first-parameter safeguard
 generated static FutureProvider wrappers
 generated family providers for endpoint arguments
 generated TTL cache after successful calls
+Riverpod 3 retry: _noProviderRetry on generated endpoint providers
 generated invalidation hooks
 auto-applied builder with no required consumer build.yaml
 ```

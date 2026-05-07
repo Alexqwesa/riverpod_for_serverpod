@@ -5,8 +5,8 @@ Annotations used by `riverpod_for_serverpod_generator`.
 ## Compatibility
 
 This package follows the Riverpod compatibility line used by the generator.
-Version `2.6.x` targets Riverpod `2.6.x`; Riverpod 3 support is planned for a
-separate branch/release line later.
+Version `3.x` targets Riverpod `3.x`. For Riverpod `2.6.x`, use the `2.6.x`
+package line/branch.
 
 ## Available annotations
 

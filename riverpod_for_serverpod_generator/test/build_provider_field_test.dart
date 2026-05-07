@@ -115,6 +115,13 @@ void main() {
       expect(code, contains('FutureProvider.autoDispose<List<User>>'));
     });
 
+    test('disables Riverpod 3 automatic retry', () {
+      final m = makeMethod();
+      final field = buildZeroParamField(m, 'List<User>', '', 'user');
+      final code = field.assignment.toString();
+      expect(code, contains('retry: _noProviderRetry'));
+    });
+
     test('timeout suffix added when timeout is set', () {
       final m = MyMethodMeta(
         'getData',
@@ -183,6 +190,7 @@ void main() {
       final field = buildSinglePositionalField(m, 'User?', '', 'user');
       final code = field.assignment.toString();
       expect(code, contains('.family<User?, int>'));
+      expect(code, contains('retry: _noProviderRetry'));
     });
 
     test('nullable param type works correctly in assignment', () {

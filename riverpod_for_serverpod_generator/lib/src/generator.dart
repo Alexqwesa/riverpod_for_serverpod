@@ -210,6 +210,8 @@ final refUpdateAllGeneratedProviders = NotifierProvider<Counter, int>(
   Counter.new,
 );
 
+Duration? _noProviderRetry(int retryCount, Object error) => null;
+
 extension RefCacheForExtension on Ref {
   void cacheFor(Duration duration) {
     final link = keepAlive();

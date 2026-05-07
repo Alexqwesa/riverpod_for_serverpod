@@ -5,11 +5,13 @@ import 'package:test/test.dart';
 void main() {
   group('buildRecordValueArgs', () {
     test('empty parameters should return empty parentheses', () {
-      expect(buildRecordValueArgs(positional: [], namedPairs: []), equals('()'));
+      expect(
+          buildRecordValueArgs(positional: [], namedPairs: []), equals('()'));
     });
 
     test('single positional parameter should return with parentheses', () {
-      expect(buildRecordValueArgs(positional: ['arg1'], namedPairs: []), equals('(arg1)'));
+      expect(buildRecordValueArgs(positional: ['arg1'], namedPairs: []),
+          equals('(arg1)'));
     });
 
     test('multiple positional parameters should return with parentheses', () {
@@ -21,7 +23,8 @@ void main() {
 
     test('single named parameter should return with record syntax', () {
       expect(
-        buildRecordValueArgs(positional: [], namedPairs: [('filterFrom', 'filterFrom')]),
+        buildRecordValueArgs(
+            positional: [], namedPairs: [('filterFrom', 'filterFrom')]),
         equals('(filterFrom: filterFrom)'),
       );
     });
@@ -52,7 +55,8 @@ void main() {
 
     test('single positional with single named should return combined', () {
       expect(
-        buildRecordValueArgs(positional: ['arg1'], namedPairs: [('filterFrom', 'filterFrom')]),
+        buildRecordValueArgs(
+            positional: ['arg1'], namedPairs: [('filterFrom', 'filterFrom')]),
         equals('(arg1, filterFrom: filterFrom)'),
       );
     });
@@ -132,7 +136,9 @@ void main() {
       );
     });
 
-    test('defaultable parameters without takeCount should include all with defaults', () {
+    test(
+        'defaultable parameters without takeCount should include all with defaults',
+        () {
       final defaultable = [
         MyParamMeta('filterFrom', 'DateTime?', 'DateTime.now()'),
         MyParamMeta('filterTo', 'DateTime?', 'null'),
@@ -163,7 +169,8 @@ void main() {
           defaultableParams: defaultable,
           takeCount: 1,
         ),
-        equals('(userId, filterFrom: filterFrom, filterTo: filterTo, filterStates: null)'),
+        equals(
+            '(userId, filterFrom: filterFrom, filterTo: filterTo, filterStates: null)'),
       );
     });
 
@@ -182,7 +189,8 @@ void main() {
           defaultableParams: defaultable,
           takeCount: 3,
         ),
-        equals('(ref, filterFrom: filterFrom, filterTo: filterTo, filterStates: filterStates, filterTypes: filterTypes)'),
+        equals(
+            '(ref, filterFrom: filterFrom, filterTo: filterTo, filterStates: filterStates, filterTypes: filterTypes)'),
       );
     });
   });
@@ -231,6 +239,10 @@ void main() {
       ).toList();
       expect(variants.length, greaterThan(0));
       expect(variants.first.name, equals('getById0'));
+      expect(
+        variants.first.assignment.toString(),
+        contains('retry: _noProviderRetry'),
+      );
     });
 
     test('named params with defaults yields multiple variants', () {
@@ -255,14 +267,16 @@ void main() {
       expect(variants[2].name, equals('search2'));
     });
 
-    test('named params without defaults but nullable yields multiple variants', () {
+    test('named params without defaults but nullable yields multiple variants',
+        () {
       // Nullable params are isDefaultable, so they generate additional variants
       final m = makeMethod(
         name: 'search',
         returnType: 'Future<List<Item>>',
         namedParams: [
-          MyParamMeta('filterFrom', 'DateTime?', null), // nullable = defaultable
-          MyParamMeta('filterTo', 'DateTime?', null),   // nullable = defaultable
+          MyParamMeta(
+              'filterFrom', 'DateTime?', null), // nullable = defaultable
+          MyParamMeta('filterTo', 'DateTime?', null), // nullable = defaultable
         ],
       );
       final variants = buildProviderVariants(

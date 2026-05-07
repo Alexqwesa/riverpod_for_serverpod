@@ -4,23 +4,22 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="init">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/LICENSE" afterDir="false" />
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="working on new api2">
       <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/implementation_plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/implementation_plan.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/CHANGELOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/CHANGELOG.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/build.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/build.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_field.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_field.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_variant.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_variant.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/pubspec.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_field_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_field_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_variant_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_variant_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,8 +36,31 @@
     <option name="formatViaClangd" value="false" />
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Alexqwesa&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Alexqwesa/riverpod_for_serverpod.git&quot;,
+    &quot;accountId&quot;: &quot;aa010e3e-450c-455a-bfdf-f9fae697cb5a&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -49,24 +71,24 @@
     <option name="showLibraryContents" value="true" />
     <option name="showMembers" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Dart Test.Tests in riverpod_for_serverpod_generator.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/user/StudioProjects/riverpod_for_serverpod_3",
-    "show.migrate.to.gradle.popup": "false"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Dart Test.Tests in riverpod_for_serverpod_generator.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;for-riverpod-3&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/user/StudioProjects/riverpod_for_serverpod_3&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="Tests in riverpod_for_serverpod_generator" type="DartTestRunConfigurationType" factoryName="Dart Test" temporary="true" nameIsGenerated="true">
       <option name="filePath" value="$PROJECT_DIR$/riverpod_for_serverpod_generator" />
@@ -111,7 +133,31 @@
       <option name="project" value="LOCAL" />
       <updated>1777467203112</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="v2.6.0+">
+      <option name="closed" value="true" />
+      <created>1778123156864</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1778123156864</updated>
+    </task>
+    <task id="LOCAL-00005" summary="working on new api">
+      <option name="closed" value="true" />
+      <created>1778139118245</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1778139118245</updated>
+    </task>
+    <task id="LOCAL-00006" summary="working on new api2">
+      <option name="closed" value="true" />
+      <created>1778141056121</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1778141056121</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -127,6 +173,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init" />
-    <option name="LAST_COMMIT_MESSAGE" value="init" />
+    <MESSAGE value="v2.6.0+" />
+    <MESSAGE value="working on new api" />
+    <MESSAGE value="working on new api2" />
+    <option name="LAST_COMMIT_MESSAGE" value="working on new api2" />
   </component>
 </project>

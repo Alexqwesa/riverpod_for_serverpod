@@ -1,6 +1,6 @@
 name: riverpod_for_serverpod_generator
 description: Build-runner generator for Riverpod providers backed by Serverpod endpoints.
-version: 2.6.0
+version: 3.0.0
 # repository: https://github.com/my_org/my_repo
 
 environment:

@@ -10,10 +10,10 @@ usually copy that generated file into their `*_client` package as
 
 ## Compatibility
 
-This generator targets Riverpod `2.6.x`. Package versions are aligned with the
-supported Riverpod line, starting at `2.6.0`.
+This generator targets Riverpod `3.x`. Package versions are aligned with the
+supported Riverpod line, starting at `3.0.0`.
 
-Riverpod 3 support is planned for a separate branch/release line later.
+For Riverpod `2.6.x`, use the `2.6.x` package line/branch.
 
 ## What it generates
 
@@ -37,11 +37,11 @@ Add to server `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  riverpod_for_serverpod_annotation: ^2.6.0
+  riverpod_for_serverpod_annotation: ^3.0.0
 
 dev_dependencies:
   build_runner: ^2.5.0
-  riverpod_for_serverpod_generator: ^2.6.0
+  riverpod_for_serverpod_generator: ^3.0.0
 ```
 
 Annotate endpoint methods:
@@ -84,6 +84,9 @@ static final listRoles = FutureProvider.autoDispose<List<Role>>((ref) async {
 
 `ref.cacheFor(...)` is generated after the awaited client call, so only
 successful endpoint responses are kept alive.
+Generated endpoint providers also set `retry: _noProviderRetry` to disable
+Riverpod 3's default automatic retry; explicit offline/retry behavior belongs
+in the future generated retry queue.
 
 Generate:
 
@@ -133,7 +136,7 @@ Add to client `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  riverpod: ^2.6.1
+  riverpod: ^3.0.0
   serverpod_auth_client: 3.4.4
 ```
 

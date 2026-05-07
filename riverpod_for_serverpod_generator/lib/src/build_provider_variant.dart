@@ -69,13 +69,17 @@ Field _buildVariantField({
 }) {
   final vName = '$baseName$variantIndex';
 
-  final usedDefaultables =
-      takeCount != null ? defaultableParams.take(takeCount).toList() : <MyParamMeta>[];
+  final usedDefaultables = takeCount != null
+      ? defaultableParams.take(takeCount).toList()
+      : <MyParamMeta>[];
 
   // Should this provider be a `.family` (accept external args)?
   // Yes if we expose any positional/required/defaultable params as external args.
-  final shouldUseFamily =
-      [...positionalParams, ...requiredNamedParams, ...usedDefaultables].isNotEmpty;
+  final shouldUseFamily = [
+    ...positionalParams,
+    ...requiredNamedParams,
+    ...usedDefaultables
+  ].isNotEmpty;
 
   final (recordType, destructuredVars, callArgs) = _buildVariantParameters(
     positionalParams: positionalParams,
@@ -85,21 +89,22 @@ Field _buildVariantField({
     shouldUseFamily: shouldUseFamily,
   );
 
-  final providerCode =
-      shouldUseFamily
-          ? '''
+  final providerCode = shouldUseFamily
+      ? '''
 FutureProvider.autoDispose.family<$returnType, $recordType>(
   (ref, arg) {
     $destructuredVars
     return ref.watch($refClassName.${m.name}($callArgs).future);
   },
+  retry: _noProviderRetry,
 )
 '''
-          : '''
+      : '''
 FutureProvider.autoDispose<$returnType>(
   (ref) {
     return ref.watch($refClassName.${m.name}($callArgs).future);
   },
+  retry: _noProviderRetry,
 )
 ''';
 
@@ -112,7 +117,8 @@ FutureProvider.autoDispose<$returnType>(
   });
 }
 
-(String recordType, String destructuredVars, String callArgs) _buildVariantParameters({
+(String recordType, String destructuredVars, String callArgs)
+    _buildVariantParameters({
   required List<MyParamMeta> positionalParams,
   required List<MyParamMeta> requiredNamedParams,
   required List<MyParamMeta> defaultableParams,
@@ -132,9 +138,14 @@ FutureProvider.autoDispose<$returnType>(
     return ('void', '', callArgs);
   }
 
-  final usedDefaultables =
-      takeCount != null ? defaultableParams.take(takeCount).toList() : <MyParamMeta>[];
-  final allUsedParams = [...positionalParams, ...requiredNamedParams, ...usedDefaultables];
+  final usedDefaultables = takeCount != null
+      ? defaultableParams.take(takeCount).toList()
+      : <MyParamMeta>[];
+  final allUsedParams = [
+    ...positionalParams,
+    ...requiredNamedParams,
+    ...usedDefaultables
+  ];
 
   // Single parameter case – no record wrapping for the arg
   if (allUsedParams.length == 1) {
@@ -181,9 +192,14 @@ String _buildRecordType({
   required List<MyParamMeta> defaultableParams,
   required int? takeCount,
 }) {
-  final usedDefaultables =
-      takeCount != null ? defaultableParams.take(takeCount).toList() : <MyParamMeta>[];
-  final allUsedParams = [...positionalParams, ...requiredNamedParams, ...usedDefaultables];
+  final usedDefaultables = takeCount != null
+      ? defaultableParams.take(takeCount).toList()
+      : <MyParamMeta>[];
+  final allUsedParams = [
+    ...positionalParams,
+    ...requiredNamedParams,
+    ...usedDefaultables
+  ];
 
   // Single parameter case handled in _buildVariantParameters
   if (allUsedParams.length == 1) {
@@ -207,9 +223,14 @@ String _buildDestructuringCode({
   required List<MyParamMeta> defaultableParams,
   required int? takeCount,
 }) {
-  final usedDefaultables =
-      takeCount != null ? defaultableParams.take(takeCount).toList() : <MyParamMeta>[];
-  final allUsedParams = [...positionalParams, ...requiredNamedParams, ...usedDefaultables];
+  final usedDefaultables = takeCount != null
+      ? defaultableParams.take(takeCount).toList()
+      : <MyParamMeta>[];
+  final allUsedParams = [
+    ...positionalParams,
+    ...requiredNamedParams,
+    ...usedDefaultables
+  ];
 
   // Single parameter case handled in _buildVariantParameters
   if (allUsedParams.length == 1) {
@@ -223,10 +244,9 @@ String _buildDestructuringCode({
     for (final p in usedDefaultables) '${p.name}: ${p.name}',
   ].join(', ');
 
-  final destructuringPattern =
-      positionalParams.isEmpty
-          ? '($namedDestruct)'
-          : '($posNames${namedDestruct.isEmpty ? '' : ', $namedDestruct'})';
+  final destructuringPattern = positionalParams.isEmpty
+      ? '($namedDestruct)'
+      : '($posNames${namedDestruct.isEmpty ? '' : ', $namedDestruct'})';
 
   return 'final $destructuringPattern = arg;';
 }
@@ -238,8 +258,9 @@ String buildCallArgs({
   required int? takeCount,
 }) {
   // Which defaultables are explicitly used as *variables* (chosen via takeCount)
-  final usedDefaultables =
-      takeCount != null ? defaultableParams.take(takeCount).toList() : <MyParamMeta>[];
+  final usedDefaultables = takeCount != null
+      ? defaultableParams.take(takeCount).toList()
+      : <MyParamMeta>[];
 
   // Positional names
   final posNames = <String>[for (final p in positionalParams) p.name];
