@@ -8,6 +8,7 @@ The current repository has completed a smaller Riverpod 3 foundation:
 ```text
 DONE:
   annotation package exists
+  future annotation API exists for @CachedQuery / @MutationCommand / validation metadata
   generator package exists
   build_runner builder scans Serverpod Endpoint classes
   methods are guarded by Future return type + Session first parameter
@@ -22,7 +23,7 @@ DONE:
   Riverpod 3 provider auto-retry is explicitly disabled for generated endpoint providers
 
 NOT DONE YET:
-  @CachedQuery / @MutationCommand future annotations
+  generator parsing for @CachedQuery / @MutationCommand future annotations
   runtime entity/index cache
   Hive storage adapter
   offline fallback
@@ -1511,6 +1512,34 @@ Deferred from the larger plan:
 @MutationCommand
 frontend runtime cache
 mutation command controllers
+```
+
+### Phase 0.5 — Future annotation API
+
+Status: DONE.
+
+Completed:
+
+```text
+@CachedQuery
+@MutationCommand
+Invalidate.all / Invalidate.family
+CacheMergePolicy
+OptimisticPolicy
+RetryPolicy
+RefetchPolicy
+DialogPolicy
+@ValidateString
+@ValidateNumber
+@ValidateList
+annotation package tests
+```
+
+Still open:
+
+```text
+read these annotations in the generator manifest phase
+emit diagnostics for invalid annotation combinations
 ```
 
 ### Phase 1 — Manifest generator

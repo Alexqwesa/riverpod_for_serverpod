@@ -6,6 +6,9 @@
       <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_generator/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_generator/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_generator/build" />
+      <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_annotation/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_annotation/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/riverpod_for_serverpod_annotation/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

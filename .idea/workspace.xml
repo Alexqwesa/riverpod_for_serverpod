@@ -4,22 +4,19 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="working on new api2">
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="working on version 3 for riverpod 3+">
+      <change afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/test/annotation_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/riverpod_for_serverpod.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/riverpod_for_serverpod.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/implementation_plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/implementation_plan.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/CHANGELOG.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/lib/src/annotation.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/lib/src/annotation.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_field.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_field.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_variant.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_variant.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_field_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_field_test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_variant_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_variant_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -157,7 +154,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778141056121</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="working on version 3 for riverpod 3+">
+      <option name="closed" value="true" />
+      <created>1778156257185</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1778156257185</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -176,6 +181,7 @@
     <MESSAGE value="v2.6.0+" />
     <MESSAGE value="working on new api" />
     <MESSAGE value="working on new api2" />
-    <option name="LAST_COMMIT_MESSAGE" value="working on new api2" />
+    <MESSAGE value="working on version 3 for riverpod 3+" />
+    <option name="LAST_COMMIT_MESSAGE" value="working on version 3 for riverpod 3+" />
   </component>
 </project>
