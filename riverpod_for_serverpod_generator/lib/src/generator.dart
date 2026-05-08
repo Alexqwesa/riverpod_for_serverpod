@@ -8,6 +8,7 @@ import 'package:dart_style/dart_style.dart';
 import 'package:glob/glob.dart';
 import 'package:recase/recase.dart';
 import 'package:riverpod_for_serverpod_generator/src/ast_helpers.dart';
+import 'package:riverpod_for_serverpod_generator/src/build_cached_query_notifier.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_mutation_command.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_field.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_variant.dart';
@@ -255,6 +256,28 @@ extension RefCacheForExtension on Ref {
 }
 '''),
     );
+
+    for (final endpoint in endpoints) {
+      final clientField = _clientFieldName(endpoint.name);
+      for (final method
+          in endpoint.methods.where((m) => m.mutationCommand == null)) {
+        final rawReturn = method.returnType;
+        final unwrappedReturnType =
+            rawReturn.startsWith('Future<') && rawReturn.endsWith('>')
+                ? rawReturn.substring(7, rawReturn.length - 1)
+                : rawReturn;
+        final notifierSrc = buildCachedQueryNotifierSource(
+          m: method,
+          clientField: clientField,
+          returnType: unwrappedReturnType,
+          host: swrNotifierHostParams(method),
+          refWatchBlock: _providerWatchesCode,
+        );
+        if (notifierSrc != null) {
+          b.body.add(Code(notifierSrc));
+        }
+      }
+    }
 
     b.body.addAll(
       endpoints.map((endpoint) {

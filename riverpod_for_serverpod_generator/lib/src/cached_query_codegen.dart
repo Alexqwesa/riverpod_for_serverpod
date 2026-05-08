@@ -47,6 +47,17 @@ CachedQueryReturnShape? parseCachedQueryReturnType(String unwrappedReturnType) {
   );
 }
 
+/// When true, emit an [AsyncNotifier] with stale-while-revalidate (cached hit +
+/// background refresh) instead of a [FutureProvider].
+bool useCachedQueryAsyncNotifierSwr(
+  MyMethodMeta m,
+  String unwrappedReturnType,
+) {
+  final cq = m.cachedQuery;
+  if (cq == null || !cq.backgroundRefresh) return false;
+  return parseCachedQueryReturnType(unwrappedReturnType) != null;
+}
+
 String cachedQueryStorageProviderName(CachedQueryMeta cq) => cq.secure
     ? 'generatedSecureCacheStorageProvider'
     : 'generatedCacheStorageProvider';
@@ -74,16 +85,36 @@ String cachedQueryIndexKeyExpression(MyMethodMeta m) {
   return "r'$prefix' + ':' + jsonEncode([${parts.join(', ')}])";
 }
 
+String buildEntityCacheOpen({
+  required MyMethodMeta m,
+  required CachedQueryReturnShape shape,
+  required String storageAsyncPrefix,
+}) {
+  final cq = m.cachedQuery!;
+  final storage = cachedQueryStorageProviderName(cq);
+  final indexKeyExpr = cachedQueryIndexKeyExpression(m);
+  return '''
+    final storage = await $storageAsyncPrefix$storage.future);
+    final cache = GeneratedEntityCache<${shape.elementType}>(
+      storage: storage,
+      entityType: r'${cq.entity}',
+      cacheVersion: ${cq.cacheVersion},
+      idOf: (e) => e.${cq.idField},
+      toJson: (e) => Map<String, Object?>.from(e.toJson()),
+      fromJson: ${shape.elementType}.fromJson,
+      maxItems: ${cq.maxItems},
+    );
+    final indexKey = $indexKeyExpr;
+''';
+}
+
 String buildCachedQueryBlock({
   required MyMethodMeta m,
   required CachedQueryReturnShape shape,
   required String clientCallAwaitResult,
   required String cacheForLine,
 }) {
-  final cq = m.cachedQuery!;
-  final storage = cachedQueryStorageProviderName(cq);
-  final indexKeyExpr = cachedQueryIndexKeyExpression(m);
-  final ttlExpr = cq.ttl;
+  final ttlExpr = m.cachedQuery!.ttl;
 
   final readHit = shape.isList
       ? '''
@@ -111,19 +142,14 @@ String buildCachedQueryBlock({
 '''
           : 'await cache.putList(indexKey, [result], ttl: $ttlExpr);';
 
+  final open = buildEntityCacheOpen(
+    m: m,
+    shape: shape,
+    storageAsyncPrefix: 'ref.watch(',
+  );
+
   return '''
-    final storage = await ref.watch($storage.future);
-    final cache = GeneratedEntityCache<${shape.elementType}>(
-      storage: storage,
-      entityType: r'${cq.entity}',
-      cacheVersion: ${cq.cacheVersion},
-      idOf: (e) => e.${cq.idField},
-      toJson: (e) => Map<String, Object?>.from(e.toJson()),
-      fromJson: ${shape.elementType}.fromJson,
-      maxItems: ${cq.maxItems},
-    );
-    final indexKey = $indexKeyExpr;
-$readHit
+$open$readHit
     $clientCallAwaitResult
     $putBlock
 ''';

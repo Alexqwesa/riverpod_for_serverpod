@@ -1,4 +1,5 @@
 import 'package:code_builder/code_builder.dart';
+import 'package:riverpod_for_serverpod_generator/src/build_cached_query_notifier.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_field.dart';
 import 'package:riverpod_for_serverpod_generator/src/types.dart';
 import 'package:test/test.dart';
@@ -122,7 +123,7 @@ void main() {
       expect(code, contains('retry: _noProviderRetry'));
     });
 
-    test('CachedQuery providers use entity cache read/put', () {
+    test('CachedQuery with backgroundRefresh uses AsyncNotifier SWR', () {
       final m = MyMethodMeta(
         'listRoles',
         'Future<List<Role>>',
@@ -135,17 +136,47 @@ void main() {
       );
       final field = buildZeroParamField(m, 'List<Role>', '', 'admin');
       final code = field.assignment.toString();
-      expect(code, contains('GeneratedEntityCache<Role>'));
-      expect(code, contains('generatedCacheStorageProvider'));
-      expect(code, contains('readList(indexKey)'));
-      expect(code, contains('putList(indexKey, result'));
-      expect(code, contains('try {'));
-      expect(code, contains('refreshWarningProvider'));
-      expect(code, contains("sourceKey: r'RefAdminEndpoint.listRoles'"));
-      expect(code, contains('rethrow'));
+      expect(code, contains('AsyncNotifierProvider.autoDispose'));
+      expect(code, contains('_RefAdminEndpoint_ListRolesCachedReadNotifier'));
+
+      final src = buildCachedQueryNotifierSource(
+        m: m,
+        clientField: 'admin',
+        returnType: 'List<Role>',
+        host: swrNotifierHostParams(m),
+        refWatchBlock: 'ref.ignore();',
+      )!;
+      expect(src, contains('GeneratedEntityCache<Role>'));
+      expect(src, contains('generatedCacheStorageProvider'));
+      expect(src, contains('readList(indexKey)'));
+      expect(src, contains('putList(indexKey, result'));
+      expect(src, contains('Future.microtask'));
+      expect(src, contains('AsyncData(fresh)'));
+      expect(src, contains('refreshWarningProvider'));
+      expect(src, contains("sourceKey: r'RefAdminEndpoint.listRoles'"));
     });
 
-    test('CachedQuery secure uses secure storage provider', () {
+    test('CachedQuery backgroundRefresh false keeps FutureProvider cache path', () {
+      final m = MyMethodMeta(
+        'listRoles',
+        'Future<List<Role>>',
+        [],
+        [],
+        false,
+        false,
+        innerProviderName: 'RefAdminEndpoint',
+        cachedQuery:
+            const CachedQueryMeta(entity: 'Role', backgroundRefresh: false),
+      );
+      final field = buildZeroParamField(m, 'List<Role>', '', 'admin');
+      final code = field.assignment.toString();
+      expect(code, contains('FutureProvider.autoDispose'));
+      expect(code, contains('GeneratedEntityCache<Role>'));
+      expect(code, contains('try {'));
+      expect(code, contains('refreshWarningProvider'));
+    });
+
+    test('CachedQuery secure SWR notifier reads secure storage', () {
       final m = MyMethodMeta(
         'listRoles',
         'Future<List<Role>>',
@@ -156,11 +187,21 @@ void main() {
         innerProviderName: 'RefAdminEndpoint',
         cachedQuery: const CachedQueryMeta(entity: 'Role', secure: true),
       );
-      final field = buildZeroParamField(m, 'List<Role>', '', 'admin');
-      final code = field.assignment.toString();
-      expect(code, contains('generatedSecureCacheStorageProvider'));
+      expect(
+        buildZeroParamField(m, 'List<Role>', '', 'admin')
+            .assignment
+            .toString(),
+        contains('AsyncNotifierProvider'),
+      );
+      final src = buildCachedQueryNotifierSource(
+        m: m,
+        clientField: 'admin',
+        returnType: 'List<Role>',
+        host: swrNotifierHostParams(m),
+        refWatchBlock: '',
+      )!;
+      expect(src, contains('generatedSecureCacheStorageProvider'));
     });
-
     test('timeout suffix added when timeout is set', () {
       final m = MyMethodMeta(
         'getData',

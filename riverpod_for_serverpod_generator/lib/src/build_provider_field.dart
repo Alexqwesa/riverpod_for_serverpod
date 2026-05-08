@@ -1,4 +1,5 @@
 import 'package:code_builder/code_builder.dart';
+import 'package:riverpod_for_serverpod_generator/src/build_cached_query_notifier.dart';
 import 'package:riverpod_for_serverpod_generator/src/cached_query_codegen.dart';
 import 'package:riverpod_for_serverpod_generator/src/types.dart';
 
@@ -109,6 +110,21 @@ Field buildZeroParamField(
   String innerCode,
   String clientField,
 ) {
+  if (useCachedQueryAsyncNotifierSwr(m, returnType)) {
+    final cn = cachedReadNotifierClassName(m);
+    return Field((mb) {
+      mb
+        ..static = true
+        ..modifier = FieldModifier.final$
+        ..name = m.name
+        ..assignment = Code('''
+AsyncNotifierProvider.autoDispose<$cn, $returnType>(
+  $cn.new,
+  retry: _noProviderRetry,
+)
+''');
+    });
+  }
   return Field((mb) {
     mb
       ..static = true
@@ -133,6 +149,22 @@ Field buildSinglePositionalField(
   String clientField,
 ) {
   final p = m.positionalParams.first;
+  if (useCachedQueryAsyncNotifierSwr(m, returnType)) {
+    final cn = cachedReadNotifierClassName(m);
+    return Field((mb) {
+      mb
+        ..static = true
+        ..modifier = FieldModifier.final$
+        ..name = m.name
+        ..assignment = Code('''
+AsyncNotifierProvider.family
+    .autoDispose<$cn, $returnType, ${p.type}>(
+  $cn.new,
+  retry: _noProviderRetry,
+)
+''');
+    });
+  }
   return Field((mb) {
     mb
       ..static = true
@@ -158,6 +190,22 @@ Field buildSingleNamedField(
   String clientField,
 ) {
   final p = m.namedParams.first;
+  if (useCachedQueryAsyncNotifierSwr(m, returnType)) {
+    final cn = cachedReadNotifierClassName(m);
+    return Field((mb) {
+      mb
+        ..static = true
+        ..modifier = FieldModifier.final$
+        ..name = m.name
+        ..assignment = Code('''
+AsyncNotifierProvider.family
+    .autoDispose<$cn, $returnType, ${p.type}>(
+  $cn.new,
+  retry: _noProviderRetry,
+)
+''');
+    });
+  }
   return Field((mb) {
     mb
       ..static = true
@@ -186,6 +234,24 @@ Field buildMixedOrMultiParamField(
   final recordType = paramInfo.recordType;
   final destructuredVars = paramInfo.destructuredVars;
   final methodCall = paramInfo.methodCall;
+
+  if (useCachedQueryAsyncNotifierSwr(m, returnType)) {
+    final cn = cachedReadNotifierClassName(m);
+    final argT = _swrFamilyArgType(m);
+    return Field((mb) {
+      mb
+        ..static = true
+        ..modifier = FieldModifier.final$
+        ..name = m.name
+        ..assignment = Code('''
+AsyncNotifierProvider.family
+    .autoDispose<$cn, $returnType, $argT>(
+  $cn.new,
+  retry: _noProviderRetry,
+)
+''');
+    });
+  }
 
   return Field((mb) {
     mb
@@ -256,4 +322,55 @@ ParamInfo buildRecordTypeAndDestructure(MyMethodMeta m) {
   final methodCall = methodCallParams.join(', ');
 
   return ParamInfo(recordType, destructuredVars, methodCall);
+}
+
+/// SWR = Stale While Revalidate.
+SwrNotifierHostParams swrNotifierHostParams(MyMethodMeta m) {
+  if (!m.hasPositionalParams && !m.hasNamedParams) {
+    return const SwrNotifierHostParams(
+      instanceFields: '',
+      constructorParams: '',
+      buildParamPrelude: '',
+      rpcArgs: '',
+    );
+  }
+  if (m.positionalParams.length == 1 && m.namedParams.isEmpty) {
+    final p = m.positionalParams.first;
+    return SwrNotifierHostParams(
+      instanceFields: 'final ${p.type} ${p.name};',
+      constructorParams: 'this.${p.name}',
+      buildParamPrelude: '',
+      rpcArgs: p.name,
+    );
+  }
+  if (m.namedParams.length == 1 && m.positionalParams.isEmpty) {
+    final p = m.namedParams.first;
+    return SwrNotifierHostParams(
+      instanceFields: 'final ${p.type} ${p.name};',
+      constructorParams: 'this.${p.name}',
+      buildParamPrelude: '',
+      rpcArgs: '${p.name}: ${p.name}',
+    );
+  }
+  final pi = buildRecordTypeAndDestructure(m);
+  return SwrNotifierHostParams(
+    instanceFields: 'final ${pi.recordType} _args;',
+    constructorParams: 'this._args',
+    buildParamPrelude:
+        '${pi.destructuredVars.replaceAll('= args;', '= _args;')}\n',
+    rpcArgs: pi.methodCall,
+  );
+}
+
+String _swrFamilyArgType(MyMethodMeta m) {
+  if (!m.hasPositionalParams && !m.hasNamedParams) {
+    throw StateError('SWR family arg type requires parameters');
+  }
+  if (m.positionalParams.length == 1 && m.namedParams.isEmpty) {
+    return m.positionalParams.first.type;
+  }
+  if (m.namedParams.length == 1 && m.positionalParams.isEmpty) {
+    return m.namedParams.first.type;
+  }
+  return buildRecordTypeAndDestructure(m).recordType;
 }

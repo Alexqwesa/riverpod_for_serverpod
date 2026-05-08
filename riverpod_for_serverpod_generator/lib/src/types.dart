@@ -16,6 +16,21 @@ class ParamInfo {
   // }
 }
 
+/// Constructor and argument wiring for generated [@CachedQuery] SWR [AsyncNotifier]s.
+class SwrNotifierHostParams {
+  final String instanceFields;
+  final String constructorParams;
+  final String buildParamPrelude;
+  final String rpcArgs;
+
+  const SwrNotifierHostParams({
+    required this.instanceFields,
+    required this.constructorParams,
+    required this.buildParamPrelude,
+    required this.rpcArgs,
+  });
+}
+
 class CachedQueryMeta {
   final String entity;
   final String idField;

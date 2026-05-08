@@ -32,9 +32,10 @@ DONE:
   Riverpod 3 provider auto-retry is explicitly disabled for generated endpoint providers
   generated command helpers run ValidateString / ValidateNumber / ValidateList before RPC (runtime helpers)
   generated @CachedQuery read providers use GeneratedEntityCache (readList on fresh index; putList after successful fetch; index key from provider id + json-encoded args; secure flag selects storage provider)
+  @CachedQuery with backgroundRefresh (default true): autoDispose AsyncNotifier SWR — return fresh cache immediately, Future.microtask background revalidation, AsyncData refresh, refresh failures to refreshWarningProvider without failing the cached load
+  @CachedQuery with backgroundRefresh: false keeps FutureProvider + inline cache read/put (no background microtask)
 
 NOT DONE YET:
-  AsyncNotifier stale-while-revalidate + background refresh for @CachedQuery (plan §9.2)
   mutation command controllers (generated)
   persisted retry queue / warning aggregator wiring
   secure cache runtime
