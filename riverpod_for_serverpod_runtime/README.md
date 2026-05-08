@@ -22,7 +22,9 @@ Current primitives:
   JSON adapter.
 
 `GeneratedEntityCache<T>` supports optional `maxItems` LRU eviction. Pending-sync
-records are not evicted automatically.
+records are not evicted automatically. List reads return only fresh indexes by
+default, and can opt into stale reads with `allowStale: true` or
+`readStaleList()` for offline fallback after a refresh fails.
 
 Cache records expose `toJson`/`fromJson` so persistent storage adapters can store
 records as JSON strings. Timestamps are encoded as ISO-8601 strings and TTL is

@@ -71,6 +71,55 @@ void main() {
       expect(await cache.readList('listUsers'), isNull);
     });
 
+    test('readList can opt into stale offline fallback', () async {
+      await cache.putList(
+          'listUsers',
+          const [
+            TestUser(id: 1, name: 'Alex'),
+            TestUser(id: 2, name: 'Sam'),
+          ],
+          ttl: const Duration(minutes: 3));
+
+      now = now.add(const Duration(minutes: 4));
+
+      final users = await cache.readList('listUsers', allowStale: true);
+
+      expect(users, isNotNull);
+      expect(users!.map((user) => user.name), ['Alex', 'Sam']);
+    });
+
+    test('readStaleList reads expired indexes as offline fallback', () async {
+      await cache.putList(
+          'listUsers',
+          const [
+            TestUser(id: 1, name: 'Alex'),
+          ],
+          ttl: const Duration(minutes: 3));
+
+      now = now.add(const Duration(minutes: 4));
+
+      final users = await cache.readStaleList('listUsers');
+
+      expect(users, isNotNull);
+      expect(users!.single.name, 'Alex');
+    });
+
+    test(
+        'stale offline fallback returns null when an indexed entity is missing',
+        () async {
+      await cache.putList(
+          'listUsers',
+          const [
+            TestUser(id: 1, name: 'Alex'),
+            TestUser(id: 2, name: 'Sam'),
+          ],
+          ttl: const Duration(minutes: 3));
+      await storage.deleteEntity('TestUser', '2');
+      now = now.add(const Duration(minutes: 4));
+
+      expect(await cache.readStaleList('listUsers'), isNull);
+    });
+
     test(
       'cacheVersion mismatch ignores old entity and index records',
       () async {

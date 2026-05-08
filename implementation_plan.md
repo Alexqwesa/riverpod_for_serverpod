@@ -1633,6 +1633,7 @@ JSON encode/decode callbacks
 record toJson/fromJson serialization
 cache version support
 TTL freshness for indexes
+  offline fallback reads for stale indexes
   LRU eviction by maxItems
   pendingSync records are not evicted
 runtime cache tests
@@ -1643,7 +1644,6 @@ Still open:
 Implement:
 
 ```text
-offline fallback
 retry queue integration
 ```
 
@@ -1655,6 +1655,8 @@ putList/readIndex
 LRU removes old records
 pendingSync records are not evicted
 cacheVersion mismatch ignores old record
+stale fallback returns expired index records
+stale fallback returns null when indexed entity is missing
 record JSON round trip
 ```
 

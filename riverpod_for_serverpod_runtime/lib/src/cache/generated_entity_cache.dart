@@ -86,11 +86,14 @@ class GeneratedEntityCache<T> {
     );
   }
 
-  Future<List<T>?> readList(String indexKey) async {
+  Future<List<T>?> readList(
+    String indexKey, {
+    bool allowStale = false,
+  }) async {
     final index = await storage.readIndex(entityType, indexKey);
     if (index == null ||
         index.cacheVersion != cacheVersion ||
-        !index.isFresh(now())) {
+        (!allowStale && !index.isFresh(now()))) {
       return null;
     }
 
@@ -101,6 +104,10 @@ class GeneratedEntityCache<T> {
       entities.add(entity);
     }
     return entities;
+  }
+
+  Future<List<T>?> readStaleList(String indexKey) {
+    return readList(indexKey, allowStale: true);
   }
 
   Future<void> evictLeastRecentlyUsed() async {
