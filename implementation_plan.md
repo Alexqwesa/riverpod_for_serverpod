@@ -30,13 +30,14 @@ DONE:
   copy_ref_endpoints helper
   README / NEW_README / MIT license / Riverpod 3 release-line notes
   Riverpod 3 provider auto-retry is explicitly disabled for generated endpoint providers
+  generated command helpers run ValidateString / ValidateNumber / ValidateList before RPC (runtime helpers)
+  generated @CachedQuery read providers use GeneratedEntityCache (readList on fresh index; putList after successful fetch; index key from provider id + json-encoded args; secure flag selects storage provider)
 
 NOT DONE YET:
-  runtime entity/index cache (generated wiring to providers)
+  AsyncNotifier stale-while-revalidate + background refresh for @CachedQuery (plan §9.2)
   mutation command controllers (generated)
   persisted retry queue / warning aggregator wiring
   secure cache runtime
-  validation execution in generated commands
 ```
 
 Current package names are still:

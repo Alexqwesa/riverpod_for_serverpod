@@ -122,7 +122,7 @@ void main() {
       expect(code, contains('retry: _noProviderRetry'));
     });
 
-    test('wraps CachedQuery providers in refresh warning reporting', () {
+    test('CachedQuery providers use entity cache read/put', () {
       final m = MyMethodMeta(
         'listRoles',
         'Future<List<Role>>',
@@ -135,13 +135,30 @@ void main() {
       );
       final field = buildZeroParamField(m, 'List<Role>', '', 'admin');
       final code = field.assignment.toString();
+      expect(code, contains('GeneratedEntityCache<Role>'));
+      expect(code, contains('generatedCacheStorageProvider'));
+      expect(code, contains('readList(indexKey)'));
+      expect(code, contains('putList(indexKey, result'));
       expect(code, contains('try {'));
       expect(code, contains('refreshWarningProvider'));
-      expect(
-        code,
-        contains("sourceKey: r'RefAdminEndpoint.listRoles'"),
-      );
+      expect(code, contains("sourceKey: r'RefAdminEndpoint.listRoles'"));
       expect(code, contains('rethrow'));
+    });
+
+    test('CachedQuery secure uses secure storage provider', () {
+      final m = MyMethodMeta(
+        'listRoles',
+        'Future<List<Role>>',
+        [],
+        [],
+        false,
+        false,
+        innerProviderName: 'RefAdminEndpoint',
+        cachedQuery: const CachedQueryMeta(entity: 'Role', secure: true),
+      );
+      final field = buildZeroParamField(m, 'List<Role>', '', 'admin');
+      final code = field.assignment.toString();
+      expect(code, contains('generatedSecureCacheStorageProvider'));
     });
 
     test('timeout suffix added when timeout is set', () {

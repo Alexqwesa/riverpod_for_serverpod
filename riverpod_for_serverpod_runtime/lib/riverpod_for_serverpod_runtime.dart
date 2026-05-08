@@ -13,3 +13,4 @@ export 'src/retry/connection_failure.dart';
 export 'src/retry/in_memory_mutation_retry_queue.dart';
 export 'src/warnings/refresh_warning_state.dart';
 export 'src/warnings/refresh_warning_notifier.dart';
+export 'src/validation/generated_command_validation.dart';

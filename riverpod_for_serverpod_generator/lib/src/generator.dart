@@ -120,6 +120,9 @@ class RefEndpointBuilder implements Builder {
               includeSelfInHook: extractInvalidateIncludesSelf(member),
               cachedQuery: extractCachedQueryMeta(member),
               mutationCommand: extractMutationCommandMeta(member),
+              validateStrings: extractValidateStringMeta(member),
+              validateNumbers: extractValidateNumberMeta(member),
+              validateLists: extractValidateListMeta(member),
             ),
           );
         }

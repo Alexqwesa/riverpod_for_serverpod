@@ -1,4 +1,5 @@
 import 'package:code_builder/code_builder.dart';
+import 'package:riverpod_for_serverpod_generator/src/cached_query_codegen.dart';
 import 'package:riverpod_for_serverpod_generator/src/types.dart';
 
 /// Returns a code suffix that appends .timeout(const Duration(...)) when set.
@@ -16,6 +17,24 @@ String _successfulResultBody(
 ) {
   final call = _clientCall(m, clientField, args);
   final cacheFor = 'ref.cacheFor(const ${m.cacheTtl});';
+  final cachedShape = m.cachedQuery == null
+      ? null
+      : parseCachedQueryReturnType(returnType);
+
+  if (m.cachedQuery != null && cachedShape != null) {
+    final clientAwait = 'final result = await $call;';
+    final core = buildCachedQueryBlock(
+      m: m,
+      shape: cachedShape,
+      clientCallAwaitResult: clientAwait,
+      cacheForLine: cacheFor,
+    );
+    return '''
+$core
+    $cacheFor
+    return result;
+''';
+  }
 
   if (returnType == 'void') {
     return '''

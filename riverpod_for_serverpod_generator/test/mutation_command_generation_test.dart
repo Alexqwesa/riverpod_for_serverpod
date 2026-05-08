@@ -24,11 +24,19 @@ void main() {
               idempotent: true,
               retry: 'RetryPolicy.connectionOnly',
             ),
+            validateStrings: [
+              ValidateStringMeta(
+                arg: 'roleName',
+                notEmpty: true,
+                maxLength: 50,
+              ),
+            ],
           ),
         ],
       );
 
       expect(code, contains('abstract final class RefAdminEndpointCommands'));
+      expect(code, contains('validateGeneratedString'));
       expect(code, contains('mutationFailureShouldEnqueue'));
       expect(code, contains('read(mutationRetryQueueProvider).schedule'));
       expect(code, contains('invalidateAfterUpdateUserRole'));

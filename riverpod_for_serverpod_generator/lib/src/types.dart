@@ -204,6 +204,10 @@ class MyMethodMeta {
   final CachedQueryMeta? cachedQuery;
   final MutationCommandMeta? mutationCommand;
 
+  final List<ValidateStringMeta> validateStrings;
+  final List<ValidateNumberMeta> validateNumbers;
+  final List<ValidateListMeta> validateLists;
+
   MyMethodMeta(
     this.name,
     this.returnType,
@@ -218,6 +222,9 @@ class MyMethodMeta {
     this.includeSelfInHook = true,
     this.cachedQuery,
     this.mutationCommand,
+    this.validateStrings = const [],
+    this.validateNumbers = const [],
+    this.validateLists = const [],
   }) {
     unwrappedReturnType = _unwrapFuture(returnType);
     recordArgType = _buildRecordArgType(namedParams);

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:recase/recase.dart';
 import 'package:riverpod_for_serverpod_generator/src/types.dart';
 
@@ -49,6 +51,7 @@ String buildMutationCommandMethod({
     buffer.write(', ${p.type} ${p.name}');
   }
   buffer.writeln(') async {');
+  _writeMutationCommandValidations(buffer, method, indent: '    ');
   buffer.writeln('    try {');
 
   if (method.unwrappedReturnType == 'void') {
@@ -71,6 +74,7 @@ String buildMutationCommandMethod({
   buffer.writeln('          idempotent: ${meta.idempotent},');
   buffer.writeln("          label: r'${method.name}',");
   buffer.writeln('          run: () async {');
+  _writeMutationCommandValidations(buffer, method, indent: '            ');
   if (method.unwrappedReturnType == 'void') {
     buffer.writeln('            await $readCall;');
   } else {
@@ -107,3 +111,35 @@ String _mutationQueueIdExpression(
   }
   return "'$endpointClassName.${method.name}'";
 }
+
+void _writeMutationCommandValidations(
+  StringBuffer buffer,
+  MyMethodMeta method, {
+  required String indent,
+}) {
+  for (final v in method.validateStrings) {
+    buffer.writeln(
+      "${indent}validateGeneratedString(r'${v.arg}', ${v.arg}, notEmpty: ${v.notEmpty}, minLength: ${_emitNullableInt(v.minLength)}, maxLength: ${_emitNullableInt(v.maxLength)}, pattern: ${_emitPatternArg(v.pattern)});",
+    );
+  }
+  for (final v in method.validateNumbers) {
+    buffer.writeln(
+      "${indent}validateGeneratedNumber(r'${v.arg}', ${v.arg}, min: ${_emitNullableNum(v.min)}, max: ${_emitNullableNum(v.max)});",
+    );
+  }
+  for (final v in method.validateLists) {
+    buffer.writeln(
+      "${indent}validateGeneratedIterable(r'${v.arg}', ${v.arg}, notEmpty: ${v.notEmpty}, minLength: ${_emitNullableInt(v.minLength)}, maxLength: ${_emitNullableInt(v.maxLength)});",
+    );
+  }
+}
+
+String _emitNullableInt(int? v) => v == null ? 'null' : '$v';
+
+String _emitNullableNum(num? v) {
+  if (v == null) return 'null';
+  return v is int ? '$v' : v.toString();
+}
+
+String _emitPatternArg(String? pattern) =>
+    pattern == null ? 'null' : jsonEncode(pattern);
