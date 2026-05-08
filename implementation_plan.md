@@ -11,7 +11,8 @@ DONE:
   future annotation API exists for @CachedQuery / @MutationCommand / validation metadata
   generator parser metadata exists for @CachedQuery / @MutationCommand / validation metadata
   internal endpoint manifest builder scans Serverpod source into query/mutation/validation metadata
-  generatedEndpointManifest const map is emitted into generated Dart output
+  generatedEndpointManifest typed const object is emitted into generated Dart output
+  strongly typed runtime manifest classes exist for @CachedQuery / @MutationCommand annotations
   manifest diagnostics warn about invalid or risky query/mutation annotation combinations
   runtime package exists with storage interface, memory storage, entity/index records, and entity cache
   JSON cache storage adapter exists over string key-value storage
@@ -31,7 +32,6 @@ DONE:
   Riverpod 3 provider auto-retry is explicitly disabled for generated endpoint providers
 
 NOT DONE YET:
-  strongly typed runtime manifest classes for @CachedQuery / @MutationCommand annotations
   runtime entity/index cache
   Hive storage adapter
   offline fallback
@@ -1561,7 +1561,8 @@ AST metadata readers for @MutationCommand
 AST metadata readers for Invalidate.all / Invalidate.family
 AST metadata readers for validation annotations
 internal endpoint manifest builder
-generatedEndpointManifest const map output
+generatedEndpointManifest typed const object output
+runtime EndpointManifest / EndpointInfo / MethodInfo classes
 parser tests
 manifest builder tests
 manifest emitter tests
@@ -1569,7 +1570,7 @@ manifest emitter tests
 
 Still open:
 
-Generate a strongly typed manifest:
+Use the strongly typed manifest to generate query/cache providers:
 
 ```dart
 const generatedEndpointManifest = EndpointManifest(
@@ -1577,20 +1578,23 @@ const generatedEndpointManifest = EndpointManifest(
     EndpointInfo(
       name: 'AdminEndpoint',
       methods: [
-        QueryInfo(
+        MethodInfo(
           name: 'listUsersByRole',
-          returnKind: ReturnKind.list,
-          entity: UserSummary,
-          idField: 'id',
-          secure: true,
-          maxItems: 1000,
+          cachedQuery: CachedQueryInfo(
+            entity: 'UserSummary',
+            idField: 'id',
+            secure: true,
+            maxItems: 1000,
+          ),
         ),
-        MutationInfo(
+        MethodInfo(
           name: 'updateUserRole',
-          affects: UserSummary,
-          idArg: 'userId',
-          optimistic: OptimisticPolicy.patchLocalCache,
-          retry: RetryPolicy.connectionOnly,
+          mutationCommand: MutationCommandInfo(
+            affects: 'UserSummary',
+            idArg: 'userId',
+            optimistic: OptimisticPolicy.patchLocalCache,
+            retry: RetryPolicy.connectionOnly,
+          ),
         ),
       ],
     ),

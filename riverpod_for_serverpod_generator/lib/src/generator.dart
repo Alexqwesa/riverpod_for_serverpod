@@ -206,6 +206,7 @@ String _buildLibrary({
   final baseDartImports = <String>['dart:async'];
   final basePackageImports = <String>[
     'package:riverpod/riverpod.dart',
+    'package:riverpod_for_serverpod_runtime/riverpod_for_serverpod_runtime.dart',
     'package:$clientPackageName/src/protocol/protocol.dart',
     'package:serverpod_auth_client/serverpod_auth_client.dart',
   ];

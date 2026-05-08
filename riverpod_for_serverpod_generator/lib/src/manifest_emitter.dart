@@ -4,131 +4,131 @@ import 'package:riverpod_for_serverpod_generator/src/types.dart';
 
 String buildEndpointManifestCode(EndpointManifestMeta manifest) {
   return '''
-const generatedEndpointManifest = <String, Object?>{
-  'endpoints': <Map<String, Object?>>[
+const generatedEndpointManifest = EndpointManifest(
+  endpoints: [
 ${manifest.endpoints.map(_endpointCode).join('\n')}
   ],
-};
+);
 ''';
 }
 
 String _endpointCode(EndpointManifestEntry endpoint) {
   return '''
-    <String, Object?>{
-      'name': ${_string(endpoint.name)},
-      'methods': <Map<String, Object?>>[
+    EndpointInfo(
+      name: ${_string(endpoint.name)},
+      methods: [
 ${endpoint.methods.map(_methodCode).join('\n')}
       ],
-    },''';
+    ),''';
 }
 
 String _methodCode(MethodManifestEntry method) {
   return '''
-        <String, Object?>{
-          'name': ${_string(method.name)},
-          'returnType': ${_string(method.returnType)},
-          'positionalParams': <Map<String, Object?>>[
+        MethodInfo(
+          name: ${_string(method.name)},
+          returnType: ${_string(method.returnType)},
+          positionalParams: [
 ${method.positionalParams.map(_paramCode).join('\n')}
           ],
-          'namedParams': <Map<String, Object?>>[
+          namedParams: [
 ${method.namedParams.map(_paramCode).join('\n')}
           ],
-          'cachedQuery': ${_cachedQueryCode(method.cachedQuery)},
-          'mutationCommand': ${_mutationCommandCode(method.mutationCommand)},
-          'validateStrings': <Map<String, Object?>>[
+          cachedQuery: ${_cachedQueryCode(method.cachedQuery)},
+          mutationCommand: ${_mutationCommandCode(method.mutationCommand)},
+          validateStrings: [
 ${method.validateStrings.map(_validateStringCode).join('\n')}
           ],
-          'validateNumbers': <Map<String, Object?>>[
+          validateNumbers: [
 ${method.validateNumbers.map(_validateNumberCode).join('\n')}
           ],
-          'validateLists': <Map<String, Object?>>[
+          validateLists: [
 ${method.validateLists.map(_validateListCode).join('\n')}
           ],
-        },''';
+        ),''';
 }
 
 String _paramCode(MyParamMeta param) {
   return '''
-            <String, Object?>{
-              'name': ${_string(param.name)},
-              'type': ${_string(param.type)},
-              'defaultValue': ${_nullableString(param.defaultValue)},
-            },''';
+            ParamInfo(
+              name: ${_string(param.name)},
+              type: ${_string(param.type)},
+              defaultValue: ${_nullableString(param.defaultValue)},
+            ),''';
 }
 
 String _cachedQueryCode(CachedQueryMeta? meta) {
   if (meta == null) return 'null';
   return '''
-<String, Object?>{
-            'entity': ${_string(meta.entity)},
-            'idField': ${_string(meta.idField)},
-            'maxItems': ${meta.maxItems},
-            'ttl': ${_string(meta.ttl)},
-            'secure': ${meta.secure},
-            'byIdMethod': ${_nullableString(meta.byIdMethod)},
-            'mergePolicy': ${_string(meta.mergePolicy)},
-            'cacheVersion': ${meta.cacheVersion},
-            'backgroundRefresh': ${meta.backgroundRefresh},
-          }''';
+CachedQueryInfo(
+            entity: ${_string(meta.entity)},
+            idField: ${_string(meta.idField)},
+            maxItems: ${meta.maxItems},
+            ttl: ${meta.ttl},
+            secure: ${meta.secure},
+            byIdMethod: ${_nullableString(meta.byIdMethod)},
+            mergePolicy: ${meta.mergePolicy},
+            cacheVersion: ${meta.cacheVersion},
+            backgroundRefresh: ${meta.backgroundRefresh},
+          )''';
 }
 
 String _mutationCommandCode(MutationCommandMeta? meta) {
   if (meta == null) return 'null';
   return '''
-<String, Object?>{
-            'affects': ${_string(meta.affects)},
-            'idArg': ${_nullableString(meta.idArg)},
-            'idField': ${_string(meta.idField)},
-            'byIdMethod': ${_nullableString(meta.byIdMethod)},
-            'invalidate': <Map<String, Object?>>[
+MutationCommandInfo(
+            affects: ${_string(meta.affects)},
+            idArg: ${_nullableString(meta.idArg)},
+            idField: ${_string(meta.idField)},
+            byIdMethod: ${_nullableString(meta.byIdMethod)},
+            invalidate: [
 ${meta.invalidate.map(_invalidateCode).join('\n')}
             ],
-            'optimistic': ${_string(meta.optimistic)},
-            'retry': ${_string(meta.retry)},
-            'refetch': ${_string(meta.refetch)},
-            'idempotent': ${meta.idempotent},
-            'idempotencyKeyArg': ${_nullableString(meta.idempotencyKeyArg)},
-            'closeDialog': ${_string(meta.closeDialog)},
-          }''';
+            optimistic: ${meta.optimistic},
+            retry: ${meta.retry},
+            refetch: ${meta.refetch},
+            idempotent: ${meta.idempotent},
+            idempotencyKeyArg: ${_nullableString(meta.idempotencyKeyArg)},
+            closeDialog: ${meta.closeDialog},
+          )''';
 }
 
 String _invalidateCode(InvalidateMeta meta) {
   return '''
-              <String, Object?>{
-                'provider': ${_string(meta.provider)},
-                'argFrom': ${_nullableString(meta.argFrom)},
-                'family': ${meta.family},
-              },''';
+              InvalidateInfo(
+                provider: ${_string(meta.provider)},
+                argFrom: ${_nullableString(meta.argFrom)},
+                family: ${meta.family},
+              ),''';
 }
 
 String _validateStringCode(ValidateStringMeta meta) {
   return '''
-            <String, Object?>{
-              'arg': ${_string(meta.arg)},
-              'notEmpty': ${meta.notEmpty},
-              'minLength': ${_nullableInt(meta.minLength)},
-              'maxLength': ${_nullableInt(meta.maxLength)},
-              'pattern': ${_nullableString(meta.pattern)},
-            },''';
+            ValidateStringInfo(
+              arg: ${_string(meta.arg)},
+              notEmpty: ${meta.notEmpty},
+              minLength: ${_nullableInt(meta.minLength)},
+              maxLength: ${_nullableInt(meta.maxLength)},
+              pattern: ${_nullableString(meta.pattern)},
+            ),''';
 }
 
 String _validateNumberCode(ValidateNumberMeta meta) {
   return '''
-            <String, Object?>{
-              'arg': ${_string(meta.arg)},
-              'min': ${_nullableNum(meta.min)},
-              'max': ${_nullableNum(meta.max)},
-            },''';
+            ValidateNumberInfo(
+              arg: ${_string(meta.arg)},
+              min: ${_nullableNum(meta.min)},
+              max: ${_nullableNum(meta.max)},
+            ),''';
 }
 
 String _validateListCode(ValidateListMeta meta) {
   return '''
-            <String, Object?>{
-              'arg': ${_string(meta.arg)},
-              'notEmpty': ${meta.notEmpty},
-              'minLength': ${_nullableInt(meta.minLength)},
-              'maxLength': ${_nullableInt(meta.maxLength)},
-            },''';
+            ValidateListInfo(
+              arg: ${_string(meta.arg)},
+              notEmpty: ${meta.notEmpty},
+              minLength: ${_nullableInt(meta.minLength)},
+              maxLength: ${_nullableInt(meta.maxLength)},
+            ),''';
 }
 
 String _string(String value) => jsonEncode(value);

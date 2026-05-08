@@ -9,6 +9,8 @@ persistent adapter in production.
 
 Current primitives:
 
+- `EndpointManifest` describes generated endpoints, methods, cached queries,
+  mutation commands, validation metadata, and parameters.
 - `GeneratedEntityCache<T>` stores entities by id and list indexes by query key.
 - `CachedEntityRecord` tracks cache version, update time, last access time, and
   `pendingSync`.

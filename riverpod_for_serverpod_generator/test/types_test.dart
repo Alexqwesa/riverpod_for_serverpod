@@ -30,7 +30,8 @@ void main() {
 
     test('defaultCodeOrNull returns the default literal', () {
       expect(MyParamMeta('a', 'int', '0').defaultCodeOrNull, '0');
-      expect(MyParamMeta('a', 'int', 'DateTime.now()').defaultCodeOrNull, 'DateTime.now()');
+      expect(MyParamMeta('a', 'int', 'DateTime.now()').defaultCodeOrNull,
+          'DateTime.now()');
       expect(MyParamMeta('a', 'int', null).defaultCodeOrNull, isNull);
     });
 
@@ -75,15 +76,18 @@ void main() {
 
     test('unwrappedReturnType extracts Future<T> inner type', () {
       expect(
-        MyMethodMeta('a', 'Future<String>', [], [], false, false).unwrappedReturnType,
+        MyMethodMeta('a', 'Future<String>', [], [], false, false)
+            .unwrappedReturnType,
         'String',
       );
       expect(
-        MyMethodMeta('a', 'Future<List<int>?>', [], [], false, false).unwrappedReturnType,
+        MyMethodMeta('a', 'Future<List<int>?>', [], [], false, false)
+            .unwrappedReturnType,
         'List<int>?',
       );
       expect(
-        MyMethodMeta('a', 'List<User>', [], [], false, false).unwrappedReturnType,
+        MyMethodMeta('a', 'List<User>', [], [], false, false)
+            .unwrappedReturnType,
         'List<User>',
       );
     });
@@ -122,7 +126,8 @@ void main() {
         [],
         [
           MyParamMeta('a', 'int', '0'), // defaultable (has default)
-          MyParamMeta('b', 'int', null), // NOT defaultable (required, no default)
+          MyParamMeta(
+              'b', 'int', null), // NOT defaultable (required, no default)
           MyParamMeta('c', 'int?', null), // defaultable (nullable)
           MyParamMeta('d', 'String?', 'null'), // defaultable (has default)
         ],
@@ -190,11 +195,13 @@ void main() {
         false,
         true,
       );
-      expect(m.callArgsFrom('args'), '(filterFrom: args.filterFrom, filterTo: args.filterTo)');
+      expect(m.callArgsFrom('args'),
+          '(filterFrom: args.filterFrom, filterTo: args.filterTo)');
     });
 
     test('callArgsFrom returns () when no named params', () {
-      final m = MyMethodMeta('getAll', 'Future<List<Item>>', [], [], false, false);
+      final m =
+          MyMethodMeta('getAll', 'Future<List<Item>>', [], [], false, false);
       expect(m.callArgsFrom('args'), '()');
     });
 
@@ -204,7 +211,8 @@ void main() {
         'Future<List<Item>>',
         [],
         [
-          MyParamMeta('filterFrom', 'DateTime?', null), // nullable but no default literal
+          MyParamMeta('filterFrom', 'DateTime?',
+              null), // nullable but no default literal
           MyParamMeta('filterTo', 'DateTime?', 'DateTime.now()'),
           MyParamMeta('filterStates', 'List<String>?', 'null'),
         ],
@@ -213,7 +221,8 @@ void main() {
       );
       // With i=1: first 1 defaultable (filterFrom) from arg, rest use defaults
       final args = m.callArgsForVariantFrom('args', 1);
-      expect(args, '(filterFrom: args.filterFrom, filterTo: DateTime.now(), filterStates: null)');
+      expect(args,
+          '(filterFrom: args.filterFrom, filterTo: DateTime.now(), filterStates: null)');
     });
 
     test('callArgsForVariantFrom omits non-defaultable named params', () {
@@ -232,7 +241,8 @@ void main() {
       expect(args, '(filterFrom: args.filterFrom, filterTo: DateTime.now())');
     });
 
-    test('innerProviderExprFrom builds provider expression with named params', () {
+    test('innerProviderExprFrom builds provider expression with named params',
+        () {
       final m = MyMethodMeta(
         'getUsers',
         'Future<List<User>>',
@@ -246,16 +256,19 @@ void main() {
         'Duration(minutes: 3)',
         'RefUserEndpoint',
       );
-      expect(m.innerProviderExprFrom('args'), 'RefUserEndpoint((filterFrom: args.filterFrom, filterTo: args.filterTo))');
+      expect(m.innerProviderExprFrom('args'),
+          'RefUserEndpoint((filterFrom: args.filterFrom, filterTo: args.filterTo))');
     });
 
     test('canBuildVariant always returns true', () {
-      final m = MyMethodMeta('getUsers', 'Future<List<User>>', [], [], false, false);
+      final m =
+          MyMethodMeta('getUsers', 'Future<List<User>>', [], [], false, false);
       expect(m.canBuildVariant(0), isTrue);
       expect(m.canBuildVariant(5), isTrue);
     });
 
-    test('_buildRecordArgType builds record syntax for multiple named params', () {
+    test('_buildRecordArgType builds record syntax for multiple named params',
+        () {
       // _buildRecordArgType is private but its result is observable via recordArgType
       final m = MyMethodMeta(
         'search',
@@ -275,7 +288,8 @@ void main() {
 
   group('ParamInfo', () {
     test('construction with all fields', () {
-      final info = ParamInfo('(int a, {String b})', 'final (int a, {String b}) = args;', '(a, b: b)');
+      final info = ParamInfo('(int a, {String b})',
+          'final (int a, {String b}) = args;', '(a, b: b)');
       expect(info.recordType, '(int a, {String b})');
       expect(info.destructuredVars, 'final (int a, {String b}) = args;');
       expect(info.methodCall, '(a, b: b)');

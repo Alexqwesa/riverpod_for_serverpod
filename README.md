@@ -48,7 +48,7 @@ class AdminEndpoint extends Endpoint {
 
 ## Generated
 
-The generator creates Riverpod providers and invalidation helpers. Generated code is not hand-written and should be regenerated instead of edited directly.
+The generator creates a typed endpoint manifest, Riverpod providers, and invalidation helpers. Generated code is not hand-written and should be regenerated instead of edited directly.
 
 ```dart
 extension RefCacheForExtension on Ref {

@@ -50,7 +50,8 @@ void main() {
 
     test('adds both imports when both feature sets are used', () {
       expect(
-        collectRequiredDartImports('Uint8List bytes; final value = utf8.decode(raw);'),
+        collectRequiredDartImports(
+            'Uint8List bytes; final value = utf8.decode(raw);'),
         ['dart:convert', 'dart:typed_data'],
       );
     });
