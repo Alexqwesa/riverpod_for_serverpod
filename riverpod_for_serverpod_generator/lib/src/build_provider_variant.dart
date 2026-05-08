@@ -1,13 +1,25 @@
 import 'package:code_builder/code_builder.dart';
 import 'package:riverpod_for_serverpod_generator/src/types.dart';
 
-Iterable<Field> buildProviderVariants(
-  MyMethodMeta m,
-  String returnType,
-  String innerCode,
-  String clientField,
-  String refClassName,
-) sync* {
+class ProviderVariantSpec {
+  final String name;
+  final int index;
+  final String argType;
+  final String argDestructureCode;
+  final String canonicalArgsExpression;
+  final bool shouldUseFamily;
+
+  const ProviderVariantSpec({
+    required this.name,
+    required this.index,
+    required this.argType,
+    required this.argDestructureCode,
+    required this.canonicalArgsExpression,
+    required this.shouldUseFamily,
+  });
+}
+
+Iterable<ProviderVariantSpec> buildProviderVariantSpecs(MyMethodMeta m) sync* {
   final pos = m.positionalParams;
   final named = m.namedParams;
 
@@ -17,33 +29,21 @@ Iterable<Field> buildProviderVariants(
   ];
   final requiredNamed = named.where((p) => !defaultables.contains(p)).toList();
 
-  // Provider0: base variant.
-  // - If there are required params → family with those params.
-  // - If there are only defaultables → plain provider using defaults.
-  // - If there are no params at all → plain provider with no args.
   if (pos.isNotEmpty || named.isNotEmpty) {
-    yield _buildVariantField(
+    yield _buildVariantSpec(
       m: m,
-      returnType: returnType,
-      innerCode: innerCode,
-      refClassName: refClassName,
       baseName: m.name,
       variantIndex: 0,
       positionalParams: pos,
       requiredNamedParams: requiredNamed,
       defaultableParams: defaultables,
-      // takeCount: null → we don't expose any defaultables as external params.
     );
   }
 
-  // Additional variants exposing defaultable parameters one by one
   if (defaultables.isNotEmpty) {
     for (int i = 1; i <= defaultables.length; i++) {
-      yield _buildVariantField(
+      yield _buildVariantSpec(
         m: m,
-        returnType: returnType,
-        innerCode: innerCode,
-        refClassName: refClassName,
         baseName: m.name,
         variantIndex: i,
         positionalParams: pos,
@@ -55,11 +55,8 @@ Iterable<Field> buildProviderVariants(
   }
 }
 
-Field _buildVariantField({
+ProviderVariantSpec _buildVariantSpec({
   required MyMethodMeta m,
-  required String returnType,
-  required String innerCode,
-  required String refClassName,
   required String baseName,
   required int variantIndex,
   required List<MyParamMeta> positionalParams,
@@ -73,12 +70,10 @@ Field _buildVariantField({
       ? defaultableParams.take(takeCount).toList()
       : <MyParamMeta>[];
 
-  // Should this provider be a `.family` (accept external args)?
-  // Yes if we expose any positional/required/defaultable params as external args.
   final shouldUseFamily = [
     ...positionalParams,
     ...requiredNamedParams,
-    ...usedDefaultables
+    ...usedDefaultables,
   ].isNotEmpty;
 
   final (recordType, destructuredVars, callArgs) = _buildVariantParameters(
@@ -89,12 +84,47 @@ Field _buildVariantField({
     shouldUseFamily: shouldUseFamily,
   );
 
-  final providerCode = shouldUseFamily
+  return ProviderVariantSpec(
+    name: vName,
+    index: variantIndex,
+    argType: recordType,
+    argDestructureCode: destructuredVars,
+    canonicalArgsExpression: callArgs,
+    shouldUseFamily: shouldUseFamily,
+  );
+}
+
+Iterable<Field> buildProviderVariants(
+  MyMethodMeta m,
+  String returnType,
+  String innerCode,
+  String clientField,
+  String refClassName,
+) sync* {
+  for (final variant in buildProviderVariantSpecs(m)) {
+    yield _buildVariantField(
+      m: m,
+      returnType: returnType,
+      innerCode: innerCode,
+      refClassName: refClassName,
+      variant: variant,
+    );
+  }
+}
+
+Field _buildVariantField({
+  required MyMethodMeta m,
+  required String returnType,
+  required String innerCode,
+  required String refClassName,
+  required ProviderVariantSpec variant,
+}) {
+  final providerCode = variant.shouldUseFamily
       ? '''
-FutureProvider.autoDispose.family<$returnType, $recordType>(
+FutureProvider.autoDispose.family<$returnType, ${variant.argType}>(
   (ref, arg) {
-    $destructuredVars
-    return ref.watch($refClassName.${m.name}($callArgs).future);
+    ${variant.argDestructureCode}
+    return ref.watch($refClassName.${m.name}(${variant.canonicalArgsExpression}).future);
   },
   retry: _noProviderRetry,
 )
@@ -102,7 +132,7 @@ FutureProvider.autoDispose.family<$returnType, $recordType>(
       : '''
 FutureProvider.autoDispose<$returnType>(
   (ref) {
-    return ref.watch($refClassName.${m.name}($callArgs).future);
+    return ref.watch($refClassName.${m.name}(${variant.canonicalArgsExpression}).future);
   },
   retry: _noProviderRetry,
 )
@@ -112,7 +142,7 @@ FutureProvider.autoDispose<$returnType>(
     mb
       ..static = true
       ..modifier = FieldModifier.final$
-      ..name = vName
+      ..name = variant.name
       ..assignment = Code(providerCode);
   });
 }

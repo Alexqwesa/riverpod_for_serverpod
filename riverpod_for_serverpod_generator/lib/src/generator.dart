@@ -11,6 +11,7 @@ import 'package:riverpod_for_serverpod_generator/src/ast_helpers.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_cached_query_notifier.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_mutation_command.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_field.dart';
+import 'package:riverpod_for_serverpod_generator/src/build_provider_invalidator.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_variant.dart';
 import 'package:riverpod_for_serverpod_generator/src/diagnostics.dart';
 import 'package:riverpod_for_serverpod_generator/src/manifest_builder.dart';
@@ -225,6 +226,7 @@ String _buildLibrary({
     b.body.add(
       Code('''
 typedef Reader = T Function<T>(ProviderListenable<T> provider);
+typedef ProviderInvalidator = void Function(ProviderOrFamily provider);
 
 final clientProvider = Provider<Client>((ref) {
   const serverUrlFromEnv = String.fromEnvironment('SERVER_URL');
@@ -347,6 +349,11 @@ extension RefCacheForExtension on Ref {
                 );
                 return <Field>[mainField, ...variants];
               }),
+            )
+            ..methods.addAll(
+              endpoint.methods
+                  .where((m) => m.mutationCommand == null)
+                  .expand(buildProviderInvalidatorMethods),
             )
             ..methods.addAll(
               endpoint.methods.map(
