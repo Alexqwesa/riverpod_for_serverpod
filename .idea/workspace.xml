@@ -4,12 +4,13 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="EndpointManifest">
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="offline fallback reads for stale indexes">
+      <change afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/retry/in_memory_mutation_retry_queue.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/in_memory_mutation_retry_queue_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/implementation_plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/implementation_plan.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/cache/generated_entity_cache.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/cache/generated_entity_cache.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/generated_entity_cache_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/generated_entity_cache_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/riverpod_for_serverpod_runtime.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/riverpod_for_serverpod_runtime.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -266,7 +267,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778202017844</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="offline fallback reads for stale indexes">
+      <option name="closed" value="true" />
+      <created>1778202441785</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1778202441785</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -298,6 +307,7 @@
     <MESSAGE value="riverpod_for_serverpod_hive_storage" />
     <MESSAGE value="secure/encrypted Hive setup helpers" />
     <MESSAGE value="EndpointManifest" />
-    <option name="LAST_COMMIT_MESSAGE" value="EndpointManifest" />
+    <MESSAGE value="offline fallback reads for stale indexes" />
+    <option name="LAST_COMMIT_MESSAGE" value="offline fallback reads for stale indexes" />
   </component>
 </project>

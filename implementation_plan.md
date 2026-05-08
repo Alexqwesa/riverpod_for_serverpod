@@ -32,14 +32,11 @@ DONE:
   Riverpod 3 provider auto-retry is explicitly disabled for generated endpoint providers
 
 NOT DONE YET:
-  runtime entity/index cache
-  Hive storage adapter
-  offline fallback
-  mutation command controllers
-  retry queue
-  warning aggregator
+  runtime entity/index cache (generated wiring to providers)
+  mutation command controllers (generated)
+  persisted retry queue / warning aggregator wiring
   secure cache runtime
-  validation annotations
+  validation execution in generated commands
 ```
 
 Current package names are still:
@@ -1636,6 +1633,7 @@ TTL freshness for indexes
   offline fallback reads for stale indexes
   LRU eviction by maxItems
   pendingSync records are not evicted
+  InMemoryMutationRetryQueue (schedule, retryNow, retryAllReady)
 runtime cache tests
 ```
 
@@ -1644,7 +1642,8 @@ Still open:
 Implement:
 
 ```text
-retry queue integration
+persisted retry queue for idempotent operations only
+warning center integration
 ```
 
 Tests:
@@ -1728,7 +1727,7 @@ missing byIdMethod emits diagnostic
 
 ### Phase 5 — Retry queue
 
-Status: NOT STARTED.
+Status: PARTIAL (in-memory V1).
 
 Implement:
 
@@ -1738,6 +1737,13 @@ optional persisted retry queue for idempotent operations
 exponential backoff or fixed countdown
 retry now API
 warning center integration
+```
+
+Done (V1):
+
+```text
+InMemoryMutationRetryQueue with schedule, retryNow, retryAllReady, cancel
+unit tests for success path, failure backoff, due vs not-due scheduling
 ```
 
 Tests:

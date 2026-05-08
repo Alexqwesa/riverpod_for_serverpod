@@ -18,8 +18,9 @@ Current primitives:
 - `MemoryGeneratedCacheStorage` is useful for tests and non-persistent demos.
 - `JsonGeneratedCacheStorage` stores cache records as JSON strings on top of a
   simple `GeneratedKeyValueStorage`.
-- `MemoryGeneratedKeyValueStorage` is a test-friendly key-value backend for the
-  JSON adapter.
+- `InMemoryMutationRetryQueue` schedules failed mutations for later `retryNow` /
+  `retryAllReady` retries (V1 in-memory; idempotency is metadata for future
+  persistence).
 
 `GeneratedEntityCache<T>` supports optional `maxItems` LRU eviction. Pending-sync
 records are not evicted automatically. List reads return only fresh indexes by
