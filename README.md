@@ -146,6 +146,16 @@ Watch generated providers:
 final roles = ref.watch(RefAdminEndpoint.listRoles);
 ```
 
+**[@MutationCommand](riverpod_for_serverpod_annotation)** methods no longer get `FutureProvider` fields (mutations are not passive reads). Call the generated command instead:
+
+```dart
+await RefAdminEndpointCommands.updateUserRole(ref.read, userId, roleName);
+```
+
+On connection-like failures, the command can enqueue work on `mutationRetryQueueProvider` (from `riverpod_for_serverpod_runtime`) when the mutation is **idempotent** and retry is enabled.
+
+**[@CachedQuery](riverpod_for_serverpod_annotation)** reads still use `FutureProvider` fields; on failure they report once to `refreshWarningProvider` (also from the runtime package) and rethrow, so `AsyncValue` stays in error while the notifier records a global warning.
+
 After successful mutations, call the generated invalidation hook:
 
 ```dart

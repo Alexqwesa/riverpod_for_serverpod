@@ -31,6 +31,26 @@ final result = await $call;
 ''';
 }
 
+String _withCachedQueryRefreshFailureReporting(
+  MyMethodMeta m,
+  String successBody,
+) {
+  if (m.cachedQuery == null) return successBody;
+  final inner =
+      successBody.trimRight().split('\n').map((line) => '    $line').join('\n');
+  return '''
+try {
+$inner
+  } catch (e, st) {
+    ref.read(refreshWarningProvider.notifier).recordFailure(
+          sourceKey: r'${m.innerProviderName}.${m.name}',
+          error: e,
+        );
+    rethrow;
+  }
+''';
+}
+
 Field buildProviderField(
   MyMethodMeta m,
   String unWrapperReturnType,
@@ -79,7 +99,7 @@ Field buildZeroParamField(
 FutureProvider.autoDispose<$returnType>(
   (ref) async {
     $innerCode
-    ${_successfulResultBody(m, returnType, clientField, '')}
+    ${_withCachedQueryRefreshFailureReporting(m, _successfulResultBody(m, returnType, clientField, ''))}
    },
    retry: _noProviderRetry,
 )
@@ -104,7 +124,7 @@ FutureProvider.autoDispose
     .family<$returnType, ${p.type}>(
   (ref, ${p.name}) async {
     $innerCode
-    ${_successfulResultBody(m, returnType, clientField, p.name)}
+    ${_withCachedQueryRefreshFailureReporting(m, _successfulResultBody(m, returnType, clientField, p.name))}
     },
     retry: _noProviderRetry,
 )
@@ -129,7 +149,7 @@ FutureProvider.autoDispose
     .family<$returnType, ${p.type}>(
   (ref, ${p.name}) async {
     $innerCode
-    ${_successfulResultBody(m, returnType, clientField, '${p.name}: ${p.name}')}
+    ${_withCachedQueryRefreshFailureReporting(m, _successfulResultBody(m, returnType, clientField, '${p.name}: ${p.name}'))}
     },
     retry: _noProviderRetry,
 )
@@ -158,7 +178,7 @@ FutureProvider.autoDispose.family<$returnType, $recordType>(
   (ref, args) async {
     $innerCode
     $destructuredVars
-    ${_successfulResultBody(m, returnType, clientField, methodCall)}
+    ${_withCachedQueryRefreshFailureReporting(m, _successfulResultBody(m, returnType, clientField, methodCall))}
   },
   retry: _noProviderRetry,
 )

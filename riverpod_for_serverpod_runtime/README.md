@@ -18,9 +18,10 @@ Current primitives:
 - `MemoryGeneratedCacheStorage` is useful for tests and non-persistent demos.
 - `JsonGeneratedCacheStorage` stores cache records as JSON strings on top of a
   simple `GeneratedKeyValueStorage`.
-- `InMemoryMutationRetryQueue` schedules failed mutations for later `retryNow` /
-  `retryAllReady` retries (V1 in-memory; idempotency is metadata for future
-  persistence).
+- `mutationRetryQueueProvider` / `InMemoryMutationRetryQueue` for idempotent
+  mutation retries after connection-style failures (used by generated commands).
+- `refreshWarningProvider` / `RefreshWarningNotifier` for aggregated failed
+  [@CachedQuery] refresh attempts.
 
 `GeneratedEntityCache<T>` supports optional `maxItems` LRU eviction. Pending-sync
 records are not evicted automatically. List reads return only fresh indexes by

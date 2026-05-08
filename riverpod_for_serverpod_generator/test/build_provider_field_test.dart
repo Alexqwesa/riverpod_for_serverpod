@@ -20,9 +20,9 @@ void main() {
         namedParams,
         positionalParams.isNotEmpty,
         namedParams.isNotEmpty,
-        cacheTtl,
-        'RefTestEndpoint',
-        timeout,
+        cacheTtl: cacheTtl,
+        innerProviderName: 'RefTestEndpoint',
+        timeout: timeout,
       );
     }
 
@@ -90,8 +90,8 @@ void main() {
         [],
         false,
         false,
-        'Duration(minutes: 3)',
-        'RefTestEndpoint',
+        cacheTtl: 'Duration(minutes: 3)',
+        innerProviderName: 'RefTestEndpoint',
       );
     }
 
@@ -122,6 +122,28 @@ void main() {
       expect(code, contains('retry: _noProviderRetry'));
     });
 
+    test('wraps CachedQuery providers in refresh warning reporting', () {
+      final m = MyMethodMeta(
+        'listRoles',
+        'Future<List<Role>>',
+        [],
+        [],
+        false,
+        false,
+        innerProviderName: 'RefAdminEndpoint',
+        cachedQuery: const CachedQueryMeta(entity: 'Role'),
+      );
+      final field = buildZeroParamField(m, 'List<Role>', '', 'admin');
+      final code = field.assignment.toString();
+      expect(code, contains('try {'));
+      expect(code, contains('refreshWarningProvider'));
+      expect(
+        code,
+        contains("sourceKey: r'RefAdminEndpoint.listRoles'"),
+      );
+      expect(code, contains('rethrow'));
+    });
+
     test('timeout suffix added when timeout is set', () {
       final m = MyMethodMeta(
         'getData',
@@ -130,9 +152,9 @@ void main() {
         [],
         false,
         false,
-        'Duration(minutes: 3)',
-        'RefTestEndpoint',
-        'Duration(seconds: 30)',
+        cacheTtl: 'Duration(minutes: 3)',
+        innerProviderName: 'RefTestEndpoint',
+        timeout: 'Duration(seconds: 30)',
       );
       final field = buildZeroParamField(m, 'String', '', 'client');
       final code = field.assignment.toString();

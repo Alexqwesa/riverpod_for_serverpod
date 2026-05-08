@@ -1669,6 +1669,7 @@ Done:
 simple FutureProvider for non-cached reads
 family providers for endpoint arguments
 TTL keepAlive for successful calls
+refreshWarningProvider recordFailure for @CachedQuery provider failures (then rethrow)
 ```
 
 Still open for this phase:
@@ -1678,7 +1679,7 @@ Generate:
 ```text
 AsyncNotifierProvider for cached reads
 background refresh
-warning reporting on refresh failure
+stale-while-revalidate using entity cache
 ```
 
 Tests:
@@ -1692,7 +1693,7 @@ offline refresh shows cached data and reports one warning
 
 ### Phase 4 — Mutation command generation
 
-Status: PARTIAL for invalidation hooks only.
+Status: PARTIAL.
 
 Done:
 
@@ -1700,6 +1701,8 @@ Done:
 method-level invalidateAfter<MethodName>(ref.read) hooks
 endpoint-level updateAll(ref.read) hooks
 cross-endpoint invalidation via @RefInvalidate
+abstract final class Ref<Endpoint>Commands with static async methods for @MutationCommand
+wiring to mutationRetryQueueProvider on connection-like failures (idempotent + retry enabled)
 ```
 
 Still open for command generation:
@@ -1707,12 +1710,10 @@ Still open for command generation:
 Generate:
 
 ```text
-command helper per endpoint group
 optional mutation controller
 optimistic patch logic
 rollback logic
-success merge/refetch logic
-invalidation logic
+success merge/refetch logic beyond invalidate hooks
 ```
 
 Tests:
@@ -1757,24 +1758,21 @@ non-idempotent mutation is not persisted
 
 ### Phase 6 — Warning aggregator
 
-Status: NOT STARTED.
+Status: PARTIAL (cached-query refresh path).
 
-Implement:
+Done:
 
 ```text
-merge warnings
-count pending operations
-count failed refreshes
-nextRetryAt countdown
-clear after success
+RefreshWarningState / RefreshWarningNotifier / refreshWarningProvider
+generated @CachedQuery FutureProvider bodies call recordFailure then rethrow
 ```
 
-Tests:
+Still open:
 
 ```text
-100 failed providers produce one warning state
-retry button calls retry queue
-success clears warning
+merge with mutation queue / retry UI
+nextRetryAt countdown for refresh
+clear-after-success coordination across many providers
 ```
 
 ### Phase 7 — Secure cache

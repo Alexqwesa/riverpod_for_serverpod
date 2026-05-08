@@ -253,8 +253,8 @@ void main() {
         ],
         false,
         true,
-        'Duration(minutes: 3)',
-        'RefUserEndpoint',
+        cacheTtl: 'Duration(minutes: 3)',
+        innerProviderName: 'RefUserEndpoint',
       );
       expect(m.innerProviderExprFrom('args'),
           'RefUserEndpoint((filterFrom: args.filterFrom, filterTo: args.filterTo))');

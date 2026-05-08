@@ -8,6 +8,7 @@ import 'package:dart_style/dart_style.dart';
 import 'package:glob/glob.dart';
 import 'package:recase/recase.dart';
 import 'package:riverpod_for_serverpod_generator/src/ast_helpers.dart';
+import 'package:riverpod_for_serverpod_generator/src/build_mutation_command.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_field.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_variant.dart';
 import 'package:riverpod_for_serverpod_generator/src/diagnostics.dart';
@@ -110,11 +111,15 @@ class RefEndpointBuilder implements Builder {
               namedParams,
               positionalParams.isNotEmpty,
               namedParams.isNotEmpty,
-              extractCacheTtlLiteral(member) ?? 'Duration(minutes: 3)',
-              'Ref$className',
-              extractTimeoutLiteral(member),
-              normalizeHookTargets(extractInvalidateTargets(member)),
-              extractInvalidateIncludesSelf(member),
+              cacheTtl:
+                  extractCacheTtlLiteral(member) ?? 'Duration(minutes: 3)',
+              innerProviderName: 'Ref$className',
+              timeout: extractTimeoutLiteral(member),
+              invalidateTargets:
+                  normalizeHookTargets(extractInvalidateTargets(member)),
+              includeSelfInHook: extractInvalidateIncludesSelf(member),
+              cachedQuery: extractCachedQueryMeta(member),
+              mutationCommand: extractMutationCommandMeta(member),
             ),
           );
         }
@@ -292,7 +297,9 @@ extension RefCacheForExtension on Ref {
               }),
             )
             ..fields.addAll(
-              endpoint.methods.expand((method) {
+              endpoint.methods
+                  .where((m) => m.mutationCommand == null)
+                  .expand((method) {
                 final rawReturn = method.returnType;
                 final unwrappedReturnType =
                     rawReturn.startsWith('Future<') && rawReturn.endsWith('>')
@@ -324,6 +331,24 @@ extension RefCacheForExtension on Ref {
               ),
             );
         });
+      }),
+    );
+    b.body.addAll(
+      endpoints.expand((endpoint) {
+        final endpointClass = endpoint.name;
+        final clientField = _clientFieldName(endpointClass);
+        final mutationMethods =
+            endpoint.methods.where((m) => m.mutationCommand != null).toList();
+        if (mutationMethods.isEmpty) return <Code>[];
+        return [
+          Code(
+            buildMutationCommandsClass(
+              endpointClassName: endpointClass,
+              clientField: clientField,
+              mutationMethods: mutationMethods,
+            ),
+          ),
+        ];
       }),
     );
   });

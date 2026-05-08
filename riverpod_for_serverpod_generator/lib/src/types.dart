@@ -201,19 +201,24 @@ class MyMethodMeta {
   /// Name of generated inner provider, e.g. 'RefWorkTypeEndpoint.filtered'
   final String innerProviderName;
 
+  final CachedQueryMeta? cachedQuery;
+  final MutationCommandMeta? mutationCommand;
+
   MyMethodMeta(
     this.name,
     this.returnType,
     this.positionalParams,
     this.namedParams,
     this.hasPositionalParams,
-    this.hasNamedParams, [
+    this.hasNamedParams, {
     this.cacheTtl = 'Duration(minutes: 3)',
     this.innerProviderName = 'refERROR',
     this.timeout,
     this.invalidateTargets = const [],
     this.includeSelfInHook = true,
-  ]) {
+    this.cachedQuery,
+    this.mutationCommand,
+  }) {
     unwrappedReturnType = _unwrapFuture(returnType);
     recordArgType = _buildRecordArgType(namedParams);
   }

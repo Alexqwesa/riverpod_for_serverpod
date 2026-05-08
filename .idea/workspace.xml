@@ -4,13 +4,20 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="offline fallback reads for stale indexes">
-      <change afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/retry/in_memory_mutation_retry_queue.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/in_memory_mutation_retry_queue_test.dart" afterDir="false" />
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="InMemoryMutationRetryQueue">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/implementation_plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/implementation_plan.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_field.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_field.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/types.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/types.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_field_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_field_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/types_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/types_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/riverpod_for_serverpod_runtime.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/riverpod_for_serverpod_runtime.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/retry/in_memory_mutation_retry_queue.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/retry/in_memory_mutation_retry_queue.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -275,7 +282,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778202441785</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="InMemoryMutationRetryQueue">
+      <option name="closed" value="true" />
+      <created>1778206718408</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1778206718408</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -308,6 +323,7 @@
     <MESSAGE value="secure/encrypted Hive setup helpers" />
     <MESSAGE value="EndpointManifest" />
     <MESSAGE value="offline fallback reads for stale indexes" />
-    <option name="LAST_COMMIT_MESSAGE" value="offline fallback reads for stale indexes" />
+    <MESSAGE value="InMemoryMutationRetryQueue" />
+    <option name="LAST_COMMIT_MESSAGE" value="InMemoryMutationRetryQueue" />
   </component>
 </project>

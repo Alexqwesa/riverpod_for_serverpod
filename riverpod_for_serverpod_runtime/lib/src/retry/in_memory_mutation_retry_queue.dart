@@ -1,3 +1,5 @@
+import 'package:riverpod/riverpod.dart';
+
 /// Result of attempting to run a single queued mutation.
 enum MutationRetryAttemptResult {
   /// The runner completed without throwing and the entry was removed.
@@ -156,3 +158,9 @@ class InMemoryMutationRetryQueue {
     return successes;
   }
 }
+
+/// Shared in-memory mutation retry queue for generated command helpers.
+final mutationRetryQueueProvider = Provider<InMemoryMutationRetryQueue>((ref) {
+  ref.keepAlive();
+  return InMemoryMutationRetryQueue();
+});
