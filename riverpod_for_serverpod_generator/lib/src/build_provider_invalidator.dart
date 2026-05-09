@@ -90,8 +90,20 @@ Method _buildVariantToCanonicalArgsMapper(
       );
     }
 
-    mb.body = Code('return ${variant.canonicalArgsExpression};');
+    mb.body = Code(_variantMapperBody(variant));
   });
+}
+
+String _variantMapperBody(ProviderVariantSpec variant) {
+  if (!variant.shouldUseFamily) {
+    return 'return ${variant.canonicalArgsExpression};';
+  }
+  final destructure =
+      variant.argDestructureCode.replaceAll('= arg;', '= args;');
+  return '''
+    $destructure
+    return ${variant.canonicalArgsExpression};
+''';
 }
 
 Method _buildVariantInvalidator(

@@ -96,6 +96,19 @@ void main() {
       );
     }
 
+    test('FutureProvider omits retry when emitProviderRetry is false', () {
+      final m = makeMethod();
+      final field = buildZeroParamField(
+        m,
+        'List<User>',
+        '',
+        'user',
+        emitProviderRetry: false,
+      );
+      final code = field.assignment.toString();
+      expect(code, isNot(contains('_noProviderRetry')));
+    });
+
     test('generates static AutoDisposeFutureProvider field', () {
       final m = makeMethod();
       final field = buildZeroParamField(m, 'List<User>', '', 'user');

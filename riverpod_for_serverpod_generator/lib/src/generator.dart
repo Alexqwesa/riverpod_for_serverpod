@@ -17,6 +17,7 @@ import 'package:riverpod_for_serverpod_generator/src/diagnostics.dart';
 import 'package:riverpod_for_serverpod_generator/src/manifest_builder.dart';
 import 'package:riverpod_for_serverpod_generator/src/manifest_emitter.dart';
 import 'package:riverpod_for_serverpod_generator/src/read_annotations.dart';
+import 'package:riverpod_for_serverpod_generator/src/riverpod_pubspec.dart';
 import 'package:riverpod_for_serverpod_generator/src/types.dart';
 
 const _providerWatchesCode = '''
@@ -137,6 +138,9 @@ class RefEndpointBuilder implements Builder {
 
     if (endpoints.isEmpty) return;
 
+    final emitProviderRetry =
+        inferEmitProviderRetry(await buildStep.readAsString(buildStep.inputId));
+
     final manifest = EndpointManifestMeta(manifestEndpoints);
     for (final diagnostic in validateEndpointManifest(manifest)) {
       final message = diagnostic.displayMessage;
@@ -152,6 +156,7 @@ class RefEndpointBuilder implements Builder {
       endpoints: endpoints,
       manifest: manifest,
       clientPackageName: clientPackageName,
+      emitProviderRetry: emitProviderRetry,
     );
     final out = AssetId(
       buildStep.inputId.package,
@@ -212,6 +217,7 @@ String _buildLibrary({
   required List<_EndpointMeta> endpoints,
   required EndpointManifestMeta manifest,
   required String clientPackageName,
+  required bool emitProviderRetry,
 }) {
   final baseDartImports = <String>['dart:async'];
   final basePackageImports = <String>[
@@ -246,9 +252,7 @@ final refUpdateAllGeneratedProviders = NotifierProvider<Counter, int>(
   Counter.new,
 );
 
-Duration? _noProviderRetry(int retryCount, Object error) => null;
-
-extension RefCacheForExtension on Ref {
+${emitProviderRetry ? 'Duration? _noProviderRetry(int retryCount, Object error) => null;\n\n' : ''}extension RefCacheForExtension on Ref {
   void cacheFor(Duration duration) {
     final link = keepAlive();
     final timer = Timer(duration, link.close);
@@ -339,6 +343,7 @@ extension RefCacheForExtension on Ref {
                   unwrappedReturnType,
                   _providerWatchesCode,
                   clientField,
+                  emitProviderRetry: emitProviderRetry,
                 );
                 final variants = buildProviderVariants(
                   method,
@@ -346,6 +351,7 @@ extension RefCacheForExtension on Ref {
                   '',
                   clientField,
                   'Ref$endpointClass',
+                  emitProviderRetry: emitProviderRetry,
                 );
                 return <Field>[mainField, ...variants];
               }),

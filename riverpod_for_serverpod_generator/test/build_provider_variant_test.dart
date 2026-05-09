@@ -245,6 +245,23 @@ void main() {
       );
     });
 
+    test('variant omits retry when emitProviderRetry is false', () {
+      final m = makeMethod(
+        name: 'getById',
+        returnType: 'Future<User?>',
+        positionalParams: [MyParamMeta('id', 'int', null)],
+      );
+      final variants = buildProviderVariants(
+        m,
+        'User?',
+        '',
+        'user',
+        'RefUserEndpoint',
+        emitProviderRetry: false,
+      ).toList();
+      expect(variants.first.assignment.toString(), isNot(contains('_noProviderRetry')));
+    });
+
     test('named params with defaults yields multiple variants', () {
       final m = makeMethod(
         name: 'search',

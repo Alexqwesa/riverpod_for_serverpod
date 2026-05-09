@@ -1,4 +1,6 @@
 import 'package:code_builder/code_builder.dart';
+import 'package:riverpod_for_serverpod_generator/src/build_provider_field.dart'
+    show providerRetryParameter;
 import 'package:riverpod_for_serverpod_generator/src/types.dart';
 
 class ProviderVariantSpec {
@@ -99,8 +101,9 @@ Iterable<Field> buildProviderVariants(
   String returnType,
   String innerCode,
   String clientField,
-  String refClassName,
-) sync* {
+  String refClassName, {
+  bool emitProviderRetry = true,
+}) sync* {
   for (final variant in buildProviderVariantSpecs(m)) {
     yield _buildVariantField(
       m: m,
@@ -108,6 +111,7 @@ Iterable<Field> buildProviderVariants(
       innerCode: innerCode,
       refClassName: refClassName,
       variant: variant,
+      emitProviderRetry: emitProviderRetry,
     );
   }
 }
@@ -118,23 +122,23 @@ Field _buildVariantField({
   required String innerCode,
   required String refClassName,
   required ProviderVariantSpec variant,
+  required bool emitProviderRetry,
 }) {
+  final retry = providerRetryParameter(emitProviderRetry);
   final providerCode = variant.shouldUseFamily
       ? '''
 FutureProvider.autoDispose.family<$returnType, ${variant.argType}>(
   (ref, arg) {
     ${variant.argDestructureCode}
     return ref.watch($refClassName.${m.name}(${variant.canonicalArgsExpression}).future);
-  },
-  retry: _noProviderRetry,
+  }$retry,
 )
 '''
       : '''
 FutureProvider.autoDispose<$returnType>(
   (ref) {
     return ref.watch($refClassName.${m.name}(${variant.canonicalArgsExpression}).future);
-  },
-  retry: _noProviderRetry,
+  }$retry,
 )
 ''';
 

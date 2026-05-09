@@ -3,6 +3,10 @@ import 'package:riverpod_for_serverpod_generator/src/build_cached_query_notifier
 import 'package:riverpod_for_serverpod_generator/src/cached_query_codegen.dart';
 import 'package:riverpod_for_serverpod_generator/src/types.dart';
 
+/// Riverpod 3+ `retry` on functional providers; omitted for Riverpod 2 targets.
+String providerRetryParameter(bool emitProviderRetry) =>
+    emitProviderRetry ? ',\n  retry: _noProviderRetry' : '';
+
 /// Returns a code suffix that appends .timeout(const Duration(...)) when set.
 String _timeoutSuffix(MyMethodMeta m) =>
     m.timeout != null ? '.timeout(const ${m.timeout})' : '';
@@ -75,14 +79,16 @@ Field buildProviderField(
   MyMethodMeta m,
   String unWrapperReturnType,
   String innerCode,
-  String clientField,
-) {
+  String clientField, {
+  bool emitProviderRetry = true,
+}) {
   if (m.positionalParams.length == 1 && m.namedParams.isEmpty) {
     return buildSinglePositionalField(
       m,
       unWrapperReturnType,
       innerCode,
       clientField,
+      emitProviderRetry: emitProviderRetry,
     );
   }
   if (m.positionalParams.isEmpty && m.namedParams.length == 1) {
@@ -91,6 +97,7 @@ Field buildProviderField(
       unWrapperReturnType,
       innerCode,
       clientField,
+      emitProviderRetry: emitProviderRetry,
     );
   }
   if (m.hasPositionalParams || m.hasNamedParams) {
@@ -99,19 +106,28 @@ Field buildProviderField(
       unWrapperReturnType,
       innerCode,
       clientField,
+      emitProviderRetry: emitProviderRetry,
     );
   }
-  return buildZeroParamField(m, unWrapperReturnType, innerCode, clientField);
+  return buildZeroParamField(
+    m,
+    unWrapperReturnType,
+    innerCode,
+    clientField,
+    emitProviderRetry: emitProviderRetry,
+  );
 }
 
 Field buildZeroParamField(
   MyMethodMeta m,
   String returnType,
   String innerCode,
-  String clientField,
-) {
+  String clientField, {
+  bool emitProviderRetry = true,
+}) {
   if (useCachedQueryAsyncNotifierSwr(m, returnType)) {
     final cn = cachedReadNotifierClassName(m);
+    final retry = providerRetryParameter(emitProviderRetry);
     return Field((mb) {
       mb
         ..static = true
@@ -119,8 +135,7 @@ Field buildZeroParamField(
         ..name = m.name
         ..assignment = Code('''
 AsyncNotifierProvider.autoDispose<$cn, $returnType>(
-  $cn.new,
-  retry: _noProviderRetry,
+  $cn.new$retry,
 )
 ''');
     });
@@ -135,8 +150,7 @@ FutureProvider.autoDispose<$returnType>(
   (ref) async {
     $innerCode
     ${_withCachedQueryRefreshFailureReporting(m, _successfulResultBody(m, returnType, clientField, ''))}
-   },
-   retry: _noProviderRetry,
+   }${providerRetryParameter(emitProviderRetry)},
 )
 ''');
   });
@@ -146,11 +160,13 @@ Field buildSinglePositionalField(
   MyMethodMeta m,
   String returnType,
   String innerCode,
-  String clientField,
-) {
+  String clientField, {
+  bool emitProviderRetry = true,
+}) {
   final p = m.positionalParams.first;
   if (useCachedQueryAsyncNotifierSwr(m, returnType)) {
     final cn = cachedReadNotifierClassName(m);
+    final retry = providerRetryParameter(emitProviderRetry);
     return Field((mb) {
       mb
         ..static = true
@@ -159,8 +175,7 @@ Field buildSinglePositionalField(
         ..assignment = Code('''
 AsyncNotifierProvider.family
     .autoDispose<$cn, $returnType, ${p.type}>(
-  $cn.new,
-  retry: _noProviderRetry,
+  $cn.new$retry,
 )
 ''');
     });
@@ -176,8 +191,7 @@ FutureProvider.autoDispose
   (ref, ${p.name}) async {
     $innerCode
     ${_withCachedQueryRefreshFailureReporting(m, _successfulResultBody(m, returnType, clientField, p.name))}
-    },
-    retry: _noProviderRetry,
+    }${providerRetryParameter(emitProviderRetry)},
 )
 ''');
   });
@@ -187,11 +201,13 @@ Field buildSingleNamedField(
   MyMethodMeta m,
   String returnType,
   String innerCode,
-  String clientField,
-) {
+  String clientField, {
+  bool emitProviderRetry = true,
+}) {
   final p = m.namedParams.first;
   if (useCachedQueryAsyncNotifierSwr(m, returnType)) {
     final cn = cachedReadNotifierClassName(m);
+    final retry = providerRetryParameter(emitProviderRetry);
     return Field((mb) {
       mb
         ..static = true
@@ -200,8 +216,7 @@ Field buildSingleNamedField(
         ..assignment = Code('''
 AsyncNotifierProvider.family
     .autoDispose<$cn, $returnType, ${p.type}>(
-  $cn.new,
-  retry: _noProviderRetry,
+  $cn.new$retry,
 )
 ''');
     });
@@ -217,8 +232,7 @@ FutureProvider.autoDispose
   (ref, ${p.name}) async {
     $innerCode
     ${_withCachedQueryRefreshFailureReporting(m, _successfulResultBody(m, returnType, clientField, '${p.name}: ${p.name}'))}
-    },
-    retry: _noProviderRetry,
+    }${providerRetryParameter(emitProviderRetry)},
 )
 ''');
   });
@@ -228,8 +242,9 @@ Field buildMixedOrMultiParamField(
   MyMethodMeta m,
   String returnType,
   String innerCode,
-  String clientField,
-) {
+  String clientField, {
+  bool emitProviderRetry = true,
+}) {
   final paramInfo = buildRecordTypeAndDestructure(m);
   final recordType = paramInfo.recordType;
   final destructuredVars = paramInfo.destructuredVars;
@@ -238,6 +253,7 @@ Field buildMixedOrMultiParamField(
   if (useCachedQueryAsyncNotifierSwr(m, returnType)) {
     final cn = cachedReadNotifierClassName(m);
     final argT = _swrFamilyArgType(m);
+    final retry = providerRetryParameter(emitProviderRetry);
     return Field((mb) {
       mb
         ..static = true
@@ -246,8 +262,7 @@ Field buildMixedOrMultiParamField(
         ..assignment = Code('''
 AsyncNotifierProvider.family
     .autoDispose<$cn, $returnType, $argT>(
-  $cn.new,
-  retry: _noProviderRetry,
+  $cn.new$retry,
 )
 ''');
     });
@@ -264,8 +279,7 @@ FutureProvider.autoDispose.family<$returnType, $recordType>(
     $innerCode
     $destructuredVars
     ${_withCachedQueryRefreshFailureReporting(m, _successfulResultBody(m, returnType, clientField, methodCall))}
-  },
-  retry: _noProviderRetry,
+  }${providerRetryParameter(emitProviderRetry)},
 )
 ''');
   });
