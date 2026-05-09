@@ -26,6 +26,40 @@ ref
   ..watch(refUpdateAll);
 ''';
 
+/// [emitProviderRetry] matches [inferEmitProviderRetry]: true when pubspec allows Riverpod 3+.
+///
+/// Riverpod 3: guard with [Ref.mounted]. Riverpod 2: no `mounted`; use [StateError] try/catch
+/// after async gaps with `autoDispose`.
+String emittedRefCacheForExtension({required bool emitProviderRetry}) {
+  if (emitProviderRetry) {
+    return '''
+extension RefCacheForExtension on Ref {
+  void cacheFor(Duration duration) {
+    if (!mounted) return;
+    final link = keepAlive();
+    final timer = Timer(duration, link.close);
+
+    onDispose(timer.cancel);
+  }
+}
+''';
+  }
+  return '''
+extension RefCacheForExtension on Ref {
+  void cacheFor(Duration duration) {
+    try {
+      final link = keepAlive();
+      final timer = Timer(duration, link.close);
+
+      onDispose(timer.cancel);
+    } on StateError {
+      // Provider already disposed (e.g. autoDispose after an async gap on Riverpod 2).
+    }
+  }
+}
+''';
+}
+
 class RefEndpointBuilder implements Builder {
   @override
   Map<String, List<String>> get buildExtensions => const {
@@ -252,15 +286,7 @@ final refUpdateAllGeneratedProviders = NotifierProvider<Counter, int>(
   Counter.new,
 );
 
-${emitProviderRetry ? 'Duration? _noProviderRetry(int retryCount, Object error) => null;\n\n' : ''}extension RefCacheForExtension on Ref {
-  void cacheFor(Duration duration) {
-    final link = keepAlive();
-    final timer = Timer(duration, link.close);
-
-    onDispose(timer.cancel);
-  }
-}
-'''),
+${emitProviderRetry ? 'Duration? _noProviderRetry(int retryCount, Object error) => null;\n\n' : ''}${emittedRefCacheForExtension(emitProviderRetry: emitProviderRetry)}'''),
     );
 
     for (final endpoint in endpoints) {

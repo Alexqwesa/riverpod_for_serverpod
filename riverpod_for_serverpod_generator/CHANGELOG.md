@@ -7,6 +7,7 @@
 - Added `generatedEndpointManifest` output as a const map in the generated Dart file for debugging and future runtime/cache generation.
 - Added manifest diagnostics for conflicting annotations, unsupported cached return types, invalid cache settings, unsafe retry metadata, and bool-return mutation refetch gaps.
 - Documented that Riverpod `2.6.x` users should stay on the `2.6.x` package line/branch.
+- Generated `Ref.cacheFor`: Riverpod 3+ uses `if (!mounted) return`; Riverpod 2-target pubspecs emit a `StateError` try/catch (no `Ref.mounted`).
 
 ## 2.6.0
 

@@ -50,9 +50,12 @@ class AdminEndpoint extends Endpoint {
 
 The generator creates a typed endpoint manifest, Riverpod providers, and invalidation helpers. Generated code is not hand-written and should be regenerated instead of edited directly.
 
+When `pubspec.yaml` allows Riverpod **3.x**, `Ref.cacheFor` uses `if (!mounted) return` before `keepAlive` / `onDispose`. When all listed `riverpod` / `flutter_riverpod` constraints exclude 3.x, `cacheFor` uses a `try` / `on StateError` workaround instead (Riverpod 2 has no `Ref.mounted`).
+
 ```dart
 extension RefCacheForExtension on Ref {
   void cacheFor(Duration duration) {
+    if (!mounted) return;
     final link = keepAlive();
     final timer = Timer(duration, link.close);
 

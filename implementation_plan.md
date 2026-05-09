@@ -785,6 +785,7 @@ Generate this helper once:
 ```dart
 extension GeneratedRefCacheFor on Ref {
   void cacheFor(Duration duration) {
+    if (!mounted) return;
     final link = keepAlive();
     final timer = Timer(duration, link.close);
     onDispose(timer.cancel);

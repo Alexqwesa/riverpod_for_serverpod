@@ -1,11 +1,12 @@
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
 
-/// Whether generated providers should pass [retry: _noProviderRetry] (Riverpod 3+).
+/// Whether generated output should use Riverpod 3-only APIs ([retry] on functional
+/// providers, [Ref.mounted] in [Ref.cacheFor]).
 ///
-/// Inspects [dependencies], [dev_dependencies], and [dependency_overrides] for
-/// `riverpod` and `flutter_riverpod`. If no version constraint is found (path/git/sdk),
-/// defaults to `true`. If **no** listed constraint allows `3.0.0`, returns `false`.
+/// When any `riverpod` / `flutter_riverpod` constraint **allows** version `3.0.0`, this
+/// is `true`. When all listed constraints exclude 3.x, this is `false` (Riverpod 2
+/// workarounds: omit `retry`, use try/catch in `cacheFor` instead of `mounted`).
 bool inferEmitProviderRetry(String pubspecYaml) {
   final doc = loadYaml(pubspecYaml);
   if (doc is! YamlMap) return true;
