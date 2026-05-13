@@ -9,6 +9,7 @@ export 'src/cache/generated_key_value_storage.dart';
 export 'src/cache/json_generated_cache_storage.dart';
 export 'src/cache/memory_generated_cache_storage.dart';
 export 'src/cache/memory_generated_key_value_storage.dart';
+export 'src/cache/namespaced_generated_cache_storage.dart';
 export 'src/manifest/endpoint_manifest.dart';
 export 'src/retry/connection_failure.dart';
 export 'src/retry/in_memory_mutation_retry_queue.dart';

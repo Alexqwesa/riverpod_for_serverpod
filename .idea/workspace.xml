@@ -4,14 +4,9 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="fixes(destructure args), + riverpod 2 support">
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="added generatedCacheStorageProvider to runtime">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/implementation_plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/implementation_plan.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/riverpod_pubspec.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/riverpod_pubspec.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/generator_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/generator_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/riverpod_for_serverpod_runtime.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/riverpod_for_serverpod_runtime.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -329,7 +324,23 @@
       <option name="project" value="LOCAL" />
       <updated>1778329094389</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="fix Ref.cacheFor - only if mount">
+      <option name="closed" value="true" />
+      <created>1778330288013</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1778330288013</updated>
+    </task>
+    <task id="LOCAL-00029" summary="added generatedCacheStorageProvider to runtime">
+      <option name="closed" value="true" />
+      <created>1778656278141</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1778656278141</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -344,8 +355,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="init" />
-    <MESSAGE value="v2.6.0+" />
     <MESSAGE value="working on new api" />
     <MESSAGE value="working on new api2" />
     <MESSAGE value="working on version 3 for riverpod 3+" />
@@ -369,6 +378,8 @@
     <MESSAGE value="add invalidator generation" />
     <MESSAGE value="fixes(destructure args), + riverpod 2 support" />
     <MESSAGE value="fixes(destructure args), + riverpod 2 support" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixes(destructure args), + riverpod 2 support" />
+    <MESSAGE value="fix Ref.cacheFor - only if mount" />
+    <MESSAGE value="added generatedCacheStorageProvider to runtime" />
+    <option name="LAST_COMMIT_MESSAGE" value="added generatedCacheStorageProvider to runtime" />
   </component>
 </project>
