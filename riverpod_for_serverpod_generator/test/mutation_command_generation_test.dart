@@ -38,7 +38,17 @@ void main() {
       expect(code, contains('abstract final class RefAdminEndpointCommands'));
       expect(code, contains('validateGeneratedString'));
       expect(code, contains('mutationFailureShouldEnqueue'));
-      expect(code, contains('read(mutationRetryQueueProvider).schedule'));
+      expect(
+        code,
+        contains(
+          'final retrySnapshot = read(mutationRetryQueueProvider).schedule',
+        ),
+      );
+      expect(code, contains('recordQueuedMutation'));
+      expect(
+          code,
+          contains(
+              'queuedMutationCount: read(mutationRetryQueueProvider).length'));
       expect(code, contains('invalidateAfterUpdateUserRole'));
       expect(code, contains("'AdminEndpoint.updateUserRole.\$userId'"));
     });

@@ -91,7 +91,7 @@ class InMemoryMutationRetryQueue {
 
   /// Schedules or replaces a mutation. The next eligible attempt time is
   /// [initialDelay] after "now" (see constructor).
-  void schedule({
+  MutationRetrySnapshot schedule({
     required String id,
     required bool idempotent,
     required MutationRetryRunner run,
@@ -99,13 +99,15 @@ class InMemoryMutationRetryQueue {
     String? label,
   }) {
     final when = _now().add(initialDelay);
-    _entries[id] = _QueuedMutation(
+    final entry = _QueuedMutation(
       id: id,
       label: label,
       idempotent: idempotent,
       run: run,
       nextRetryAt: when,
     );
+    _entries[id] = entry;
+    return entry.toSnapshot();
   }
 
   /// Removes an entry without running it. Returns whether an entry existed.

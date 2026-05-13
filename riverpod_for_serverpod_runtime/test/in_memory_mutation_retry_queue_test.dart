@@ -7,7 +7,7 @@ void main() {
       var runs = 0;
       final queue = InMemoryMutationRetryQueue();
 
-      queue.schedule(
+      final snapshot = queue.schedule(
         id: 'm1',
         idempotent: true,
         run: () async {
@@ -15,6 +15,8 @@ void main() {
         },
       );
 
+      expect(snapshot.id, 'm1');
+      expect(snapshot.nextRetryAt, isNotNull);
       expect(queue.length, 1);
 
       final r = await queue.retryNow('m1');

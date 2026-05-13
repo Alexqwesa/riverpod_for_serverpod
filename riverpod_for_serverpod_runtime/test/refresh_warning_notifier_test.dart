@@ -17,6 +17,46 @@ void main() {
       expect(s.failedRefreshCount, 1);
       expect(s.lastSourceKey, 'RefX.y');
       expect(s.lastMessage, contains('boom'));
+      expect(s.queuedMutationCount, 0);
+    });
+
+    test('recordQueuedMutation stores retry warning details', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final nextRetryAt = DateTime.utc(2026, 5, 13, 12);
+
+      container.read(refreshWarningProvider.notifier).recordQueuedMutation(
+            mutationId: 'Admin.updateUser.1',
+            queuedMutationCount: 2,
+            error: StateError('offline'),
+            nextRetryAt: nextRetryAt,
+          );
+
+      final s = container.read(refreshWarningProvider);
+      expect(s.hasWarning, isTrue);
+      expect(s.failedRefreshCount, 0);
+      expect(s.queuedMutationCount, 2);
+      expect(s.lastMutationId, 'Admin.updateUser.1');
+      expect(s.lastMessage, contains('offline'));
+      expect(s.nextRetryAt, nextRetryAt);
+    });
+
+    test('setQueuedMutationCount clears mutation warning when count is zero',
+        () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      container.read(refreshWarningProvider.notifier).recordQueuedMutation(
+            mutationId: 'm1',
+            queuedMutationCount: 1,
+          );
+      container.read(refreshWarningProvider.notifier).setQueuedMutationCount(0);
+
+      final s = container.read(refreshWarningProvider);
+      expect(s.hasWarning, isFalse);
+      expect(s.queuedMutationCount, 0);
+      expect(s.lastMutationId, isNull);
+      expect(s.nextRetryAt, isNull);
     });
 
     test('clear resets state', () {

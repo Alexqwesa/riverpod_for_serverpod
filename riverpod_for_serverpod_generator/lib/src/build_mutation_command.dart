@@ -69,7 +69,8 @@ String buildMutationCommandMethod({
   buffer.writeln('            idempotent: ${meta.idempotent},');
   buffer.writeln('            retryEnabled: $retryEnabled,');
   buffer.writeln('          )) {');
-  buffer.writeln('        read(mutationRetryQueueProvider).schedule(');
+  buffer.writeln(
+      '        final retrySnapshot = read(mutationRetryQueueProvider).schedule(');
   buffer.writeln('          id: $queueId,');
   buffer.writeln('          idempotent: ${meta.idempotent},');
   buffer.writeln("          label: r'${method.name}',");
@@ -82,6 +83,14 @@ String buildMutationCommandMethod({
   }
   buffer.writeln('            $refClass.$hook(read);');
   buffer.writeln('          },');
+  buffer.writeln('        );');
+  buffer.writeln(
+      '        read(refreshWarningProvider.notifier).recordQueuedMutation(');
+  buffer.writeln('          mutationId: retrySnapshot.id,');
+  buffer.writeln(
+      '          queuedMutationCount: read(mutationRetryQueueProvider).length,');
+  buffer.writeln('          error: e,');
+  buffer.writeln('          nextRetryAt: retrySnapshot.nextRetryAt,');
   buffer.writeln('        );');
   buffer.writeln('      }');
   buffer.writeln('      rethrow;');

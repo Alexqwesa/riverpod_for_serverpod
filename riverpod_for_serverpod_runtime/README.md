@@ -28,7 +28,7 @@ Current primitives:
 - `mutationRetryQueueProvider` / `InMemoryMutationRetryQueue` for idempotent
   mutation retries after connection-style failures (used by generated commands).
 - `refreshWarningProvider` / `RefreshWarningNotifier` for aggregated failed
-  [@CachedQuery] refresh attempts.
+  [@CachedQuery] refresh attempts and queued mutation retry warnings.
 
 `GeneratedEntityCache<T>` supports optional `maxItems` LRU eviction. Pending-sync
 records are not evicted automatically. List reads return only fresh indexes by
@@ -79,4 +79,19 @@ await clearGeneratedCacheNamespace(
   storage: keyValue,
   namespace: 'user/$userId',
 );
+```
+
+## Sync Warnings
+
+`refreshWarningProvider` aggregates cache refresh failures and queued mutation
+retries into one state object. Generated mutation commands record a queued
+mutation warning when a connection-like failure is eligible for retry.
+
+```dart
+final warning = ref.watch(refreshWarningProvider);
+
+if (warning.hasWarning) {
+  final queued = warning.queuedMutationCount;
+  final nextRetryAt = warning.nextRetryAt;
+}
 ```

@@ -37,10 +37,11 @@ DONE:
   generatedCacheStorageProvider / generatedSecureCacheStorageProvider runtime defaults exist and can be overridden by apps
   NamespacedGeneratedCacheStorage supports per-user cache isolation
   clearGeneratedCacheNamespace clears namespaced key-value cache records for logout
+  generated mutation commands record queued retry warnings through refreshWarningProvider
 
 NOT DONE YET:
   mutation command controllers (generated)
-  persisted retry queue / warning aggregator wiring
+  persisted retry queue
   secure cache generator diagnostics and examples
 ```
 
@@ -1709,6 +1710,7 @@ endpoint-level updateAll(ref.read) hooks
 cross-endpoint invalidation via @RefInvalidate
 abstract final class Ref<Endpoint>Commands with static async methods for @MutationCommand
 wiring to mutationRetryQueueProvider on connection-like failures (idempotent + retry enabled)
+queued retry warning reporting through refreshWarningProvider
 ```
 
 Still open for command generation:
@@ -1764,21 +1766,22 @@ non-idempotent mutation is not persisted
 
 ### Phase 6 — Warning aggregator
 
-Status: PARTIAL (cached-query refresh path).
+Status: PARTIAL.
 
 Done:
 
 ```text
 RefreshWarningState / RefreshWarningNotifier / refreshWarningProvider
 generated @CachedQuery FutureProvider bodies call recordFailure then rethrow
+generated mutation commands call recordQueuedMutation after scheduling retry
 ```
 
 Still open:
 
 ```text
-merge with mutation queue / retry UI
 nextRetryAt countdown for refresh
 clear-after-success coordination across many providers
+automatic queued mutation count clear after successful retry
 ```
 
 ### Phase 7 — Secure cache
