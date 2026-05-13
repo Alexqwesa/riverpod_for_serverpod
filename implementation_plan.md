@@ -34,11 +34,14 @@ DONE:
   generated @CachedQuery read providers use GeneratedEntityCache (readList on fresh index; putList after successful fetch; index key from provider id + json-encoded args; secure flag selects storage provider)
   @CachedQuery with backgroundRefresh (default true): autoDispose AsyncNotifier SWR — return fresh cache immediately, Future.microtask background revalidation, AsyncData refresh, refresh failures to refreshWarningProvider without failing the cached load
   @CachedQuery with backgroundRefresh: false keeps FutureProvider + inline cache read/put (no background microtask)
+  generatedCacheStorageProvider / generatedSecureCacheStorageProvider runtime defaults exist and can be overridden by apps
+  NamespacedGeneratedCacheStorage supports per-user cache isolation
+  clearGeneratedCacheNamespace clears namespaced key-value cache records for logout
 
 NOT DONE YET:
   mutation command controllers (generated)
   persisted retry queue / warning aggregator wiring
-  secure cache runtime
+  secure cache generator diagnostics and examples
 ```
 
 Current package names are still:
@@ -1780,9 +1783,9 @@ clear-after-success coordination across many providers
 
 ### Phase 7 — Secure cache
 
-Status: NOT STARTED.
+Status: PARTIAL.
 
-Implement:
+Done:
 
 ```text
 secure flag routing
@@ -1791,13 +1794,20 @@ encrypted Hive storage
 logout clear API
 ```
 
+Still open:
+
+```text
+secure storage override examples in generated-app integration tests
+diagnostic when secure cached queries are used without secure storage override
+```
+
 Tests:
 
 ```text
 secure query writes to secure storage
 normal query writes to normal storage
-logout clears secure namespace
-user A does not read user B cache
+logout clears secure namespace (runtime key-value helper)
+user A does not read user B cache (runtime namespace wrapper)
 ```
 
 ### Phase 8 — Diagnostics and lint-like warnings

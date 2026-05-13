@@ -28,3 +28,23 @@ final cacheStorage = await openHiveGeneratedCacheStorage(
   encryptionKey: key,
 );
 ```
+
+For user-scoped secure cache, keep the key-value storage so the namespace can be
+cleared on logout:
+
+```dart
+final keyValueStorage = await openHiveGeneratedKeyValueStorage(
+  boxName: 'generated_secure_cache',
+  encryptionKey: key,
+);
+
+final cacheStorage = NamespacedGeneratedCacheStorage(
+  inner: JsonGeneratedCacheStorage(keyValueStorage),
+  namespace: 'user/$userId',
+);
+
+await clearGeneratedCacheNamespace(
+  storage: keyValueStorage,
+  namespace: 'user/$userId',
+);
+```

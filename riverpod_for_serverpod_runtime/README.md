@@ -18,6 +18,13 @@ Current primitives:
 - `MemoryGeneratedCacheStorage` is useful for tests and non-persistent demos.
 - `JsonGeneratedCacheStorage` stores cache records as JSON strings on top of a
   simple `GeneratedKeyValueStorage`.
+- `generatedCacheStorageProvider` and `generatedSecureCacheStorageProvider`
+  provide memory-backed defaults for generated cached-query code. Override them
+  in apps to use persistent storage.
+- `NamespacedGeneratedCacheStorage` scopes entity/index records by namespace,
+  which is useful for per-user secure caches.
+- `clearGeneratedCacheNamespace` deletes all key-value records in a namespace,
+  which is useful during logout.
 - `mutationRetryQueueProvider` / `InMemoryMutationRetryQueue` for idempotent
   mutation retries after connection-style failures (used by generated commands).
 - `refreshWarningProvider` / `RefreshWarningNotifier` for aggregated failed
@@ -31,3 +38,45 @@ default, and can opt into stale reads with `allowStale: true` or
 Cache records expose `toJson`/`fromJson` so persistent storage adapters can store
 records as JSON strings. Timestamps are encoded as ISO-8601 strings and TTL is
 encoded as microseconds.
+
+## Storage Providers
+
+Generated cached-query providers read storage from:
+
+- `generatedCacheStorageProvider`
+- `generatedSecureCacheStorageProvider` for `@CachedQuery(secure: true)`
+
+Both default to separate `MemoryGeneratedCacheStorage` instances. Override them
+with Hive or another persistent adapter in production.
+
+```dart
+final container = ProviderContainer(
+  overrides: [
+    generatedCacheStorageProvider.overrideWith((ref) async {
+      return persistentStorage;
+    }),
+  ],
+);
+```
+
+## User-Scoped Cache
+
+Wrap persistent storage with `NamespacedGeneratedCacheStorage` when cache records
+must be isolated by user:
+
+```dart
+final keyValue = MemoryGeneratedKeyValueStorage();
+final storage = NamespacedGeneratedCacheStorage(
+  inner: JsonGeneratedCacheStorage(keyValue),
+  namespace: 'user/$userId',
+);
+```
+
+To clear the same namespace on logout:
+
+```dart
+await clearGeneratedCacheNamespace(
+  storage: keyValue,
+  namespace: 'user/$userId',
+);
+```

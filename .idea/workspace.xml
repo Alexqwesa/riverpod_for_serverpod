@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="added generatedCacheStorageProvider to runtime">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/riverpod_for_serverpod_runtime.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/riverpod_for_serverpod_runtime.dart" afterDir="false" />
-    </list>
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="NamespacedGeneratedCacheStorage" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -340,7 +337,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778656278141</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="NamespacedGeneratedCacheStorage">
+      <option name="closed" value="true" />
+      <created>1778658709355</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1778658709355</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -355,7 +360,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="working on new api" />
     <MESSAGE value="working on new api2" />
     <MESSAGE value="working on version 3 for riverpod 3+" />
     <MESSAGE value="new annotations" />
@@ -380,6 +384,7 @@
     <MESSAGE value="fixes(destructure args), + riverpod 2 support" />
     <MESSAGE value="fix Ref.cacheFor - only if mount" />
     <MESSAGE value="added generatedCacheStorageProvider to runtime" />
-    <option name="LAST_COMMIT_MESSAGE" value="added generatedCacheStorageProvider to runtime" />
+    <MESSAGE value="NamespacedGeneratedCacheStorage" />
+    <option name="LAST_COMMIT_MESSAGE" value="NamespacedGeneratedCacheStorage" />
   </component>
 </project>

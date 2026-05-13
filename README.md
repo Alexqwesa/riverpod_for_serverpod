@@ -159,6 +159,41 @@ On connection-like failures, the command can enqueue work on `mutationRetryQueue
 
 **[@CachedQuery](riverpod_for_serverpod_annotation)** reads still use `FutureProvider` fields; on failure they report once to `refreshWarningProvider` (also from the runtime package) and rethrow, so `AsyncValue` stays in error while the notifier records a global warning.
 
+Generated cached queries read from `generatedCacheStorageProvider`, or
+`generatedSecureCacheStorageProvider` when `secure: true`. The runtime exports
+memory-backed defaults so generated code works in tests, but production apps
+should usually override them with persistent storage:
+
+```dart
+final container = ProviderContainer(
+  overrides: [
+    generatedCacheStorageProvider.overrideWith((ref) async {
+      return await openHiveGeneratedCacheStorage();
+    }),
+  ],
+);
+```
+
+For user-scoped secure cache, wrap the persistent storage and clear the same
+namespace on logout:
+
+```dart
+final keyValue = await openHiveGeneratedKeyValueStorage(
+  boxName: 'generated_secure_cache',
+  encryptionKey: key,
+);
+
+final secureStorage = NamespacedGeneratedCacheStorage(
+  inner: JsonGeneratedCacheStorage(keyValue),
+  namespace: 'user/$userId',
+);
+
+await clearGeneratedCacheNamespace(
+  storage: keyValue,
+  namespace: 'user/$userId',
+);
+```
+
 After successful mutations, call the generated invalidation hook:
 
 ```dart
