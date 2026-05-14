@@ -1,4 +1,5 @@
 import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_for_serverpod_runtime/src/warnings/refresh_warning_notifier.dart';
 
 /// Result of attempting to run a single queued mutation.
 enum MutationRetryAttemptResult {
@@ -32,6 +33,9 @@ class MutationRetrySnapshot {
 }
 
 typedef MutationRetryRunner = Future<void> Function();
+typedef MutationRetryQueueChanged = void Function(
+  List<MutationRetrySnapshot> pending,
+);
 
 class _QueuedMutation {
   _QueuedMutation({
@@ -64,10 +68,14 @@ class _QueuedMutation {
 /// connection error). Suitable for V1; a later persistence layer can filter
 /// on [idempotent] and only store safe operations.
 class InMemoryMutationRetryQueue {
-  InMemoryMutationRetryQueue({DateTime Function()? now})
-      : _now = now ?? DateTime.now;
+  InMemoryMutationRetryQueue({
+    DateTime Function()? now,
+    MutationRetryQueueChanged? onChanged,
+  })  : _now = now ?? DateTime.now,
+        _onChanged = onChanged;
 
   final DateTime Function() _now;
+  final MutationRetryQueueChanged? _onChanged;
   final Map<String, _QueuedMutation> _entries = {};
 
   bool get isEmpty => _entries.isEmpty;
@@ -107,13 +115,22 @@ class InMemoryMutationRetryQueue {
       nextRetryAt: when,
     );
     _entries[id] = entry;
+    _notifyChanged();
     return entry.toSnapshot();
   }
 
   /// Removes an entry without running it. Returns whether an entry existed.
-  bool cancel(String id) => _entries.remove(id) != null;
+  bool cancel(String id) {
+    final removed = _entries.remove(id) != null;
+    if (removed) _notifyChanged();
+    return removed;
+  }
 
-  void clear() => _entries.clear();
+  void clear() {
+    if (_entries.isEmpty) return;
+    _entries.clear();
+    _notifyChanged();
+  }
 
   /// Runs the mutation for [id]. On success the entry is removed. On failure
   /// [attemptCount] is incremented and [nextRetryAt] is set using
@@ -128,11 +145,13 @@ class InMemoryMutationRetryQueue {
     try {
       await entry.run();
       _entries.remove(id);
+      _notifyChanged();
       return MutationRetryAttemptResult.success;
     } catch (e) {
       entry.attemptCount++;
       entry.lastError = e;
       entry.nextRetryAt = _now().add(failureBackoff);
+      _notifyChanged();
       return MutationRetryAttemptResult.failed;
     }
   }
@@ -159,10 +178,23 @@ class InMemoryMutationRetryQueue {
     }
     return successes;
   }
+
+  void _notifyChanged() {
+    final onChanged = _onChanged;
+    if (onChanged == null) return;
+    onChanged(pending);
+  }
 }
 
 /// Shared in-memory mutation retry queue for generated command helpers.
 final mutationRetryQueueProvider = Provider<InMemoryMutationRetryQueue>((ref) {
   ref.keepAlive();
-  return InMemoryMutationRetryQueue();
+  return InMemoryMutationRetryQueue(
+    onChanged: (pending) {
+      ref.read(refreshWarningProvider.notifier).setQueuedMutationCount(
+            pending.length,
+            nextRetryAt: pending.isEmpty ? null : pending.first.nextRetryAt,
+          );
+    },
+  );
 });

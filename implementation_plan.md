@@ -38,6 +38,7 @@ DONE:
   NamespacedGeneratedCacheStorage supports per-user cache isolation
   clearGeneratedCacheNamespace clears namespaced key-value cache records for logout
   generated mutation commands record queued retry warnings through refreshWarningProvider
+  mutationRetryQueueProvider keeps queued warning count synchronized after schedule, retry, cancel, and clear
 
 NOT DONE YET:
   mutation command controllers (generated)
@@ -1753,6 +1754,7 @@ Done (V1):
 ```text
 InMemoryMutationRetryQueue with schedule, retryNow, retryAllReady, cancel
 unit tests for success path, failure backoff, due vs not-due scheduling
+warning center integration through mutationRetryQueueProvider
 ```
 
 Tests:
@@ -1774,6 +1776,7 @@ Done:
 RefreshWarningState / RefreshWarningNotifier / refreshWarningProvider
 generated @CachedQuery FutureProvider bodies call recordFailure then rethrow
 generated mutation commands call recordQueuedMutation after scheduling retry
+mutationRetryQueueProvider clears/updates queued mutation warning count after queue changes
 ```
 
 Still open:
@@ -1781,7 +1784,6 @@ Still open:
 ```text
 nextRetryAt countdown for refresh
 clear-after-success coordination across many providers
-automatic queued mutation count clear after successful retry
 ```
 
 ### Phase 7 — Secure cache

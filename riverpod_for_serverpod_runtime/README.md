@@ -85,7 +85,9 @@ await clearGeneratedCacheNamespace(
 
 `refreshWarningProvider` aggregates cache refresh failures and queued mutation
 retries into one state object. Generated mutation commands record a queued
-mutation warning when a connection-like failure is eligible for retry.
+mutation warning when a connection-like failure is eligible for retry. The
+default `mutationRetryQueueProvider` keeps `queuedMutationCount` synchronized
+after queue schedule, retry, cancel, and clear operations.
 
 ```dart
 final warning = ref.watch(refreshWarningProvider);

@@ -120,5 +120,26 @@ void main() {
 
       expect(queue.pending.single.idempotent, isFalse);
     });
+
+    test('onChanged receives pending snapshots after queue changes', () async {
+      final changes = <List<String>>[];
+      final queue = InMemoryMutationRetryQueue(
+        onChanged: (pending) {
+          changes.add([for (final snapshot in pending) snapshot.id]);
+        },
+      );
+
+      queue.schedule(id: 'm1', idempotent: true, run: () async {});
+      queue.schedule(id: 'm2', idempotent: true, run: () async {});
+      queue.cancel('m1');
+      await queue.retryNow('m2');
+
+      expect(changes, [
+        ['m1'],
+        ['m1', 'm2'],
+        ['m2'],
+        <String>[],
+      ]);
+    });
   });
 }

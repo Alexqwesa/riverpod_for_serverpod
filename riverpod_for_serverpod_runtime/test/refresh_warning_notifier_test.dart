@@ -70,5 +70,22 @@ void main() {
 
       expect(container.read(refreshWarningProvider).hasWarning, isFalse);
     });
+
+    test('mutationRetryQueueProvider keeps queued warning count in sync',
+        () async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final queue = container.read(mutationRetryQueueProvider);
+      queue.schedule(id: 'm1', idempotent: true, run: () async {});
+
+      expect(container.read(refreshWarningProvider).queuedMutationCount, 1);
+
+      await queue.retryNow('m1');
+
+      final s = container.read(refreshWarningProvider);
+      expect(s.queuedMutationCount, 0);
+      expect(s.hasWarning, isFalse);
+    });
   });
 }
