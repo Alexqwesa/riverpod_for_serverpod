@@ -190,3 +190,10 @@ await ref
     .read(adminMutationControllerProvider.notifier)
     .updateUserRole(userId, roleName);
 ```
+
+## Diagnostics
+
+The builder emits warnings for risky annotation combinations. Methods whose
+names look mutation-like, such as `updateRole`, `deleteUser`, or `upsertBank`,
+produce a warning unless they are annotated with `@MutationCommand`,
+`@CachedQuery`, or `@DoNotGenerate()`.

@@ -61,6 +61,15 @@ List<ManifestDiagnostic> _validateMethod(
 
   if (mutation != null) {
     diagnostics.addAll(_validateMutation(endpoint, method, mutation));
+  } else if (cachedQuery == null && _looksLikeMutationName(method.name)) {
+    diagnostics.add(
+      _diagnostic(
+        endpoint,
+        method,
+        'mutation_like_method_missing_annotation',
+        'Method name looks like a mutation. Add @MutationCommand or @DoNotGenerate if this should not be generated as a read provider.',
+      ),
+    );
   }
 
   return diagnostics;
@@ -197,4 +206,31 @@ bool _isSupportedCachedReturnType(String returnType) {
   if (trimmed.startsWith('Page<')) return false;
   if (trimmed.contains('<') && !trimmed.startsWith('List<')) return false;
   return true;
+}
+
+bool _looksLikeMutationName(String methodName) {
+  final normalized = methodName.trim();
+  if (normalized.isEmpty) return false;
+
+  const prefixes = [
+    'add',
+    'archive',
+    'assign',
+    'change',
+    'create',
+    'delete',
+    'insert',
+    'patch',
+    'publish',
+    'remove',
+    'restore',
+    'save',
+    'set',
+    'submit',
+    'unarchive',
+    'update',
+    'upsert',
+  ];
+
+  return prefixes.any((prefix) => normalized.startsWith(prefix));
 }

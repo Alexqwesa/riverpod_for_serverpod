@@ -87,6 +87,59 @@ void main() {
       expect(codes, contains('bool_mutation_requires_by_id'));
     });
 
+    test('warns when mutation-like method has no MutationCommand', () {
+      const manifest = EndpointManifestMeta([
+        EndpointManifestEntry(
+          name: 'AdminEndpoint',
+          methods: [
+            MethodManifestEntry(
+              name: 'updateRole',
+              returnType: 'Future<void>',
+              positionalParams: [],
+              namedParams: [],
+            ),
+          ],
+        ),
+      ]);
+
+      final diagnostics = validateEndpointManifest(manifest);
+
+      expect(
+        diagnostics.map((d) => d.code),
+        contains('mutation_like_method_missing_annotation'),
+      );
+      expect(diagnostics.single.severity, ManifestDiagnosticSeverity.warning);
+    });
+
+    test('does not warn for explicitly annotated mutation-like methods', () {
+      const manifest = EndpointManifestMeta([
+        EndpointManifestEntry(
+          name: 'AdminEndpoint',
+          methods: [
+            MethodManifestEntry(
+              name: 'updateRole',
+              returnType: 'Future<void>',
+              positionalParams: [],
+              namedParams: [],
+              mutationCommand: MutationCommandMeta(
+                affects: 'UserSummary',
+                retry: 'RetryPolicy.none',
+              ),
+            ),
+            MethodManifestEntry(
+              name: 'setRoleOptions',
+              returnType: 'Future<List<Role>>',
+              positionalParams: [],
+              namedParams: [],
+              cachedQuery: CachedQueryMeta(entity: 'Role'),
+            ),
+          ],
+        ),
+      ]);
+
+      expect(validateEndpointManifest(manifest), isEmpty);
+    });
+
     test('accepts supported safe cached query and mutation metadata', () {
       const manifest = EndpointManifestMeta([
         EndpointManifestEntry(

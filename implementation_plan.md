@@ -40,6 +40,7 @@ DONE:
   generated mutation commands record queued retry warnings through refreshWarningProvider
   mutationRetryQueueProvider keeps queued warning count synchronized after schedule, retry, cancel, and clear
   generated AsyncNotifier<void> mutation controllers delegate to Ref<Endpoint>Commands and expose loading/error state
+  manifest diagnostics warn when mutation-like method names lack @MutationCommand
 
 NOT DONE YET:
   mutation optimistic cache/refetch behavior
@@ -1830,6 +1831,7 @@ invalid cacheVersion diagnostic
 retry without idempotent diagnostic
 idempotencyKeyArg without idempotent diagnostic
 bool mutation without byIdMethod diagnostic
+mutation-like method without @MutationCommand diagnostic
 builder warning/severe logging
 diagnostics tests
 ```
@@ -1839,7 +1841,6 @@ Still open:
 Generate diagnostics for:
 
 ```text
-mutation-like method has no @MutationCommand
 cached query return type is unsupported
 idField does not exist on entity
 mutation returns bool but no byIdMethod/refetch policy is configured
