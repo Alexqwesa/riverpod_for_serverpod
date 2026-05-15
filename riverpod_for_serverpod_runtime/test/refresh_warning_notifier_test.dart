@@ -59,6 +59,32 @@ void main() {
       expect(s.nextRetryAt, isNull);
     });
 
+    test('clearRefreshFailures preserves queued mutation warning', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final nextRetryAt = DateTime.utc(2026, 5, 15, 12);
+
+      container
+          .read(refreshWarningProvider.notifier)
+          .recordFailure(sourceKey: 'RefX.y', error: 'offline');
+      container.read(refreshWarningProvider.notifier).recordQueuedMutation(
+            mutationId: 'm1',
+            queuedMutationCount: 1,
+            nextRetryAt: nextRetryAt,
+          );
+
+      container.read(refreshWarningProvider.notifier).clearRefreshFailures();
+
+      final s = container.read(refreshWarningProvider);
+      expect(s.failedRefreshCount, 0);
+      expect(s.lastSourceKey, isNull);
+      expect(s.lastFailureAt, isNull);
+      expect(s.queuedMutationCount, 1);
+      expect(s.lastMutationId, 'm1');
+      expect(s.nextRetryAt, nextRetryAt);
+      expect(s.hasWarning, isTrue);
+    });
+
     test('clear resets state', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);

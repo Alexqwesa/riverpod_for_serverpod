@@ -163,13 +163,15 @@ void main() {
       expect(src, contains('generatedCacheStorageProvider'));
       expect(src, contains('readList(indexKey)'));
       expect(src, contains('putList(indexKey, result'));
+      expect(src, contains('clearRefreshFailures'));
       expect(src, contains('Future.microtask'));
       expect(src, contains('AsyncData(fresh)'));
       expect(src, contains('refreshWarningProvider'));
       expect(src, contains("sourceKey: r'RefAdminEndpoint.listRoles'"));
     });
 
-    test('CachedQuery backgroundRefresh false keeps FutureProvider cache path', () {
+    test('CachedQuery backgroundRefresh false keeps FutureProvider cache path',
+        () {
       final m = MyMethodMeta(
         'listRoles',
         'Future<List<Role>>',
@@ -187,6 +189,7 @@ void main() {
       expect(code, contains('GeneratedEntityCache<Role>'));
       expect(code, contains('try {'));
       expect(code, contains('refreshWarningProvider'));
+      expect(code, contains('clearRefreshFailures'));
     });
 
     test('CachedQuery secure SWR notifier reads secure storage', () {
@@ -201,9 +204,7 @@ void main() {
         cachedQuery: const CachedQueryMeta(entity: 'Role', secure: true),
       );
       expect(
-        buildZeroParamField(m, 'List<Role>', '', 'admin')
-            .assignment
-            .toString(),
+        buildZeroParamField(m, 'List<Role>', '', 'admin').assignment.toString(),
         contains('AsyncNotifierProvider'),
       );
       final src = buildCachedQueryNotifierSource(

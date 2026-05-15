@@ -55,8 +55,9 @@ String? buildCachedQueryNotifierSource({
 
   final cachedReturn = shape.isList ? 'cachedList' : 'cachedList.first';
 
-  final cachedHitCond =
-      shape.isList ? 'cachedList != null' : 'cachedList != null && cachedList.isNotEmpty';
+  final cachedHitCond = shape.isList
+      ? 'cachedList != null'
+      : 'cachedList != null && cachedList.isNotEmpty';
 
   final prelude = host.buildParamPrelude.isEmpty
       ? ''
@@ -70,6 +71,7 @@ $cacheOpenRead
     final result = await $rpc;
     $putBlock
     $cacheFor
+    ref.read(refreshWarningProvider.notifier).clearRefreshFailures();
     return result;
   }
 

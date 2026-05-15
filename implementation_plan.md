@@ -43,6 +43,7 @@ DONE:
   manifest diagnostics warn when mutation-like method names lack @MutationCommand
   manifest diagnostics warn when create-like mutations enable retry without idempotencyKeyArg
   manifest diagnostics error when annotation argument references point to missing method parameters
+  generated cached-query providers clear refresh warnings after successful remote refresh
 
 NOT DONE YET:
   mutation optimistic cache/refetch behavior
@@ -1781,13 +1782,13 @@ RefreshWarningState / RefreshWarningNotifier / refreshWarningProvider
 generated @CachedQuery FutureProvider bodies call recordFailure then rethrow
 generated mutation commands call recordQueuedMutation after scheduling retry
 mutationRetryQueueProvider clears/updates queued mutation warning count after queue changes
+generated cached-query success paths call clearRefreshFailures without clearing queued mutation warnings
 ```
 
 Still open:
 
 ```text
 nextRetryAt countdown for refresh
-clear-after-success coordination across many providers
 ```
 
 ### Phase 7 — Secure cache

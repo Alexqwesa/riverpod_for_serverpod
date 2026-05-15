@@ -4,15 +4,15 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="added mutationRetryQueueProvider">
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="added @MutationCommand warnings if missed 3">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/implementation_plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/implementation_plan.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_mutation_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_mutation_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/mutation_command_generation_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/mutation_command_generation_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_cached_query_notifier.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_cached_query_notifier.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_field.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_provider_field.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_field_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_field_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/warnings/refresh_warning_notifier.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/warnings/refresh_warning_notifier.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/refresh_warning_notifier_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/refresh_warning_notifier_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -386,7 +386,39 @@
       <option name="project" value="LOCAL" />
       <updated>1778721775197</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="added @MutationCommand">
+      <option name="closed" value="true" />
+      <created>1778828461724</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1778828461724</updated>
+    </task>
+    <task id="LOCAL-00036" summary="added @MutationCommand warnings if missed">
+      <option name="closed" value="true" />
+      <created>1778829211501</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1778829211501</updated>
+    </task>
+    <task id="LOCAL-00037" summary="added @MutationCommand warnings if missed 2">
+      <option name="closed" value="true" />
+      <created>1778829366650</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1778829366650</updated>
+    </task>
+    <task id="LOCAL-00038" summary="added @MutationCommand warnings if missed 3">
+      <option name="closed" value="true" />
+      <created>1778829592821</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1778829592821</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -401,10 +433,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added parser metadata for future `@CachedQuery`, `@MutationCommand`, `Invalidate.*`, and validation annotations." />
-    <MESSAGE value="connect the parser layer into a manifest model: build endpoint/method manifests from scanned Serverpod classes" />
-    <MESSAGE value="generated EndpointManifest const map is emitted into generated Dart output" />
-    <MESSAGE value="manifest diagnostics warn about invalid or risky query/mutation annotation combinations" />
     <MESSAGE value="riverpod_for_serverpod_runtime" />
     <MESSAGE value="TTL freshness for indexes&#10;  LRU eviction by maxItems&#10;  pendingSync records are not evicted" />
     <MESSAGE value="Added JSON round-trip support for cached entity and index records." />
@@ -426,6 +454,10 @@
     <MESSAGE value="clearGeneratedCacheNamespace()" />
     <MESSAGE value="refreshWarningProvider" />
     <MESSAGE value="added mutationRetryQueueProvider" />
-    <option name="LAST_COMMIT_MESSAGE" value="added mutationRetryQueueProvider" />
+    <MESSAGE value="added @MutationCommand" />
+    <MESSAGE value="added @MutationCommand warnings if missed" />
+    <MESSAGE value="added @MutationCommand warnings if missed 2" />
+    <MESSAGE value="added @MutationCommand warnings if missed 3" />
+    <option name="LAST_COMMIT_MESSAGE" value="added @MutationCommand warnings if missed 3" />
   </component>
 </project>

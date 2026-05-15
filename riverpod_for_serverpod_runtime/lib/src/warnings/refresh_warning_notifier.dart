@@ -55,6 +55,15 @@ class RefreshWarningNotifier extends Notifier<RefreshWarningState> {
     );
   }
 
+  void clearRefreshFailures() {
+    final prev = state;
+    state = RefreshWarningState(
+      queuedMutationCount: prev.queuedMutationCount,
+      lastMutationId: prev.lastMutationId,
+      nextRetryAt: prev.nextRetryAt,
+    );
+  }
+
   void clear() {
     state = const RefreshWarningState();
   }

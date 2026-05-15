@@ -22,9 +22,8 @@ String _successfulResultBody(
 ) {
   final call = _clientCall(m, clientField, args);
   final cacheFor = 'ref.cacheFor(const ${m.cacheTtl});';
-  final cachedShape = m.cachedQuery == null
-      ? null
-      : parseCachedQueryReturnType(returnType);
+  final cachedShape =
+      m.cachedQuery == null ? null : parseCachedQueryReturnType(returnType);
 
   if (m.cachedQuery != null && cachedShape != null) {
     final clientAwait = 'final result = await $call;';
@@ -37,6 +36,7 @@ String _successfulResultBody(
     return '''
 $core
     $cacheFor
+    ref.read(refreshWarningProvider.notifier).clearRefreshFailures();
     return result;
 ''';
   }
