@@ -96,7 +96,9 @@ void main() {
               name: 'createIssue',
               returnType: 'Future<Issue>',
               positionalParams: [],
-              namedParams: [],
+              namedParams: [
+                MyParamMeta('clientRequestId', 'String', null),
+              ],
               mutationCommand: MutationCommandMeta(
                 affects: 'Issue',
                 retry: 'RetryPolicy.connectionOnly',
@@ -126,7 +128,9 @@ void main() {
               name: 'createIssue',
               returnType: 'Future<Issue>',
               positionalParams: [],
-              namedParams: [],
+              namedParams: [
+                MyParamMeta('clientRequestId', 'String', null),
+              ],
               mutationCommand: MutationCommandMeta(
                 affects: 'Issue',
                 retry: 'RetryPolicy.connectionOnly',
@@ -199,6 +203,97 @@ void main() {
               positionalParams: [],
               namedParams: [],
               cachedQuery: CachedQueryMeta(entity: 'Role'),
+            ),
+          ],
+        ),
+      ]);
+
+      expect(validateEndpointManifest(manifest), isEmpty);
+    });
+
+    test('errors when annotation arguments reference missing parameters', () {
+      const manifest = EndpointManifestMeta([
+        EndpointManifestEntry(
+          name: 'AdminEndpoint',
+          methods: [
+            MethodManifestEntry(
+              name: 'updateRole',
+              returnType: 'Future<void>',
+              positionalParams: [
+                MyParamMeta('userId', 'int', null),
+              ],
+              namedParams: [],
+              mutationCommand: MutationCommandMeta(
+                affects: 'UserSummary',
+                idArg: 'missingId',
+                idempotencyKeyArg: 'missingRequestId',
+                idempotent: true,
+                retry: 'RetryPolicy.none',
+                invalidate: [
+                  InvalidateMeta.family(
+                    'getUserSummaryById',
+                    argFrom: 'missingInvalidateArg',
+                  ),
+                ],
+              ),
+              validateStrings: [
+                ValidateStringMeta(arg: 'missingString'),
+              ],
+              validateNumbers: [
+                ValidateNumberMeta(arg: 'missingNumber'),
+              ],
+              validateLists: [
+                ValidateListMeta(arg: 'missingList'),
+              ],
+            ),
+          ],
+        ),
+      ]);
+
+      final diagnostics = validateEndpointManifest(manifest);
+
+      expect(
+        diagnostics.map((d) => d.code),
+        everyElement('missing_annotation_parameter'),
+      );
+      expect(diagnostics, hasLength(6));
+      expect(
+        diagnostics.map((d) => d.severity),
+        everyElement(ManifestDiagnosticSeverity.error),
+      );
+    });
+
+    test('accepts annotation arguments that reference existing parameters', () {
+      const manifest = EndpointManifestMeta([
+        EndpointManifestEntry(
+          name: 'AdminEndpoint',
+          methods: [
+            MethodManifestEntry(
+              name: 'updateRole',
+              returnType: 'Future<void>',
+              positionalParams: [
+                MyParamMeta('userId', 'int', null),
+              ],
+              namedParams: [
+                MyParamMeta('roleName', 'String', null),
+                MyParamMeta('clientRequestId', 'String', null),
+              ],
+              mutationCommand: MutationCommandMeta(
+                affects: 'UserSummary',
+                idArg: 'userId',
+                idempotencyKeyArg: 'clientRequestId',
+                idempotent: true,
+                retry: 'RetryPolicy.none',
+                invalidate: [
+                  InvalidateMeta.family(
+                    'getUserSummaryById',
+                    argFrom: 'userId',
+                  ),
+                ],
+              ),
+              validateStrings: [
+                ValidateStringMeta(arg: 'roleName'),
+              ],
             ),
           ],
         ),

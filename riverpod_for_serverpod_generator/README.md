@@ -201,3 +201,7 @@ produce a warning unless they are annotated with `@MutationCommand`,
 Create-like mutation names, such as `createIssue` or `addDraft`, also warn when
 retry is enabled without `idempotencyKeyArg`, because a retry after connection
 loss can create duplicates.
+
+Annotation fields that reference method parameters are validated. For example,
+`idArg`, `idempotencyKeyArg`, `Invalidate.family(argFrom: ...)`, and validation
+annotation `arg` values must match real endpoint method parameters.

@@ -72,6 +72,8 @@ List<ManifestDiagnostic> _validateMethod(
     );
   }
 
+  diagnostics.addAll(_validateParameterReferences(endpoint, method));
+
   return diagnostics;
 }
 
@@ -185,6 +187,55 @@ List<ManifestDiagnostic> _validateMutation(
         'Bool-returning mutations need byIdMethod when refetch is byId.',
       ),
     );
+  }
+
+  return diagnostics;
+}
+
+List<ManifestDiagnostic> _validateParameterReferences(
+  String endpoint,
+  MethodManifestEntry method,
+) {
+  final diagnostics = <ManifestDiagnostic>[];
+  final paramNames = {
+    for (final p in method.positionalParams) p.name,
+    for (final p in method.namedParams) p.name,
+  };
+
+  void requireParam(String annotation, String field, String? arg) {
+    if (arg == null || paramNames.contains(arg)) return;
+    diagnostics.add(
+      _diagnostic(
+        endpoint,
+        method,
+        'missing_annotation_parameter',
+        '$annotation.$field references "$arg", but no method parameter has that name.',
+        severity: ManifestDiagnosticSeverity.error,
+      ),
+    );
+  }
+
+  final mutation = method.mutationCommand;
+  if (mutation != null) {
+    requireParam('@MutationCommand', 'idArg', mutation.idArg);
+    requireParam(
+      '@MutationCommand',
+      'idempotencyKeyArg',
+      mutation.idempotencyKeyArg,
+    );
+    for (final invalidate in mutation.invalidate) {
+      requireParam('Invalidate.family', 'argFrom', invalidate.argFrom);
+    }
+  }
+
+  for (final validation in method.validateStrings) {
+    requireParam('@ValidateString', 'arg', validation.arg);
+  }
+  for (final validation in method.validateNumbers) {
+    requireParam('@ValidateNumber', 'arg', validation.arg);
+  }
+  for (final validation in method.validateLists) {
+    requireParam('@ValidateList', 'arg', validation.arg);
   }
 
   return diagnostics;

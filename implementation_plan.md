@@ -42,6 +42,7 @@ DONE:
   generated AsyncNotifier<void> mutation controllers delegate to Ref<Endpoint>Commands and expose loading/error state
   manifest diagnostics warn when mutation-like method names lack @MutationCommand
   manifest diagnostics warn when create-like mutations enable retry without idempotencyKeyArg
+  manifest diagnostics error when annotation argument references point to missing method parameters
 
 NOT DONE YET:
   mutation optimistic cache/refetch behavior
@@ -1834,6 +1835,7 @@ idempotencyKeyArg without idempotent diagnostic
 bool mutation without byIdMethod diagnostic
 mutation-like method without @MutationCommand diagnostic
 create mutation retry without idempotency key diagnostic
+missing annotation parameter reference diagnostic
 builder warning/severe logging
 diagnostics tests
 ```
