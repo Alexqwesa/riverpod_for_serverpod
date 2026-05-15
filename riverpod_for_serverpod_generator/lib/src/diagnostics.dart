@@ -159,6 +159,20 @@ List<ManifestDiagnostic> _validateMutation(
     );
   }
 
+  if (mutation.retry != 'RetryPolicy.none' &&
+      mutation.idempotent &&
+      mutation.idempotencyKeyArg == null &&
+      _looksLikeCreateMutationName(method.name)) {
+    diagnostics.add(
+      _diagnostic(
+        endpoint,
+        method,
+        'create_retry_requires_idempotency_key',
+        'Create-like mutations with retry enabled should declare idempotencyKeyArg to avoid duplicate creates after connection loss.',
+      ),
+    );
+  }
+
   final returnType = _unwrapFuture(method.returnType);
   if (returnType == 'bool' &&
       mutation.refetch == 'RefetchPolicy.byId' &&
@@ -230,6 +244,20 @@ bool _looksLikeMutationName(String methodName) {
     'unarchive',
     'update',
     'upsert',
+  ];
+
+  return prefixes.any((prefix) => normalized.startsWith(prefix));
+}
+
+bool _looksLikeCreateMutationName(String methodName) {
+  final normalized = methodName.trim();
+  if (normalized.isEmpty) return false;
+
+  const prefixes = [
+    'add',
+    'create',
+    'insert',
+    'submit',
   ];
 
   return prefixes.any((prefix) => normalized.startsWith(prefix));

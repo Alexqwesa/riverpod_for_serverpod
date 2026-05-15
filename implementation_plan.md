@@ -41,6 +41,7 @@ DONE:
   mutationRetryQueueProvider keeps queued warning count synchronized after schedule, retry, cancel, and clear
   generated AsyncNotifier<void> mutation controllers delegate to Ref<Endpoint>Commands and expose loading/error state
   manifest diagnostics warn when mutation-like method names lack @MutationCommand
+  manifest diagnostics warn when create-like mutations enable retry without idempotencyKeyArg
 
 NOT DONE YET:
   mutation optimistic cache/refetch behavior
@@ -1832,6 +1833,7 @@ retry without idempotent diagnostic
 idempotencyKeyArg without idempotent diagnostic
 bool mutation without byIdMethod diagnostic
 mutation-like method without @MutationCommand diagnostic
+create mutation retry without idempotency key diagnostic
 builder warning/severe logging
 diagnostics tests
 ```
@@ -1847,7 +1849,6 @@ mutation returns bool but no byIdMethod/refetch policy is configured
 retry requested but mutation is not idempotent
 secure requested but no secure storage provider is configured
 cache maxItems is too small
-create mutation has retry but no idempotency key
 ```
 
 ### Phase 9 — Documentation and examples

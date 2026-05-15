@@ -197,3 +197,7 @@ The builder emits warnings for risky annotation combinations. Methods whose
 names look mutation-like, such as `updateRole`, `deleteUser`, or `upsertBank`,
 produce a warning unless they are annotated with `@MutationCommand`,
 `@CachedQuery`, or `@DoNotGenerate()`.
+
+Create-like mutation names, such as `createIssue` or `addDraft`, also warn when
+retry is enabled without `idempotencyKeyArg`, because a retry after connection
+loss can create duplicates.

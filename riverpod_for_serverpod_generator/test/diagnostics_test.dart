@@ -87,6 +87,73 @@ void main() {
       expect(codes, contains('bool_mutation_requires_by_id'));
     });
 
+    test('warns when create retry has no idempotency key', () {
+      const manifest = EndpointManifestMeta([
+        EndpointManifestEntry(
+          name: 'IssueEndpoint',
+          methods: [
+            MethodManifestEntry(
+              name: 'createIssue',
+              returnType: 'Future<Issue>',
+              positionalParams: [],
+              namedParams: [],
+              mutationCommand: MutationCommandMeta(
+                affects: 'Issue',
+                retry: 'RetryPolicy.connectionOnly',
+                idempotent: true,
+                refetch: 'RefetchPolicy.none',
+              ),
+            ),
+          ],
+        ),
+      ]);
+
+      final diagnostics = validateEndpointManifest(manifest);
+
+      expect(
+        diagnostics.map((d) => d.code),
+        contains('create_retry_requires_idempotency_key'),
+      );
+      expect(diagnostics.single.severity, ManifestDiagnosticSeverity.warning);
+    });
+
+    test('accepts create mutation retry with idempotency key', () {
+      const manifest = EndpointManifestMeta([
+        EndpointManifestEntry(
+          name: 'IssueEndpoint',
+          methods: [
+            MethodManifestEntry(
+              name: 'createIssue',
+              returnType: 'Future<Issue>',
+              positionalParams: [],
+              namedParams: [],
+              mutationCommand: MutationCommandMeta(
+                affects: 'Issue',
+                retry: 'RetryPolicy.connectionOnly',
+                idempotent: true,
+                idempotencyKeyArg: 'clientRequestId',
+                refetch: 'RefetchPolicy.none',
+              ),
+            ),
+            MethodManifestEntry(
+              name: 'addIssueDraft',
+              returnType: 'Future<Issue>',
+              positionalParams: [],
+              namedParams: [],
+              mutationCommand: MutationCommandMeta(
+                affects: 'Issue',
+                retry: 'RetryPolicy.none',
+                idempotent: false,
+                refetch: 'RefetchPolicy.none',
+              ),
+            ),
+          ],
+        ),
+      ]);
+
+      expect(validateEndpointManifest(manifest), isEmpty);
+    });
+
     test('warns when mutation-like method has no MutationCommand', () {
       const manifest = EndpointManifestMeta([
         EndpointManifestEntry(
