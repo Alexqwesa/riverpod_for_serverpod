@@ -25,6 +25,74 @@ String buildMutationCommandsClass({
   return buf.toString();
 }
 
+/// Emits an optional `AsyncNotifier<void>` controller for [@MutationCommand]
+/// methods. The controller delegates to the static command helpers and exposes
+/// loading/error state to UI code.
+String buildMutationControllerSource({
+  required String endpointClassName,
+  required List<MyMethodMeta> mutationMethods,
+}) {
+  if (mutationMethods.isEmpty) return '';
+
+  final baseName = endpointClassName.replaceAll(RegExp(r'Endpoint$'), '');
+  final controllerName = '${ReCase(baseName).pascalCase}MutationController';
+  final providerName =
+      '${ReCase(baseName).camelCase}MutationControllerProvider';
+  final commandsClass = 'Ref${endpointClassName}Commands';
+
+  final buf = StringBuffer();
+  buf.writeln('final $providerName =');
+  buf.writeln('    AsyncNotifierProvider<$controllerName, void>(');
+  buf.writeln('  $controllerName.new,');
+  buf.writeln(');');
+  buf.writeln();
+  buf.writeln('final class $controllerName extends AsyncNotifier<void> {');
+  buf.writeln('  @override');
+  buf.writeln('  Future<void> build() async {}');
+  buf.writeln();
+  for (final method in mutationMethods) {
+    buf.writeln(_buildMutationControllerMethod(
+      commandsClass: commandsClass,
+      method: method,
+    ));
+  }
+  buf.writeln('}');
+  return buf.toString();
+}
+
+String _buildMutationControllerMethod({
+  required String commandsClass,
+  required MyMethodMeta method,
+}) {
+  final buf = StringBuffer();
+  buf.write('  Future<void> ${method.name}(');
+  var needsComma = false;
+  for (final p in method.positionalParams) {
+    if (needsComma) buf.write(', ');
+    buf.write('${p.type} ${p.name}');
+    needsComma = true;
+  }
+  for (final p in method.namedParams) {
+    if (needsComma) buf.write(', ');
+    buf.write('${p.type} ${p.name}');
+    needsComma = true;
+  }
+  buf.writeln(') async {');
+  buf.writeln('    state = const AsyncLoading();');
+  buf.writeln('    state = await AsyncValue.guard(() async {');
+  buf.write('      await $commandsClass.${method.name}(ref.read');
+  for (final p in method.positionalParams) {
+    buf.write(', ${p.name}');
+  }
+  for (final p in method.namedParams) {
+    buf.write(', ${p.name}');
+  }
+  buf.writeln(');');
+  buf.writeln('    });');
+  buf.writeln('  }');
+  return buf.toString();
+}
+
 String buildMutationCommandMethod({
   required String endpointClassName,
   required String clientField,

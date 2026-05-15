@@ -64,4 +64,52 @@ void main() {
       );
     });
   });
+
+  group('buildMutationControllerSource', () {
+    test('emits AsyncNotifier controller that delegates to commands', () {
+      final code = buildMutationControllerSource(
+        endpointClassName: 'AdminEndpoint',
+        mutationMethods: [
+          MyMethodMeta(
+            'updateUserRole',
+            'Future<UserSummary>',
+            [MyParamMeta('userId', 'int', null)],
+            [MyParamMeta('roleName', 'String', null)],
+            true,
+            true,
+            innerProviderName: 'RefAdminEndpoint',
+            mutationCommand: const MutationCommandMeta(
+              affects: 'UserSummary',
+            ),
+          ),
+        ],
+      );
+
+      expect(code, contains('adminMutationControllerProvider'));
+      expect(code,
+          contains('AsyncNotifierProvider<AdminMutationController, void>'));
+      expect(
+          code,
+          contains(
+              'final class AdminMutationController extends AsyncNotifier<void>'));
+      expect(code, contains('state = const AsyncLoading();'));
+      expect(code, contains('state = await AsyncValue.guard'));
+      expect(
+        code,
+        contains(
+          'await RefAdminEndpointCommands.updateUserRole(ref.read, userId, roleName);',
+        ),
+      );
+    });
+
+    test('returns empty string when no mutations', () {
+      expect(
+        buildMutationControllerSource(
+          endpointClassName: 'AdminEndpoint',
+          mutationMethods: const [],
+        ),
+        isEmpty,
+      );
+    });
+  });
 }

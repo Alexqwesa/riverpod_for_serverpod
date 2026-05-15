@@ -39,9 +39,10 @@ DONE:
   clearGeneratedCacheNamespace clears namespaced key-value cache records for logout
   generated mutation commands record queued retry warnings through refreshWarningProvider
   mutationRetryQueueProvider keeps queued warning count synchronized after schedule, retry, cancel, and clear
+  generated AsyncNotifier<void> mutation controllers delegate to Ref<Endpoint>Commands and expose loading/error state
 
 NOT DONE YET:
-  mutation command controllers (generated)
+  mutation optimistic cache/refetch behavior
   persisted retry queue
   secure cache generator diagnostics and examples
 ```
@@ -1712,6 +1713,7 @@ cross-endpoint invalidation via @RefInvalidate
 abstract final class Ref<Endpoint>Commands with static async methods for @MutationCommand
 wiring to mutationRetryQueueProvider on connection-like failures (idempotent + retry enabled)
 queued retry warning reporting through refreshWarningProvider
+AsyncNotifier<void> mutation controller per endpoint with @MutationCommand methods
 ```
 
 Still open for command generation:
@@ -1719,7 +1721,6 @@ Still open for command generation:
 Generate:
 
 ```text
-optional mutation controller
 optimistic patch logic
 rollback logic
 success merge/refetch logic beyond invalidate hooks

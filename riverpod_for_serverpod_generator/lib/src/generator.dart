@@ -413,6 +413,12 @@ ${emitProviderRetry ? 'Duration? _noProviderRetry(int retryCount, Object error) 
               mutationMethods: mutationMethods,
             ),
           ),
+          Code(
+            buildMutationControllerSource(
+              endpointClassName: endpointClass,
+              mutationMethods: mutationMethods,
+            ),
+          ),
         ];
       }),
     );

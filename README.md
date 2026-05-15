@@ -155,6 +155,15 @@ final roles = ref.watch(RefAdminEndpoint.listRoles);
 await RefAdminEndpointCommands.updateUserRole(ref.read, userId, roleName);
 ```
 
+The generator also emits an `AsyncNotifier<void>` mutation controller per
+endpoint with mutation commands, so UI code can watch loading/error state:
+
+```dart
+await ref
+    .read(adminMutationControllerProvider.notifier)
+    .updateUserRole(userId, roleName);
+```
+
 On connection-like failures, the command can enqueue work on `mutationRetryQueueProvider` (from `riverpod_for_serverpod_runtime`) when the mutation is **idempotent** and retry is enabled.
 
 **[@CachedQuery](riverpod_for_serverpod_annotation)** reads still use `FutureProvider` fields; on failure they report once to `refreshWarningProvider` (also from the runtime package) and rethrow, so `AsyncValue` stays in error while the notifier records a global warning.

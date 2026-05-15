@@ -174,3 +174,19 @@ RefBankManagerEndpoint.invalidateAfterUpsertBankProfile(ref.read);
 Because `upsertBankProfile` was annotated with
 `@RefInvalidate(['BankBalanceEndpoint'])`, that single call refreshes both
 `RefBankManagerEndpoint` and `RefBankBalanceEndpoint`.
+
+Methods annotated with `@MutationCommand` are generated as explicit command
+helpers instead of watched `FutureProvider` values:
+
+```dart
+await RefAdminEndpointCommands.updateUserRole(ref.read, userId, roleName);
+```
+
+For UI loading/error state, the generator also emits one mutation controller per
+endpoint with mutation commands:
+
+```dart
+await ref
+    .read(adminMutationControllerProvider.notifier)
+    .updateUserRole(userId, roleName);
+```
