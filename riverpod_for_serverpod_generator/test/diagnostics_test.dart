@@ -58,6 +58,32 @@ void main() {
       expect(codes, contains('invalid_cache_version'));
     });
 
+    test('warns when cached query uses secure storage flag', () {
+      const manifest = EndpointManifestMeta([
+        EndpointManifestEntry(
+          name: 'AdminEndpoint',
+          methods: [
+            MethodManifestEntry(
+              name: 'secretList',
+              returnType: 'Future<List<UserSummary>>',
+              positionalParams: [],
+              namedParams: [],
+              cachedQuery: CachedQueryMeta(
+                entity: 'UserSummary',
+                secure: true,
+              ),
+            ),
+          ],
+        ),
+      ]);
+
+      final diagnostics = validateEndpointManifest(manifest);
+      expect(
+        diagnostics.map((d) => d.code),
+        contains('secure_cached_query_requires_override'),
+      );
+    });
+
     test('reports mutation retry and bool refetch risks', () {
       const manifest = EndpointManifestMeta([
         EndpointManifestEntry(

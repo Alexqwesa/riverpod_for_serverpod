@@ -1,8 +1,15 @@
+import 'package:riverpod/misc.dart' show ProviderListenable;
 import 'package:riverpod_for_serverpod_runtime/riverpod_for_serverpod_runtime.dart';
 import 'package:test/test.dart';
 
+T _rejectingRead<T>(ProviderListenable<T> provider) {
+  throw UnimplementedError('$provider');
+}
+
 void main() {
   group('InMemoryMutationRetryQueue', () {
+    tearDown(MutationRetryReplayRegistry.reset);
+
     test('schedule and retryNow removes entry on success', () async {
       var runs = 0;
       final queue = InMemoryMutationRetryQueue();
@@ -119,6 +126,62 @@ void main() {
       );
 
       expect(queue.pending.single.idempotent, isFalse);
+    });
+
+    test('persistPayload requires idempotent', () {
+      final queue = InMemoryMutationRetryQueue();
+      expect(
+        () => queue.schedule(
+          id: 'x',
+          idempotent: false,
+          persistPayload: const MutationRetryPersistedPayload(
+            opKey: 'A.b',
+            args: {},
+          ),
+          run: () async {},
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('persists idempotent entries and hydrates replay runners', () async {
+      MutationRetryReplayRegistry.register('E.m', (read, args) async {
+        expect(args['x'], 1);
+      });
+
+      final kv = MemoryGeneratedKeyValueStorage();
+      final q1 = InMemoryMutationRetryQueue(
+        persistenceStorage: kv,
+        onChanged: (_) {},
+      );
+
+      q1.schedule(
+        id: 'a',
+        idempotent: true,
+        label: 'm',
+        persistPayload: const MutationRetryPersistedPayload(
+          opKey: 'E.m',
+          args: {'x': 1},
+        ),
+        run: () async {},
+      );
+
+      await Future<void>.delayed(Duration.zero);
+
+      expect(await kv.read(mutationRetryPersistenceStateKey), isNotNull);
+
+      final q2 = InMemoryMutationRetryQueue(
+        persistenceStorage: kv,
+        onChanged: (_) {},
+      );
+      await q2.hydrateFromPersistence(_rejectingRead);
+
+      expect(q2.length, 1);
+      await q2.retryNow('a');
+      expect(q2.isEmpty, isTrue);
+
+      await Future<void>.delayed(Duration.zero);
+      expect(await kv.read(mutationRetryPersistenceStateKey), isNull);
     });
 
     test('onChanged receives pending snapshots after queue changes', () async {

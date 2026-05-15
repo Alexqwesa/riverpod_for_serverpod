@@ -157,6 +157,18 @@ void main() {
       expect(record!.pendingSync, isTrue);
     });
 
+    test('setPendingSync updates flag without changing JSON payload', () async {
+      await cache.putOne(
+        const TestUser(id: 1, name: 'Alex'),
+        pendingSync: true,
+      );
+      await cache.setPendingSync(1, false);
+      final record = await storage.readEntity('TestUser', '1');
+      expect(record, isNotNull);
+      expect(record!.pendingSync, isFalse);
+      expect(record.json, {'id': 1, 'name': 'Alex'});
+    });
+
     test('evicts least recently used non-pending records over maxItems',
         () async {
       cache = GeneratedEntityCache<TestUser>(

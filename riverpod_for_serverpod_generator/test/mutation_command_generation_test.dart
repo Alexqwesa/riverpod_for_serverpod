@@ -49,8 +49,55 @@ void main() {
           code,
           contains(
               'queuedMutationCount: read(mutationRetryQueueProvider).length'));
+      expect(code, contains('MutationRetryPersistedPayload'));
+      expect(code, contains('persistPayload:'));
+      expect(code, contains("'AdminEndpoint.updateUserRole'"));
       expect(code, contains('invalidateAfterUpdateUserRole'));
       expect(code, contains("'AdminEndpoint.updateUserRole.\$userId'"));
+    });
+
+    test('with entity cache template and optimistic policy, opens GeneratedEntityCache',
+        () {
+      final templates = {
+        'UserSummary': const EntityCacheTemplate(
+          elementType: 'UserSummary',
+          entityTypeKey: 'UserSummary',
+          idField: 'id',
+          cacheVersion: 1,
+          maxItems: 100,
+          secure: false,
+          byIdMethod: 'getUser',
+        ),
+      };
+      final methodToField = {'getUser': 'admin'};
+      final code = buildMutationCommandsClass(
+        endpointClassName: 'AdminEndpoint',
+        clientField: 'admin',
+        mutationMethods: [
+          MyMethodMeta(
+            'updateUserRole',
+            'Future<UserSummary>',
+            [MyParamMeta('userId', 'int', null)],
+            [MyParamMeta('roleName', 'String', null)],
+            true,
+            true,
+            innerProviderName: 'RefAdminEndpoint',
+            mutationCommand: const MutationCommandMeta(
+              affects: 'UserSummary',
+              idArg: 'userId',
+              optimistic: 'OptimisticPolicy.patchLocalCache',
+              refetch: 'RefetchPolicy.byId',
+            ),
+          ),
+        ],
+        entityCacheTemplates: templates,
+        methodToClientField: methodToField,
+      );
+
+      expect(code, contains('GeneratedEntityCache<UserSummary>'));
+      expect(code, contains('__mutOptimisticPrev'));
+      expect(code, contains('getUser'));
+      expect(code, contains('__mutRefetched'));
     });
 
     test('returns empty string when no mutations', () {

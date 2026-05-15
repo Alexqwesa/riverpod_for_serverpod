@@ -43,12 +43,16 @@ DONE:
   manifest diagnostics warn when mutation-like method names lack @MutationCommand
   manifest diagnostics warn when create-like mutations enable retry without idempotencyKeyArg
   manifest diagnostics error when annotation argument references point to missing method parameters
-  generated cached-query providers clear refresh warnings after successful remote refresh
+  mutation commands: optimistic local cache (pendingSync + rollback on failure) and post-success entity cache updates (RefetchPolicy.mergeReturnedEntity / byId when entity cache template exists)
+  idempotent mutation retry persistence: MutationRetryPersistedPayload on schedule, JSON snapshot in GeneratedKeyValueStorage, hydrate + MutationRetryReplayRegistry, generated op registrations, mutationRetryPersistenceStorageProvider
+  manifest diagnostic when @CachedQuery uses secure: true (override generatedSecureCacheStorageProvider / encrypted storage)
+  integration test: secure vs plain storage providers keep entity records isolated when overridden
 
-NOT DONE YET:
-  mutation optimistic cache/refetch behavior
-  persisted retry queue
-  secure cache generator diagnostics and examples
+NOT DONE YET (narrower follow-ups):
+  full sample Flutter apps / long-form guides (Phase 9 style walkthroughs)
+  static verification that CachedQuery idField matches protocol model fields
+  field-level optimistic patches beyond pendingSync / server merge refetch
+
 ```
 
 Current package names are still:
@@ -1556,12 +1560,12 @@ annotation package tests
 Still open:
 
 ```text
-emit diagnostics for invalid annotation combinations
+additional diagnostics for rare invalid annotation combinations not yet covered
 ```
 
 ### Phase 1 — Manifest generator
 
-Status: PARTIAL.
+Status: DONE for V1 (manifest emitted + drives generator).
 
 Done:
 
@@ -1576,40 +1580,13 @@ runtime EndpointManifest / EndpointInfo / MethodInfo classes
 parser tests
 manifest builder tests
 manifest emitter tests
+consumption by generator to emit Ref* providers, entity cache wiring, and mutation commands
 ```
 
 Still open:
 
-Use the strongly typed manifest to generate query/cache providers:
-
-```dart
-const generatedEndpointManifest = EndpointManifest(
-  endpoints: [
-    EndpointInfo(
-      name: 'AdminEndpoint',
-      methods: [
-        MethodInfo(
-          name: 'listUsersByRole',
-          cachedQuery: CachedQueryInfo(
-            entity: 'UserSummary',
-            idField: 'id',
-            secure: true,
-            maxItems: 1000,
-          ),
-        ),
-        MethodInfo(
-          name: 'updateUserRole',
-          mutationCommand: MutationCommandInfo(
-            affects: 'UserSummary',
-            idArg: 'userId',
-            optimistic: OptimisticPolicy.patchLocalCache,
-            retry: RetryPolicy.connectionOnly,
-          ),
-        ),
-      ],
-    ),
-  ],
-);
+```text
+optional: use manifest in runtime-only debugging tools / secondary codegen paths
 ```
 
 Reason:
@@ -1652,11 +1629,8 @@ runtime cache tests
 
 Still open:
 
-Implement:
-
 ```text
-persisted retry queue for idempotent operations only
-warning center integration
+optional: expand automated tests for every checklist row below (many are already covered — see package tests)
 ```
 
 Tests:
@@ -1674,7 +1648,7 @@ record JSON round trip
 
 ### Phase 3 — Query provider generation
 
-Status: PARTIAL.
+Status: DONE for core SWR + cache; optional E2E polish remains.
 
 Done:
 
@@ -1683,16 +1657,14 @@ simple FutureProvider for non-cached reads
 family providers for endpoint arguments
 TTL keepAlive for successful calls
 refreshWarningProvider recordFailure for @CachedQuery provider failures (then rethrow)
+AsyncNotifierProvider SWR for @CachedQuery with backgroundRefresh: true
+stale-while-revalidate using GeneratedEntityCache
 ```
 
-Still open for this phase:
-
-Generate:
+Still open for this phase (optional):
 
 ```text
-AsyncNotifierProvider for cached reads
-background refresh
-stale-while-revalidate using entity cache
+additional end-to-end / integration scenarios beyond unit coverage
 ```
 
 Tests:
@@ -1722,54 +1694,44 @@ AsyncNotifier<void> mutation controller per endpoint with @MutationCommand metho
 
 Still open for command generation:
 
-Generate:
+Generate (done in current repo unless noted):
 
 ```text
-optimistic patch logic
-rollback logic
-success merge/refetch logic beyond invalidate hooks
+optimistic patch logic (pendingSync + rollback; refetch merge/byId when entity cache template from @CachedQuery exists)
+rollback logic (non-retry failures restore previous entity snapshot)
+success merge/refetch logic beyond invalidate hooks (mergeReturnedEntity, byId)
 ```
 
-Tests:
+Still open — tests / polish:
 
 ```text
-success updates entity cache
-connection failure marks pendingSync and queues retry
-domain failure rolls back optimistic patch
-bool-return mutation uses byIdMethod if configured
-missing byIdMethod emits diagnostic
+domain failure rolls back optimistic patch (integration-style tests)
 ```
+
 
 ### Phase 5 — Retry queue
 
-Status: PARTIAL (in-memory V1).
+Status: PARTIAL (in-memory + optional persistence for idempotent ops).
 
 Implement:
 
 ```text
-in-memory retry queue for V1
-optional persisted retry queue for idempotent operations
-exponential backoff or fixed countdown
-retry now API
-warning center integration
-```
-
-Done (V1):
-
-```text
-InMemoryMutationRetryQueue with schedule, retryNow, retryAllReady, cancel
-unit tests for success path, failure backoff, due vs not-due scheduling
-warning center integration through mutationRetryQueueProvider
+in-memory retry queue for V1 (done)
+optional persisted retry queue for idempotent operations (done — JSON via GeneratedKeyValueStorage + replay registry + generated registrations)
+exponential backoff or fixed countdown (fixed / attempt backoff in memory)
+retry now API (done)
+warning center integration (done)
 ```
 
 Tests:
 
 ```text
-connection failure enqueues operation
-retry now calls command
-successful retry clears pendingSync
-non-idempotent mutation is not persisted
+connection failure enqueues operation (covered by generator/runtime tests)
+retry now calls command (done)
+successful retry clears pendingSync (app-level / optimistic paths)
+non-idempotent mutation is not persisted (payload only emitted when idempotent)
 ```
+
 
 ### Phase 6 — Warning aggregator
 
@@ -1788,8 +1750,9 @@ generated cached-query success paths call clearRefreshFailures without clearing 
 Still open:
 
 ```text
-nextRetryAt countdown for refresh
+nextRetryAt countdown for background cache refresh failures (distinct from queued-mutation nextRetryAt)
 ```
+
 
 ### Phase 7 — Secure cache
 
@@ -1807,9 +1770,10 @@ logout clear API
 Still open:
 
 ```text
-secure storage override examples in generated-app integration tests
-diagnostic when secure cached queries are used without secure storage override
+secure storage override examples in larger demo apps (runtime integration test covers provider isolation)
+diagnostic when secure cached queries are used without reviewing storage override (done — manifest warning secure_cached_query_requires_override)
 ```
+
 
 Tests:
 

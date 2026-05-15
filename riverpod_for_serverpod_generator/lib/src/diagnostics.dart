@@ -129,6 +129,19 @@ List<ManifestDiagnostic> _validateCachedQuery(
     );
   }
 
+  if (cachedQuery.secure) {
+    diagnostics.add(
+      _diagnostic(
+        endpoint,
+        method,
+        'secure_cached_query_requires_override',
+        'secure: true routes reads/writes through generatedSecureCacheStorageProvider. '
+            'Override it with encrypted or user-scoped storage (for example riverpod_for_serverpod_hive_storage) '
+            'and clear that namespace on logout.',
+      ),
+    );
+  }
+
   return diagnostics;
 }
 

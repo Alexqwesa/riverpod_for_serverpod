@@ -1,5 +1,25 @@
 // file: tool/codegen/meta.dart
 
+class EntityCacheTemplate {
+  final String elementType;
+  final String entityTypeKey;
+  final String idField;
+  final int cacheVersion;
+  final int maxItems;
+  final bool secure;
+  final String? byIdMethod;
+
+  const EntityCacheTemplate({
+    required this.elementType,
+    required this.entityTypeKey,
+    required this.idField,
+    required this.cacheVersion,
+    required this.maxItems,
+    required this.secure,
+    this.byIdMethod,
+  });
+}
+
 class ParamInfo {
   final String recordType;
   final String destructuredVars;

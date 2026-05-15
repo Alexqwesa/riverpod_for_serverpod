@@ -55,6 +55,24 @@ class GeneratedEntityCache<T> {
     return fromJson(accessed.json);
   }
 
+  /// Clears or sets the optimistic / retry [pendingSync] flag without changing
+  /// stored JSON (for successful mutations when no refetched entity is merged).
+  Future<void> setPendingSync(Object id, bool pendingSync) async {
+    final record = await storage.readEntity(entityType, '$id');
+    if (record == null || record.cacheVersion != cacheVersion) return;
+    await storage.writeEntity(
+      CachedEntityRecord(
+        entityType: record.entityType,
+        id: record.id,
+        json: record.json,
+        updatedAt: record.updatedAt,
+        lastAccessedAt: record.lastAccessedAt,
+        cacheVersion: record.cacheVersion,
+        pendingSync: pendingSync,
+      ),
+    );
+  }
+
   Future<void> putList(
     String indexKey,
     List<T> entities, {

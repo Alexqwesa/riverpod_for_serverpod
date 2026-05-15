@@ -13,6 +13,7 @@ export 'src/cache/namespaced_generated_cache_storage.dart';
 export 'src/manifest/endpoint_manifest.dart';
 export 'src/retry/connection_failure.dart';
 export 'src/retry/in_memory_mutation_retry_queue.dart';
+export 'src/retry/mutation_retry_persistence.dart';
 export 'src/warnings/refresh_warning_state.dart';
 export 'src/warnings/refresh_warning_notifier.dart';
 export 'src/validation/generated_command_validation.dart';

@@ -1,5 +1,30 @@
+import 'dart:async';
+
+import 'package:riverpod/misc.dart' show ProviderListenable;
 import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_for_serverpod_runtime/src/cache/generated_key_value_storage.dart';
+import 'package:riverpod_for_serverpod_runtime/src/retry/mutation_retry_persistence.dart';
 import 'package:riverpod_for_serverpod_runtime/src/warnings/refresh_warning_notifier.dart';
+
+/// Same shape as generated `Reader`: `ref.read` from a [Ref].
+typedef MutationReader = T Function<T>(ProviderListenable<T> provider);
+
+typedef MutationReplayFn =
+    Future<void> Function(MutationReader read, Map<String, Object?> args);
+
+/// Registers how to replay mutations stored by [InMemoryMutationRetryQueue].
+class MutationRetryReplayRegistry {
+  static final Map<String, MutationReplayFn> _replayByOpKey = {};
+
+  static void register(String opKey, MutationReplayFn replay) {
+    _replayByOpKey[opKey] = replay;
+  }
+
+  /// Clears all registrations (mainly for tests).
+  static void reset() => _replayByOpKey.clear();
+
+  static MutationReplayFn? lookup(String opKey) => _replayByOpKey[opKey];
+}
 
 /// Result of attempting to run a single queued mutation.
 enum MutationRetryAttemptResult {
@@ -65,18 +90,23 @@ class _QueuedMutation {
 }
 
 /// In-memory queue for re-running failed mutations (for example after a
-/// connection error). Suitable for V1; a later persistence layer can filter
-/// on [idempotent] and only store safe operations.
+/// connection error). Optionally persists **idempotent** entries with a
+/// [MutationRetryPersistedPayload] through [persistenceStorage].
 class InMemoryMutationRetryQueue {
   InMemoryMutationRetryQueue({
     DateTime Function()? now,
     MutationRetryQueueChanged? onChanged,
+    GeneratedKeyValueStorage? persistenceStorage,
   })  : _now = now ?? DateTime.now,
-        _onChanged = onChanged;
+        _onChanged = onChanged,
+        _persistenceStorage = persistenceStorage;
 
   final DateTime Function() _now;
   final MutationRetryQueueChanged? _onChanged;
+  final GeneratedKeyValueStorage? _persistenceStorage;
   final Map<String, _QueuedMutation> _entries = {};
+  final Map<String, MutationRetryPersistedPayload> _persistPayloads = {};
+  bool _hydratedFromDisk = false;
 
   bool get isEmpty => _entries.isEmpty;
 
@@ -99,13 +129,22 @@ class InMemoryMutationRetryQueue {
 
   /// Schedules or replaces a mutation. The next eligible attempt time is
   /// [initialDelay] after "now" (see constructor).
+  ///
+  /// When [persistPayload] is set, [idempotent] must be true and the entry can
+  /// be written to [persistenceStorage] for replay after restart.
   MutationRetrySnapshot schedule({
     required String id,
     required bool idempotent,
     required MutationRetryRunner run,
     Duration initialDelay = Duration.zero,
     String? label,
+    MutationRetryPersistedPayload? persistPayload,
   }) {
+    if (persistPayload != null && !idempotent) {
+      throw ArgumentError(
+        'persistPayload requires idempotent mutations.',
+      );
+    }
     final when = _now().add(initialDelay);
     final entry = _QueuedMutation(
       id: id,
@@ -115,20 +154,57 @@ class InMemoryMutationRetryQueue {
       nextRetryAt: when,
     );
     _entries[id] = entry;
+    if (persistPayload != null) {
+      _persistPayloads[id] = persistPayload;
+    } else {
+      _persistPayloads.remove(id);
+    }
     _notifyChanged();
     return entry.toSnapshot();
+  }
+
+  /// Loads persisted idempotent entries from [persistenceStorage]. Safe to
+  /// call once; later calls no-op. [read] must match the generator `Reader`.
+  Future<void> hydrateFromPersistence(MutationReader read) async {
+    final storage = _persistenceStorage;
+    if (storage == null || _hydratedFromDisk) return;
+    _hydratedFromDisk = true;
+    final raw = await storage.read(mutationRetryPersistenceStateKey);
+    if (raw == null || raw.isEmpty) return;
+
+    final list = MutationRetryPersistedEntry.decodeList(raw);
+    for (final disk in list) {
+      if (_entries.containsKey(disk.id)) continue;
+      final replay = MutationRetryReplayRegistry.lookup(disk.payload.opKey);
+      if (replay == null) continue;
+      final entry = _QueuedMutation(
+        id: disk.id,
+        label: disk.label,
+        idempotent: disk.idempotent,
+        run: () => replay(read, disk.payload.args),
+        nextRetryAt: disk.nextRetryAt ?? _now(),
+      );
+      entry.attemptCount = disk.attemptCount;
+      _entries[disk.id] = entry;
+      _persistPayloads[disk.id] = disk.payload;
+    }
+    _notifyChanged();
   }
 
   /// Removes an entry without running it. Returns whether an entry existed.
   bool cancel(String id) {
     final removed = _entries.remove(id) != null;
-    if (removed) _notifyChanged();
+    if (removed) {
+      _persistPayloads.remove(id);
+      _notifyChanged();
+    }
     return removed;
   }
 
   void clear() {
-    if (_entries.isEmpty) return;
+    if (_entries.isEmpty && _persistPayloads.isEmpty) return;
     _entries.clear();
+    _persistPayloads.clear();
     _notifyChanged();
   }
 
@@ -145,6 +221,7 @@ class InMemoryMutationRetryQueue {
     try {
       await entry.run();
       _entries.remove(id);
+      _persistPayloads.remove(id);
       _notifyChanged();
       return MutationRetryAttemptResult.success;
     } catch (e) {
@@ -179,17 +256,55 @@ class InMemoryMutationRetryQueue {
     return successes;
   }
 
+  Future<void> _flushPersistence() async {
+    final storage = _persistenceStorage;
+    if (storage == null) return;
+
+    final out = <MutationRetryPersistedEntry>[];
+    for (final e in _entries.entries) {
+      final payload = _persistPayloads[e.key];
+      if (payload == null) continue;
+      out.add(
+        MutationRetryPersistedEntry(
+          id: e.key,
+          idempotent: e.value.idempotent,
+          label: e.value.label,
+          nextRetryAt: e.value.nextRetryAt,
+          attemptCount: e.value.attemptCount,
+          payload: payload,
+        ),
+      );
+    }
+
+    if (out.isEmpty) {
+      await storage.delete(mutationRetryPersistenceStateKey);
+    } else {
+      await storage.write(
+        mutationRetryPersistenceStateKey,
+        MutationRetryPersistedEntry.encodeList(out),
+      );
+    }
+  }
+
   void _notifyChanged() {
     final onChanged = _onChanged;
-    if (onChanged == null) return;
-    onChanged(pending);
+    if (onChanged != null) onChanged(pending);
+    unawaited(_flushPersistence());
   }
 }
 
-/// Shared in-memory mutation retry queue for generated command helpers.
+/// Override with a [GeneratedKeyValueStorage] to persist idempotent retry
+/// metadata across app restarts (requires [MutationRetryReplayRegistry] setup
+/// from generated registrations).
+final mutationRetryPersistenceStorageProvider =
+    Provider<GeneratedKeyValueStorage?>((ref) => null);
+
+/// Shared mutation retry queue for generated command helpers.
 final mutationRetryQueueProvider = Provider<InMemoryMutationRetryQueue>((ref) {
   ref.keepAlive();
-  return InMemoryMutationRetryQueue(
+  final storage = ref.watch(mutationRetryPersistenceStorageProvider);
+  final queue = InMemoryMutationRetryQueue(
+    persistenceStorage: storage,
     onChanged: (pending) {
       ref.read(refreshWarningProvider.notifier).setQueuedMutationCount(
             pending.length,
@@ -197,4 +312,13 @@ final mutationRetryQueueProvider = Provider<InMemoryMutationRetryQueue>((ref) {
           );
     },
   );
+
+  if (storage != null) {
+    scheduleMicrotask(() {
+      T read<T>(ProviderListenable<T> provider) => ref.read(provider);
+      queue.hydrateFromPersistence(read);
+    });
+  }
+
+  return queue;
 });

@@ -13,6 +13,7 @@ import 'package:riverpod_for_serverpod_generator/src/build_mutation_command.dart
 import 'package:riverpod_for_serverpod_generator/src/build_provider_field.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_invalidator.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_variant.dart';
+import 'package:riverpod_for_serverpod_generator/src/cached_query_codegen.dart';
 import 'package:riverpod_for_serverpod_generator/src/diagnostics.dart';
 import 'package:riverpod_for_serverpod_generator/src/manifest_builder.dart';
 import 'package:riverpod_for_serverpod_generator/src/manifest_emitter.dart';
@@ -186,11 +187,16 @@ class RefEndpointBuilder implements Builder {
       }
     }
 
+    final entityCacheTemplates = _collectEntityCacheTemplates(endpoints);
+    final methodToClientField = _collectMethodToClientField(endpoints);
+
     final code = _buildLibrary(
       endpoints: endpoints,
       manifest: manifest,
       clientPackageName: clientPackageName,
       emitProviderRetry: emitProviderRetry,
+      entityCacheTemplates: entityCacheTemplates,
+      methodToClientField: methodToClientField,
     );
     final out = AssetId(
       buildStep.inputId.package,
@@ -205,6 +211,43 @@ String deriveClientPackageName(String serverPackageName) {
     return '${serverPackageName.substring(0, serverPackageName.length - 7)}_client';
   }
   return '${serverPackageName}_client';
+}
+
+Map<String, EntityCacheTemplate> _collectEntityCacheTemplates(
+  List<_EndpointMeta> endpoints,
+) {
+  final map = <String, EntityCacheTemplate>{};
+  for (final endpoint in endpoints) {
+    for (final m in endpoint.methods) {
+      final cq = m.cachedQuery;
+      if (cq == null) continue;
+      final shape = parseCachedQueryReturnType(m.unwrappedReturnType);
+      if (shape == null) continue;
+      final key = cq.entity;
+      if (map.containsKey(key)) continue;
+      map[key] = EntityCacheTemplate(
+        elementType: shape.elementType,
+        entityTypeKey: cq.entity,
+        idField: cq.idField,
+        cacheVersion: cq.cacheVersion,
+        maxItems: cq.maxItems,
+        secure: cq.secure,
+        byIdMethod: cq.byIdMethod,
+      );
+    }
+  }
+  return map;
+}
+
+Map<String, String> _collectMethodToClientField(List<_EndpointMeta> endpoints) {
+  final map = <String, String>{};
+  for (final ep in endpoints) {
+    final cf = _clientFieldName(ep.name);
+    for (final m in ep.methods) {
+      map[m.name] = cf;
+    }
+  }
+  return map;
 }
 
 List<String> collectRequiredDartImports(String emittedCode) {
@@ -252,10 +295,13 @@ String _buildLibrary({
   required EndpointManifestMeta manifest,
   required String clientPackageName,
   required bool emitProviderRetry,
+  Map<String, EntityCacheTemplate> entityCacheTemplates = const {},
+  Map<String, String> methodToClientField = const {},
 }) {
   final baseDartImports = <String>['dart:async'];
   final basePackageImports = <String>[
     'package:riverpod/riverpod.dart',
+    'package:riverpod/misc.dart',
     'package:riverpod_for_serverpod_runtime/riverpod_for_serverpod_runtime.dart',
     'package:$clientPackageName/src/protocol/protocol.dart',
     'package:serverpod_auth_client/serverpod_auth_client.dart',
@@ -411,6 +457,8 @@ ${emitProviderRetry ? 'Duration? _noProviderRetry(int retryCount, Object error) 
               endpointClassName: endpointClass,
               clientField: clientField,
               mutationMethods: mutationMethods,
+              entityCacheTemplates: entityCacheTemplates,
+              methodToClientField: methodToClientField,
             ),
           ),
           Code(
@@ -422,6 +470,10 @@ ${emitProviderRetry ? 'Duration? _noProviderRetry(int retryCount, Object error) 
         ];
       }),
     );
+    final replayBootstrap = _buildMutationRetryReplayBootstrap(endpoints);
+    if (replayBootstrap.isNotEmpty) {
+      b.body.add(Code(replayBootstrap));
+    }
   });
 
   final emitted = library.accept(DartEmitter()).toString();
@@ -478,6 +530,63 @@ Method _buildInvalidateHookMethod({
       )
       ..body = Code(body.toString());
   });
+}
+
+String _buildMutationRetryReplayBootstrap(List<_EndpointMeta> endpoints) {
+  final buf = StringBuffer();
+  buf.writeln('bool _riverpodForServerpodRegisterMutationReplays() {');
+  var any = false;
+  for (final ep in endpoints) {
+    for (final m in ep.methods) {
+      final meta = m.mutationCommand;
+      if (meta == null) continue;
+      if (!meta.idempotent || meta.retry == 'RetryPolicy.none') continue;
+      any = true;
+      buf.writeln(
+        "  MutationRetryReplayRegistry.register(r'${ep.name}.${m.name}', (read, args) async {",
+      );
+      buf.writeln(
+        '    await Ref${ep.name}Commands.${m.name}(read${_replayMutationArgsFromMap(m)});',
+      );
+      buf.writeln('  });');
+    }
+  }
+  if (!any) return '';
+  buf.writeln('  return true;');
+  buf.writeln('}');
+  buf.writeln('final _riverpodForServerpodMutationReplayReady = '
+      '_riverpodForServerpodRegisterMutationReplays();');
+  return buf.toString();
+}
+
+String _replayMutationArgsFromMap(MyMethodMeta m) {
+  if (!m.hasPositionalParams && !m.hasNamedParams) return '';
+  final parts = <String>[
+    for (final p in m.positionalParams) _castArgReadForMutationReplay(p),
+    for (final p in m.namedParams)
+      '${p.name}: ${_castArgReadForMutationReplay(p)}',
+  ];
+  return ', ${parts.join(', ')}';
+}
+
+String _castArgReadForMutationReplay(MyParamMeta p) {
+  final key = "args[r'${p.name}']";
+  final t = p.type.replaceAll(' ', '');
+  if (t == 'int') return '$key as int';
+  if (t == 'int?') return '$key as int?';
+  if (t == 'double') return '($key as num).toDouble()';
+  if (t == 'double?') {
+    return '$key != null ? ($key! as num).toDouble() : null';
+  }
+  if (t == 'String') return '$key as String';
+  if (t == 'String?') return '$key as String?';
+  if (t == 'bool') return '$key as bool';
+  if (t == 'bool?') return '$key as bool?';
+  if (t == 'DateTime') return 'DateTime.parse($key! as String)';
+  if (t == 'DateTime?') {
+    return '$key != null ? DateTime.parse($key! as String) : null';
+  }
+  return '$key as ${p.type}';
 }
 
 String _clientFieldName(String endpointClass) {
