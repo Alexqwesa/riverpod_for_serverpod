@@ -12,26 +12,53 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'dart:async' as _i2;
-import 'package:selector_demo_client/src/protocol/greetings/greeting.dart'
+import 'package:selector_demo_client/src/protocol/selector/parent_summary.dart'
     as _i3;
-import 'protocol.dart' as _i4;
+import 'package:selector_demo_client/src/protocol/selector/child_row.dart'
+    as _i4;
+import 'package:selector_demo_client/src/protocol/selector/selection_snapshot.dart'
+    as _i5;
+import 'protocol.dart' as _i6;
 
-/// This is an example endpoint that returns a greeting message through
-/// its [hello] method.
 /// {@category Endpoint}
-class EndpointGreeting extends _i1.EndpointRef {
-  EndpointGreeting(_i1.EndpointCaller caller) : super(caller);
+class EndpointSelector extends _i1.EndpointRef {
+  EndpointSelector(_i1.EndpointCaller caller) : super(caller);
 
   @override
-  String get name => 'greeting';
+  String get name => 'selector';
 
-  /// Returns a personalized greeting message: "Hello {name}".
-  _i2.Future<_i3.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i3.Greeting>(
-        'greeting',
-        'hello',
-        {'name': name},
+  _i2.Future<List<_i3.ParentSummary>> listParents() =>
+      caller.callServerEndpoint<List<_i3.ParentSummary>>(
+        'selector',
+        'listParents',
+        {},
       );
+
+  _i2.Future<List<_i4.ChildRow>> listChildren(String parentId) =>
+      caller.callServerEndpoint<List<_i4.ChildRow>>(
+        'selector',
+        'listChildren',
+        {'parentId': parentId},
+      );
+
+  _i2.Future<_i5.SelectionSnapshot> getSelection(String parentId) =>
+      caller.callServerEndpoint<_i5.SelectionSnapshot>(
+        'selector',
+        'getSelection',
+        {'parentId': parentId},
+      );
+
+  _i2.Future<void> saveSelection(
+    String parentId,
+    List<String> selectedChildIds,
+  ) => caller.callServerEndpoint<void>(
+    'selector',
+    'saveSelection',
+    {
+      'parentId': parentId,
+      'selectedChildIds': selectedChildIds,
+    },
+  );
 }
 
 class Client extends _i1.ServerpodClientShared {
@@ -54,7 +81,7 @@ class Client extends _i1.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i4.Protocol(),
+         _i6.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -63,13 +90,13 @@ class Client extends _i1.ServerpodClientShared {
          disconnectStreamsOnLostInternetConnection:
              disconnectStreamsOnLostInternetConnection,
        ) {
-    greeting = EndpointGreeting(this);
+    selector = EndpointSelector(this);
   }
 
-  late final EndpointGreeting greeting;
+  late final EndpointSelector selector;
 
   @override
-  Map<String, _i1.EndpointRef> get endpointRefLookup => {'greeting': greeting};
+  Map<String, _i1.EndpointRef> get endpointRefLookup => {'selector': selector};
 
   @override
   Map<String, _i1.ModuleEndpointCaller> get moduleLookup => {};

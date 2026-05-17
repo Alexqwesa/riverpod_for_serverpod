@@ -11,28 +11,38 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
-import '../greetings/greeting_endpoint.dart' as _i2;
+import '../selector/selector_endpoint.dart' as _i2;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
   void initializeEndpoints(_i1.Server server) {
     var endpoints = <String, _i1.Endpoint>{
-      'greeting': _i2.GreetingEndpoint()
+      'selector': _i2.SelectorEndpoint()
         ..initialize(
           server,
-          'greeting',
+          'selector',
           null,
         ),
     };
-    connectors['greeting'] = _i1.EndpointConnector(
-      name: 'greeting',
-      endpoint: endpoints['greeting']!,
+    connectors['selector'] = _i1.EndpointConnector(
+      name: 'selector',
+      endpoint: endpoints['selector']!,
       methodConnectors: {
-        'hello': _i1.MethodConnector(
-          name: 'hello',
+        'listParents': _i1.MethodConnector(
+          name: 'listParents',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['selector'] as _i2.SelectorEndpoint)
+                  .listParents(session),
+        ),
+        'listChildren': _i1.MethodConnector(
+          name: 'listChildren',
           params: {
-            'name': _i1.ParameterDescription(
-              name: 'name',
+            'parentId': _i1.ParameterDescription(
+              name: 'parentId',
               type: _i1.getType<String>(),
               nullable: false,
             ),
@@ -41,10 +51,55 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i2.GreetingEndpoint).hello(
-                session,
-                params['name'],
-              ),
+              ) async =>
+                  (endpoints['selector'] as _i2.SelectorEndpoint).listChildren(
+                    session,
+                    params['parentId'],
+                  ),
+        ),
+        'getSelection': _i1.MethodConnector(
+          name: 'getSelection',
+          params: {
+            'parentId': _i1.ParameterDescription(
+              name: 'parentId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['selector'] as _i2.SelectorEndpoint).getSelection(
+                    session,
+                    params['parentId'],
+                  ),
+        ),
+        'saveSelection': _i1.MethodConnector(
+          name: 'saveSelection',
+          params: {
+            'parentId': _i1.ParameterDescription(
+              name: 'parentId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'selectedChildIds': _i1.ParameterDescription(
+              name: 'selectedChildIds',
+              type: _i1.getType<List<String>>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['selector'] as _i2.SelectorEndpoint).saveSelection(
+                    session,
+                    params['parentId'],
+                    params['selectedChildIds'],
+                  ),
         ),
       },
     );

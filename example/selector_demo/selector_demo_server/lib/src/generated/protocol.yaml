@@ -1,2 +1,5 @@
-greeting:
-  - hello:
+selector:
+  - listParents:
+  - listChildren:
+  - getSelection:
+  - saveSelection:

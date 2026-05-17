@@ -4,22 +4,49 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment=" clear refresh warnings after successful remote refresh">
-      <change afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/retry/mutation_retry_persistence.dart" afterDir="false" />
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="selector_demo_client">
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/ref_endpoints.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/selector/child_row.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/selector/parent_summary.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/selector/selection_snapshot.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/integration_test/selector_demo_smoke_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/.idea/libraries/Dart_SDK.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/.idea/markdown.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/ref_endpoints.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/selector/child_row.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/selector/parent_summary.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/selector/selection_snapshot.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/selector/child_row.spy.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/selector/parent_summary.spy.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/selector/selection_snapshot.spy.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/selector/selector_endpoint.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/selector/selector_repository.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/test/integration/selector_endpoint_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/riverpod_for_serverpod.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/riverpod_for_serverpod.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/implementation_plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/implementation_plan.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_mutation_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_mutation_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/diagnostics.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/diagnostics.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/selector_demo_client.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/selector_demo_client.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/client.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/client.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/greetings/greeting.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/protocol.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/protocol.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/server.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/server.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/endpoints.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/endpoints.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/greetings/greeting.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/protocol.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/protocol.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/protocol.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/protocol.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/greetings/greeting.spy.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/greetings/greeting_endpoint.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/test/integration/greeting_endpoint_test.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/test/integration/test_tools/serverpod_test_tools.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/test/integration/test_tools/serverpod_test_tools.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/types.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/types.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/diagnostics_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/diagnostics_test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/mutation_command_generation_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/mutation_command_generation_test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/riverpod_for_serverpod_runtime.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/riverpod_for_serverpod_runtime.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/cache/generated_entity_cache.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/cache/generated_entity_cache.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/retry/in_memory_mutation_retry_queue.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/retry/in_memory_mutation_retry_queue.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/generated_cache_storage_providers_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/generated_cache_storage_providers_test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/generated_entity_cache_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/generated_entity_cache_test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/in_memory_mutation_retry_queue_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/in_memory_mutation_retry_queue_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -433,7 +460,23 @@
       <option name="project" value="LOCAL" />
       <updated>1778847882591</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="mutation commands + sync/retry">
+      <option name="closed" value="true" />
+      <created>1778849495819</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1778849495819</updated>
+    </task>
+    <task id="LOCAL-00041" summary="selector_demo_client">
+      <option name="closed" value="true" />
+      <created>1778850104946</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1778850104946</updated>
+    </task>
+    <option name="localTasksCounter" value="42" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -448,8 +491,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="TTL freshness for indexes&#10;  LRU eviction by maxItems&#10;  pendingSync records are not evicted" />
-    <MESSAGE value="Added JSON round-trip support for cached entity and index records." />
     <MESSAGE value="JsonGeneratedCacheStorage and others" />
     <MESSAGE value="riverpod_for_serverpod_hive_storage" />
     <MESSAGE value="secure/encrypted Hive setup helpers" />
@@ -473,6 +514,8 @@
     <MESSAGE value="added @MutationCommand warnings if missed 2" />
     <MESSAGE value="added @MutationCommand warnings if missed 3" />
     <MESSAGE value=" clear refresh warnings after successful remote refresh" />
-    <option name="LAST_COMMIT_MESSAGE" value=" clear refresh warnings after successful remote refresh" />
+    <MESSAGE value="mutation commands + sync/retry" />
+    <MESSAGE value="selector_demo_client" />
+    <option name="LAST_COMMIT_MESSAGE" value="selector_demo_client" />
   </component>
 </project>

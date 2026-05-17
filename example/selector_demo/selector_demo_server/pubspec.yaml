@@ -4,20 +4,35 @@ description: Starting point for a Serverpod server.
 # homepage: https://www.example.com
 
 environment:
-  sdk: '^3.8.0'
+  sdk: ^3.10.1
 
 resolution: workspace
 
 dependencies:
+  riverpod_for_serverpod_annotation:
+    path: ../../../riverpod_for_serverpod_annotation
+  riverpod_for_serverpod_runtime:
+    path: ../../../riverpod_for_serverpod_runtime
   serverpod: 3.4.4
 
 dev_dependencies:
+  build_runner: ^2.5.0
   lints: '>=3.0.0 <7.0.0'
+  riverpod_for_serverpod_generator:
+    path: ../../../riverpod_for_serverpod_generator
   serverpod_test: 3.4.4
   test: ^1.25.5
 
 serverpod:
   scripts:
+    ref_endpoints:
+      windows: >-
+        dart run build_runner build --delete-conflicting-outputs
+        & dart run riverpod_for_serverpod_generator:copy_ref_endpoints
+      posix: |
+        dart run build_runner build --delete-conflicting-outputs &&
+        dart run riverpod_for_serverpod_generator:copy_ref_endpoints
+
     # Starts the server and applies migrations
     start: dart bin/main.dart --apply-migrations
 

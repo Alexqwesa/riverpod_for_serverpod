@@ -12,8 +12,16 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
 import 'package:serverpod/protocol.dart' as _i2;
-import 'greetings/greeting.dart' as _i3;
-export 'greetings/greeting.dart';
+import 'selector/child_row.dart' as _i3;
+import 'selector/parent_summary.dart' as _i4;
+import 'selector/selection_snapshot.dart' as _i5;
+import 'package:selector_demo_server/src/generated/selector/parent_summary.dart'
+    as _i6;
+import 'package:selector_demo_server/src/generated/selector/child_row.dart'
+    as _i7;
+export 'selector/child_row.dart';
+export 'selector/parent_summary.dart';
+export 'selector/selection_snapshot.dart';
 
 class Protocol extends _i1.SerializationManagerServer {
   Protocol._();
@@ -53,11 +61,39 @@ class Protocol extends _i1.SerializationManagerServer {
       }
     }
 
-    if (t == _i3.Greeting) {
-      return _i3.Greeting.fromJson(data) as T;
+    if (t == _i3.ChildRow) {
+      return _i3.ChildRow.fromJson(data) as T;
     }
-    if (t == _i1.getType<_i3.Greeting?>()) {
-      return (data != null ? _i3.Greeting.fromJson(data) : null) as T;
+    if (t == _i4.ParentSummary) {
+      return _i4.ParentSummary.fromJson(data) as T;
+    }
+    if (t == _i5.SelectionSnapshot) {
+      return _i5.SelectionSnapshot.fromJson(data) as T;
+    }
+    if (t == _i1.getType<_i3.ChildRow?>()) {
+      return (data != null ? _i3.ChildRow.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i4.ParentSummary?>()) {
+      return (data != null ? _i4.ParentSummary.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i5.SelectionSnapshot?>()) {
+      return (data != null ? _i5.SelectionSnapshot.fromJson(data) : null) as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<_i6.ParentSummary>) {
+      return (data as List)
+              .map((e) => deserialize<_i6.ParentSummary>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i7.ChildRow>) {
+      return (data as List).map((e) => deserialize<_i7.ChildRow>(e)).toList()
+          as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
     try {
       return _i2.Protocol().deserialize<T>(data, t);
@@ -67,7 +103,9 @@ class Protocol extends _i1.SerializationManagerServer {
 
   static String? getClassNameForType(Type type) {
     return switch (type) {
-      _i3.Greeting => 'Greeting',
+      _i3.ChildRow => 'ChildRow',
+      _i4.ParentSummary => 'ParentSummary',
+      _i5.SelectionSnapshot => 'SelectionSnapshot',
       _ => null,
     };
   }
@@ -85,8 +123,12 @@ class Protocol extends _i1.SerializationManagerServer {
     }
 
     switch (data) {
-      case _i3.Greeting():
-        return 'Greeting';
+      case _i3.ChildRow():
+        return 'ChildRow';
+      case _i4.ParentSummary():
+        return 'ParentSummary';
+      case _i5.SelectionSnapshot():
+        return 'SelectionSnapshot';
     }
     className = _i2.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -101,8 +143,14 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName is! String) {
       return super.deserializeByClassName(data);
     }
-    if (dataClassName == 'Greeting') {
-      return deserialize<_i3.Greeting>(data['data']);
+    if (dataClassName == 'ChildRow') {
+      return deserialize<_i3.ChildRow>(data['data']);
+    }
+    if (dataClassName == 'ParentSummary') {
+      return deserialize<_i4.ParentSummary>(data['data']);
+    }
+    if (dataClassName == 'SelectionSnapshot') {
+      return deserialize<_i5.SelectionSnapshot>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);

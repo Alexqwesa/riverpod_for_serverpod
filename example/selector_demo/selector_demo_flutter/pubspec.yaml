@@ -18,8 +18,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '^3.8.0'
-  flutter: '^3.32.0'
+  sdk: ^3.10.1
+  flutter: '>=3.38.0'
 
 resolution: workspace
 
@@ -29,6 +29,11 @@ dependencies:
   cupertino_icons: ^1.0.5
   flutter:
     sdk: flutter
+  flutter_riverpod: ^3.0.0
+  generic_search_selector:
+    git:
+      url: https://github.com/Alexqwesa/generic_search_selector.git
+      ref: main
   selector_demo_client:
     path: ../selector_demo_client
   serverpod_flutter: 3.4.4
@@ -36,6 +41,8 @@ dependencies:
 dev_dependencies:
   flutter_lints: '>=3.0.0 <7.0.0'
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
 
 # For information on the generic Dart part of this file, see the

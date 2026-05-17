@@ -27,6 +27,12 @@ ref
   ..watch(refUpdateAll);
 ''';
 
+String swrNotifierWatchesCode(String refInnerProviderName) => '''
+ref
+  ..watch(refUpdateAllGeneratedProviders)
+  ..watch($refInnerProviderName.refUpdateAll);
+''';
+
 /// [emitProviderRetry] matches [inferEmitProviderRetry]: true when pubspec allows Riverpod 3+.
 ///
 /// Riverpod 3: guard with [Ref.mounted]. Riverpod 2: no `mounted`; use [StateError] try/catch
@@ -349,7 +355,7 @@ ${emitProviderRetry ? 'Duration? _noProviderRetry(int retryCount, Object error) 
           clientField: clientField,
           returnType: unwrappedReturnType,
           host: swrNotifierHostParams(method),
-          refWatchBlock: _providerWatchesCode,
+          refWatchBlock: swrNotifierWatchesCode(method.innerProviderName),
         );
         if (notifierSrc != null) {
           b.body.add(Code(notifierSrc));

@@ -1,0 +1,6 @@
+class: ChildRow
+
+fields:
+  id: String
+  parentId: String
+  title: String
