@@ -16,7 +16,7 @@ void main() {
       expect(annotation.ttl, const Duration(minutes: 3));
       expect(annotation.secure, isFalse);
       expect(annotation.byIdMethod, isNull);
-      expect(annotation.mergePolicy, CacheMergePolicy.refetchById);
+      expect(annotation.mergePolicy, CacheMergePolicy.replaceEntity);
       expect(annotation.cacheVersion, 1);
       expect(annotation.backgroundRefresh, isTrue);
     });

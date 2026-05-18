@@ -4,49 +4,17 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="selector_demo_client">
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/ref_endpoints.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/selector/child_row.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/selector/parent_summary.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/selector/selection_snapshot.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/integration_test/selector_demo_smoke_test.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/.idea/markdown.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/ref_endpoints.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/selector/child_row.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/selector/parent_summary.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/selector/selection_snapshot.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/selector/child_row.spy.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/selector/parent_summary.spy.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/selector/selection_snapshot.spy.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/selector/selector_endpoint.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/selector/selector_repository.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/test/integration/selector_endpoint_test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/riverpod_for_serverpod.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/riverpod_for_serverpod.iml" afterDir="false" />
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="annotations docs">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/selector_demo_client.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/selector_demo_client.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/client.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/client.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/greetings/greeting.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/protocol.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/src/protocol/protocol.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/server.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/server.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/endpoints.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/endpoints.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/greetings/greeting.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/protocol.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/protocol.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/protocol.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/protocol.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/greetings/greeting.spy.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/greetings/greeting_endpoint.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/test/integration/greeting_endpoint_test.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/test/integration/test_tools/serverpod_test_tools.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/test/integration/test_tools/serverpod_test_tools.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/ref_endpoints.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/ref_endpoints.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/ref_endpoints.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/ref_endpoints.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/lib/src/annotation.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/lib/src/annotation.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/test/annotation_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/test/annotation_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_mutation_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_mutation_command.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/read_annotations.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/read_annotations.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/types.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/types.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/read_annotations_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/read_annotations_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/manifest/endpoint_manifest.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/manifest/endpoint_manifest.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -476,7 +444,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778850104946</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="annotations docs">
+      <option name="closed" value="true" />
+      <created>1779089930276</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1779089930276</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -491,7 +467,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="JsonGeneratedCacheStorage and others" />
     <MESSAGE value="riverpod_for_serverpod_hive_storage" />
     <MESSAGE value="secure/encrypted Hive setup helpers" />
     <MESSAGE value="EndpointManifest" />
@@ -516,6 +491,7 @@
     <MESSAGE value=" clear refresh warnings after successful remote refresh" />
     <MESSAGE value="mutation commands + sync/retry" />
     <MESSAGE value="selector_demo_client" />
-    <option name="LAST_COMMIT_MESSAGE" value="selector_demo_client" />
+    <MESSAGE value="annotations docs" />
+    <option name="LAST_COMMIT_MESSAGE" value="annotations docs" />
   </component>
 </project>

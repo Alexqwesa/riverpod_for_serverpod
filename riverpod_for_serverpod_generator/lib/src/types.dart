@@ -9,6 +9,11 @@ class EntityCacheTemplate {
   final bool secure;
   final String? byIdMethod;
 
+  /// Mirrors [@CachedQuery.mergePolicy] from the first emitted cache template
+  /// for this entity type. Drives post-mutation entity cache writes together
+  /// with [MutationCommand.refetch].
+  final String mergePolicy;
+
   const EntityCacheTemplate({
     required this.elementType,
     required this.entityTypeKey,
@@ -17,6 +22,7 @@ class EntityCacheTemplate {
     required this.maxItems,
     required this.secure,
     this.byIdMethod,
+    this.mergePolicy = 'CacheMergePolicy.replaceEntity',
   });
 }
 
@@ -69,7 +75,7 @@ class CachedQueryMeta {
     this.ttl = 'Duration(minutes: 3)',
     this.secure = false,
     this.byIdMethod,
-    this.mergePolicy = 'CacheMergePolicy.refetchById',
+    this.mergePolicy = 'CacheMergePolicy.replaceEntity',
     this.cacheVersion = 1,
     this.backgroundRefresh = true,
   });

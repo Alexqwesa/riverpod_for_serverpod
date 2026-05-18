@@ -83,7 +83,7 @@ Future<List<UserSummary>> listUsers(Session session) async => [];
       expect(meta.ttl, 'Duration(minutes: 3)');
       expect(meta.secure, isFalse);
       expect(meta.byIdMethod, isNull);
-      expect(meta.mergePolicy, 'CacheMergePolicy.refetchById');
+      expect(meta.mergePolicy, 'CacheMergePolicy.replaceEntity');
       expect(meta.cacheVersion, 1);
       expect(meta.backgroundRefresh, isTrue);
     });

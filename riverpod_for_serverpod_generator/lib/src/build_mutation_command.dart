@@ -134,6 +134,19 @@ String? _resolvedByIdClientField(
   return methodToClientField[name];
 }
 
+/// Prefer an explicit `byId` RPC before writing the entity cache (ignore inline
+/// mutation result for that write).
+bool _cacheMergePolicyPrefersRefetchById(EntityCacheTemplate template) =>
+    template.mergePolicy == 'CacheMergePolicy.refetchById';
+
+/// Prefer `putOne(result)` when the mutation returns the cached entity type:
+/// `mergeReturnedEntity` or `replaceEntity` policies (same codegen path today).
+bool _cacheMergePolicyPrefersMutationResponse(EntityCacheTemplate template) {
+  final p = template.mergePolicy;
+  return p == 'CacheMergePolicy.mergeReturnedEntity' ||
+      p == 'CacheMergePolicy.replaceEntity';
+}
+
 bool _needsMutationEntityCacheOpen({
   required MutationCommandMeta meta,
   required MyMethodMeta method,
@@ -154,6 +167,14 @@ bool _needsMutationEntityCacheOpen({
     return true;
   }
   if (meta.refetch == 'RefetchPolicy.byId' && idExpr != null) {
+    if (_cacheMergePolicyPrefersMutationResponse(template) &&
+        _returnTypeMatchesEntityMerge(
+          method.unwrappedReturnType,
+          template.elementType,
+        ) &&
+        method.unwrappedReturnType != 'void') {
+      return true;
+    }
     final cf = _resolvedByIdClientField(meta, template, methodToClientField);
     final byId = _resolvedByIdMethodName(meta, template);
     return cf != null && byId != null;
@@ -162,6 +183,11 @@ bool _needsMutationEntityCacheOpen({
 }
 
 /// After a successful RPC: merge/refetched entity updates or clear pendingSync.
+///
+/// [EntityCacheTemplate.mergePolicy] selects `putOne(result)` vs an extra
+/// `byId` round-trip when paired with [MutationCommand.refetch]: only the
+/// `refetchById` policy forces the extra fetch; `replaceEntity` (default on
+/// [@CachedQuery]) and `mergeReturnedEntity` prefer the mutation response when types align.
 String _mutationPostSuccessEntityCacheLines({
   required MutationCommandMeta meta,
   required MyMethodMeta method,
@@ -172,28 +198,32 @@ String _mutationPostSuccessEntityCacheLines({
   final idExpr = _mutationIdExpression(meta, method);
   final byIdName = _resolvedByIdMethodName(meta, template);
   final byIdCf = _resolvedByIdClientField(meta, template, methodToClientField);
+  final canRefetchById =
+      idExpr != null && byIdName != null && byIdCf != null;
+  final returnMatches = _returnTypeMatchesEntityMerge(
+    method.unwrappedReturnType,
+    template.elementType,
+  );
 
   final buf = StringBuffer();
-  if (meta.refetch == 'RefetchPolicy.mergeReturnedEntity' &&
-      _returnTypeMatchesEntityMerge(
-        method.unwrappedReturnType,
-        template.elementType,
-      )) {
-    if (method.unwrappedReturnType.trim().endsWith('?')) {
-      buf.writeln('${indent}if (result != null) {');
+
+  void writePutResult(String expr) {
+    final trimmed = method.unwrappedReturnType.trim();
+    final nullableResult = trimmed.endsWith('?');
+    if (nullableResult) {
+      buf.writeln('${indent}if ($expr != null) {');
       buf.writeln(
-        '${indent}  await __mutEntityCache.putOne(result, pendingSync: false);',
+        '${indent}  await __mutEntityCache.putOne($expr, pendingSync: false);',
       );
       buf.writeln('${indent}}');
     } else {
       buf.writeln(
-        '${indent}await __mutEntityCache.putOne(result, pendingSync: false);',
+        '${indent}await __mutEntityCache.putOne($expr, pendingSync: false);',
       );
     }
-  } else if (meta.refetch == 'RefetchPolicy.byId' &&
-      idExpr != null &&
-      byIdName != null &&
-      byIdCf != null) {
+  }
+
+  void writeRefetchById() {
     buf.writeln(
       '${indent}final __mutRefetched = await read(clientProvider).$byIdCf.$byIdName($idExpr);',
     );
@@ -202,6 +232,23 @@ String _mutationPostSuccessEntityCacheLines({
       '${indent}  await __mutEntityCache.putOne(__mutRefetched, pendingSync: false);',
     );
     buf.writeln('${indent}}');
+  }
+
+  if (meta.refetch == 'RefetchPolicy.mergeReturnedEntity' && returnMatches) {
+    if (_cacheMergePolicyPrefersRefetchById(template) && canRefetchById) {
+      writeRefetchById();
+    } else {
+      writePutResult('result');
+    }
+  } else if (meta.refetch == 'RefetchPolicy.byId' && idExpr != null) {
+    final prefersReturned = _cacheMergePolicyPrefersMutationResponse(template) &&
+        returnMatches &&
+        method.unwrappedReturnType != 'void';
+    if (prefersReturned) {
+      writePutResult('result');
+    } else if (byIdName != null && byIdCf != null) {
+      writeRefetchById();
+    }
   } else if (meta.optimistic == 'OptimisticPolicy.patchLocalCache' &&
       idExpr != null) {
     buf.writeln('${indent}await __mutEntityCache.setPendingSync($idExpr, false);');
@@ -241,6 +288,10 @@ String buildMutationCommandMethod({
       needsCache;
 
   final buffer = StringBuffer();
+  buffer.writeln(
+    '  static const DialogPolicy dialogPolicyAfter${ReCase(method.name).pascalCase} = ${meta.closeDialog};',
+  );
+  buffer.writeln();
   buffer.write('  static ${method.returnType} ${method.name}(');
   buffer.write('Reader read');
   for (final p in method.positionalParams) {

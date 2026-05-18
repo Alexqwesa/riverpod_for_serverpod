@@ -239,6 +239,7 @@ Map<String, EntityCacheTemplate> _collectEntityCacheTemplates(
         maxItems: cq.maxItems,
         secure: cq.secure,
         byIdMethod: cq.byIdMethod,
+        mergePolicy: cq.mergePolicy,
       );
     }
   }

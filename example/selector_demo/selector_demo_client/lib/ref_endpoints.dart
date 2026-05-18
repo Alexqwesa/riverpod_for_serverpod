@@ -26,7 +26,7 @@ const generatedEndpointManifest = EndpointManifest(
             ttl: Duration(minutes: 3),
             secure: false,
             byIdMethod: null,
-            mergePolicy: CacheMergePolicy.refetchById,
+            mergePolicy: CacheMergePolicy.replaceEntity,
             cacheVersion: 1,
             backgroundRefresh: true,
           ),
@@ -53,7 +53,7 @@ const generatedEndpointManifest = EndpointManifest(
             ttl: Duration(minutes: 3),
             secure: false,
             byIdMethod: null,
-            mergePolicy: CacheMergePolicy.refetchById,
+            mergePolicy: CacheMergePolicy.replaceEntity,
             cacheVersion: 1,
             backgroundRefresh: true,
           ),
@@ -80,7 +80,7 @@ const generatedEndpointManifest = EndpointManifest(
             ttl: Duration(minutes: 3),
             secure: false,
             byIdMethod: null,
-            mergePolicy: CacheMergePolicy.refetchById,
+            mergePolicy: CacheMergePolicy.replaceEntity,
             cacheVersion: 1,
             backgroundRefresh: true,
           ),
@@ -523,6 +523,9 @@ abstract class RefSelectorEndpoint {
 }
 
 abstract final class RefSelectorEndpointCommands {
+  static const DialogPolicy dialogPolicyAfterSaveSelection =
+      DialogPolicy.onSuccessOnly;
+
   static Future<void> saveSelection(
       Reader read, String parentId, List<String> selectedChildIds) async {
     try {

@@ -58,7 +58,7 @@ CachedQueryMeta? extractCachedQueryMeta(AnnotatedNode node) {
     secure: _boolArg(args, 'secure') ?? false,
     byIdMethod: _stringArg(args, 'byIdMethod'),
     mergePolicy:
-        _sourceArg(args, 'mergePolicy') ?? 'CacheMergePolicy.refetchById',
+        _sourceArg(args, 'mergePolicy') ?? 'CacheMergePolicy.replaceEntity',
     cacheVersion: _intArg(args, 'cacheVersion') ?? 1,
     backgroundRefresh: _boolArg(args, 'backgroundRefresh') ?? true,
   );

@@ -1,6 +1,13 @@
+/// Policy for how mutations refresh cached entities (mirrors the annotation
+/// package `CacheMergePolicy`).
 enum CacheMergePolicy {
+  /// Reload via `byId` before caching (mutation response ignored for cache write).
   refetchById,
+
+  /// Default—full snapshot from mutation response (`putOne(result)`).
   replaceEntity,
+
+  /// Same codegen as `replaceEntity` today (no field-level merge in runtime).
   mergeReturnedEntity,
 }
 
@@ -127,7 +134,7 @@ class CachedQueryInfo {
     this.ttl = const Duration(minutes: 3),
     this.secure = false,
     this.byIdMethod,
-    this.mergePolicy = CacheMergePolicy.refetchById,
+    this.mergePolicy = CacheMergePolicy.replaceEntity,
     this.cacheVersion = 1,
     this.backgroundRefresh = true,
   });
