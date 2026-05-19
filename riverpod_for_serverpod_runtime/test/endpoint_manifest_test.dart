@@ -22,7 +22,7 @@ void main() {
                 ttl: Duration(minutes: 5),
                 secure: true,
                 byIdMethod: 'getUserSummaryById',
-                mergePolicy: CacheMergePolicy.mergeReturnedEntity,
+                mergePolicy: CacheMergePolicy.replaceEntity,
               ),
               validateStrings: [
                 ValidateStringInfo(
@@ -81,7 +81,7 @@ void main() {
       expect(cachedQuery.entity, 'UserSummary');
       expect(cachedQuery.ttl, const Duration(minutes: 5));
       expect(cachedQuery.secure, isTrue);
-      expect(cachedQuery.mergePolicy, CacheMergePolicy.mergeReturnedEntity);
+      expect(cachedQuery.mergePolicy, CacheMergePolicy.replaceEntity);
     });
 
     test('stores mutation command metadata as typed values', () {

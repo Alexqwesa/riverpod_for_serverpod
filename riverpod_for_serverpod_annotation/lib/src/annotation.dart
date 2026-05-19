@@ -6,25 +6,22 @@ import 'package:meta/meta.dart';
 /// Stored on the per-entity template from the **first** [CachedQuery] for `entity`,
 /// and repeated on **generatedEndpointManifest**.
 ///
-/// ## What “merge” does **not** mean
+/// ## Full-row replacement only
 ///
 /// Generated code calls `GeneratedEntityCache.putOne` (runtime package), passing the RPC
 /// value serialized with **`toJson()`**. That **replaces the entire stored JSON** for that
-/// entity id. Nothing compares the previous cache row to decide **which fields to keep**
-/// or **overwrite**. There is **no** client-side field-by-field merge, patch delta, or
-/// selective preservation of unstale columns.
+/// entity id. Nothing compares the previous cache row field-by-field.
 ///
-/// So [mergeReturnedEntity] is **not** a fine-grained field merge today—it only names the
-/// intent “take the mutation response as the next cache truth,” same as [replaceEntity]
-/// in emitted Dart.
+/// Pair [MutationCommand.refetch] with [RefetchPolicy.mergeReturnedEntity] when you want
+/// the mutation **`result`** written into the entity cache; use [RefetchPolicy.byId] when
+/// you prefer a separate load-by-id call instead—see [RefetchPolicy].
 ///
 /// ## Choosing a policy
 ///
 /// | Policy | Meaning in generated mutation helpers |
 /// |--------|---------------------------------------|
-/// | [replaceEntity] | **Default.** After success, when the RPC returns `T`/`T?` matching `entity`, write **`putOne(result)`**—full snapshot from the response (typical **send args + return same row type** APIs). |
+/// | [replaceEntity] | **Default.** When the RPC returns `T`/`T?` matching `entity`, **`putOne(result)`**—full snapshot from the response. |
 /// | [refetchById] | Ignore **`result`** for the cache write when possible; **`byIdMethod`** + **`idArg`** load a fresh row, then **`putOne`** that (extra round-trip). |
-/// | [mergeReturnedEntity] | **Same codegen as [replaceEntity]** right now. Optional if you like the name aligned with [RefetchPolicy.mergeReturnedEntity]; safe to ignore unless you want that symmetry in the manifest. |
 ///
 /// Only valid on endpoint methods annotated with [CachedQuery] (`Session` first).
 enum CacheMergePolicy {
@@ -35,16 +32,9 @@ enum CacheMergePolicy {
   /// **Default**—when the mutation returns `T`/`T?` matching [CachedQuery.entity], replace
   /// the cached row with **`putOne(result)`** (whole JSON from **`toJson()`**).
   ///
-  /// Use this for the usual case: arguments identify the row and the response is the
-  /// full updated model of the **same** cached type.
+  /// Use when arguments identify the row and the response is the full updated model of the
+  /// **same** cached type.
   replaceEntity,
-
-  /// Historical / naming alias: **identical generated behavior to [replaceEntity]**.
-  ///
-  /// There is **no** implementation that merges only some fields into an existing cache
-  /// row—see enum docs above. Prefer **[replaceEntity]** for new code unless you want the
-  /// manifest to say `mergeReturnedEntity` next to [RefetchPolicy.mergeReturnedEntity].
-  mergeReturnedEntity,
 }
 
 /// Whether a mutation command should optimistically update local entity cache
@@ -108,8 +98,8 @@ enum RefetchPolicy {
   /// instead of only invalidating list providers.
   ///
   /// **Not field-level merge:** generated helpers call `GeneratedEntityCache.putOne`,
-  /// which **replaces the whole cached JSON** from **`result.toJson()`**—see
-  /// [CacheMergePolicy]. Pick [RefetchPolicy.byId] when you always want a separate load.
+  /// which **replaces the whole cached JSON** from **`result.toJson()`**. Pick
+  /// [RefetchPolicy.byId] when you always want a separate load.
   mergeReturnedEntity,
 }
 

@@ -108,7 +108,7 @@ void main() {
     });
 
     test(
-      'mergeReturnedEntity refetch + cache mergePolicy refetchById uses by-id refresh',
+      'RefetchPolicy.mergeReturnedEntity + cache mergePolicy refetchById uses by-id refresh',
       () {
         final templates = {
           'UserSummary': const EntityCacheTemplate(
@@ -153,7 +153,7 @@ void main() {
     );
 
     test(
-      'mergeReturnedEntity refetch + cache mergePolicy mergeReturnedEntity uses RPC result',
+      'RefetchPolicy.mergeReturnedEntity + default replaceEntity mergePolicy uses RPC result',
       () {
         final templates = {
           'UserSummary': const EntityCacheTemplate(
@@ -164,7 +164,6 @@ void main() {
             maxItems: 100,
             secure: false,
             byIdMethod: 'getUser',
-            mergePolicy: 'CacheMergePolicy.mergeReturnedEntity',
           ),
         };
         final methodToField = {'getUser': 'admin'};
@@ -197,7 +196,7 @@ void main() {
     );
 
     test(
-      'mergeReturnedEntity refetch + cache mergePolicy replaceEntity uses RPC result',
+      'RefetchPolicy.byId + replaceEntity mergePolicy uses RPC result over extra byId',
       () {
         final templates = {
           'UserSummary': const EntityCacheTemplate(
@@ -208,51 +207,6 @@ void main() {
             maxItems: 100,
             secure: false,
             byIdMethod: 'getUser',
-            mergePolicy: 'CacheMergePolicy.replaceEntity',
-          ),
-        };
-        final methodToField = {'getUser': 'admin'};
-        final code = buildMutationCommandsClass(
-          endpointClassName: 'AdminEndpoint',
-          clientField: 'admin',
-          mutationMethods: [
-            MyMethodMeta(
-              'updateUserRole',
-              'Future<UserSummary>',
-              [MyParamMeta('userId', 'int', null)],
-              [MyParamMeta('roleName', 'String', null)],
-              true,
-              true,
-              innerProviderName: 'RefAdminEndpoint',
-              mutationCommand: const MutationCommandMeta(
-                affects: 'UserSummary',
-                idArg: 'userId',
-                refetch: 'RefetchPolicy.mergeReturnedEntity',
-              ),
-            ),
-          ],
-          entityCacheTemplates: templates,
-          methodToClientField: methodToField,
-        );
-
-        expect(code, contains('await __mutEntityCache.putOne(result'));
-        expect(code, isNot(contains('__mutRefetched')));
-      },
-    );
-
-    test(
-      'RefetchPolicy.byId + cache mergePolicy mergeReturnedEntity uses RPC result',
-      () {
-        final templates = {
-          'UserSummary': const EntityCacheTemplate(
-            elementType: 'UserSummary',
-            entityTypeKey: 'UserSummary',
-            idField: 'id',
-            cacheVersion: 1,
-            maxItems: 100,
-            secure: false,
-            byIdMethod: 'getUser',
-            mergePolicy: 'CacheMergePolicy.mergeReturnedEntity',
           ),
         };
         final methodToField = {'getUser': 'admin'};

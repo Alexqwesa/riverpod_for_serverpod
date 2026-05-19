@@ -97,7 +97,7 @@ Future<List<UserSummary>> listUsers(Session session) async => [];
   ttl: Duration(minutes: 10),
   secure: true,
   byIdMethod: 'getUserSummaryById',
-  mergePolicy: CacheMergePolicy.mergeReturnedEntity,
+  mergePolicy: CacheMergePolicy.refetchById,
   cacheVersion: 2,
   backgroundRefresh: false,
 )
@@ -113,7 +113,7 @@ Future<List<UserSummary>> listUsers(Session session) async => [];
       expect(meta.ttl, 'Duration(minutes: 10)');
       expect(meta.secure, isTrue);
       expect(meta.byIdMethod, 'getUserSummaryById');
-      expect(meta.mergePolicy, 'CacheMergePolicy.mergeReturnedEntity');
+      expect(meta.mergePolicy, 'CacheMergePolicy.refetchById');
       expect(meta.cacheVersion, 2);
       expect(meta.backgroundRefresh, isFalse);
     });

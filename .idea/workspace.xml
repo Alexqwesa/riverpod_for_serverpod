@@ -6,15 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="annotations docs">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/ref_endpoints.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/lib/ref_endpoints.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/ref_endpoints.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/lib/src/generated/ref_endpoints.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/lib/src/annotation.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/lib/src/annotation.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/test/annotation_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_annotation/test/annotation_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_mutation_command.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/build_mutation_command.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/read_annotations.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/read_annotations.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/types.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/types.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/mutation_command_generation_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/mutation_command_generation_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/read_annotations_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/read_annotations_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/manifest/endpoint_manifest.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/lib/src/manifest/endpoint_manifest.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/endpoint_manifest_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_runtime/test/endpoint_manifest_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -452,7 +450,15 @@
       <option name="project" value="LOCAL" />
       <updated>1779089930276</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="annotations docs">
+      <option name="closed" value="true" />
+      <created>1779101811247</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1779101811247</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

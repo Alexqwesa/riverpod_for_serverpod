@@ -6,9 +6,6 @@ enum CacheMergePolicy {
 
   /// Default—full snapshot from mutation response (`putOne(result)`).
   replaceEntity,
-
-  /// Same codegen as `replaceEntity` today (no field-level merge in runtime).
-  mergeReturnedEntity,
 }
 
 enum OptimisticPolicy {

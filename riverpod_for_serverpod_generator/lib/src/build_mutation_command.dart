@@ -139,13 +139,9 @@ String? _resolvedByIdClientField(
 bool _cacheMergePolicyPrefersRefetchById(EntityCacheTemplate template) =>
     template.mergePolicy == 'CacheMergePolicy.refetchById';
 
-/// Prefer `putOne(result)` when the mutation returns the cached entity type:
-/// `mergeReturnedEntity` or `replaceEntity` policies (same codegen path today).
-bool _cacheMergePolicyPrefersMutationResponse(EntityCacheTemplate template) {
-  final p = template.mergePolicy;
-  return p == 'CacheMergePolicy.mergeReturnedEntity' ||
-      p == 'CacheMergePolicy.replaceEntity';
-}
+/// `replaceEntity` merge policy (same as `CachedQuery` default).
+bool _cacheMergePolicyPrefersMutationResponse(EntityCacheTemplate template) =>
+    template.mergePolicy == 'CacheMergePolicy.replaceEntity';
 
 bool _needsMutationEntityCacheOpen({
   required MutationCommandMeta meta,
@@ -187,7 +183,7 @@ bool _needsMutationEntityCacheOpen({
 /// [EntityCacheTemplate.mergePolicy] selects `putOne(result)` vs an extra
 /// `byId` round-trip when paired with [MutationCommand.refetch]: only the
 /// `refetchById` policy forces the extra fetch; `replaceEntity` (default on
-/// [@CachedQuery]) and `mergeReturnedEntity` prefer the mutation response when types align.
+/// `CachedQuery`) prefers the mutation response when types align.
 String _mutationPostSuccessEntityCacheLines({
   required MutationCommandMeta meta,
   required MyMethodMeta method,

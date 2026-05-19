@@ -29,7 +29,7 @@ void main() {
         ttl: Duration(minutes: 10),
         secure: true,
         byIdMethod: 'getUserSummaryById',
-        mergePolicy: CacheMergePolicy.mergeReturnedEntity,
+        mergePolicy: CacheMergePolicy.refetchById,
         cacheVersion: 2,
         backgroundRefresh: false,
       );
@@ -39,7 +39,7 @@ void main() {
       expect(annotation.ttl, const Duration(minutes: 10));
       expect(annotation.secure, isTrue);
       expect(annotation.byIdMethod, 'getUserSummaryById');
-      expect(annotation.mergePolicy, CacheMergePolicy.mergeReturnedEntity);
+      expect(annotation.mergePolicy, CacheMergePolicy.refetchById);
       expect(annotation.cacheVersion, 2);
       expect(annotation.backgroundRefresh, isFalse);
     });
