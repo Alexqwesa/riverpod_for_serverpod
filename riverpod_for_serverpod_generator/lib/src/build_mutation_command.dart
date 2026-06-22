@@ -97,10 +97,9 @@ String _buildMutationControllerMethod({
   return buf.toString();
 }
 
-String _mutationEntityStorageProviderName(EntityCacheTemplate t) =>
-    t.secure
-        ? 'generatedSecureCacheStorageProvider'
-        : 'generatedCacheStorageProvider';
+String _mutationEntityStorageProviderName(EntityCacheTemplate t) => t.secure
+    ? 'generatedSecureCacheStorageProvider'
+    : 'generatedCacheStorageProvider';
 
 String? _mutationIdExpression(MutationCommandMeta meta, MyMethodMeta method) {
   final id = meta.idArg;
@@ -151,8 +150,7 @@ bool _needsMutationEntityCacheOpen({
 }) {
   if (template == null) return false;
   final idExpr = _mutationIdExpression(meta, method);
-  if (meta.optimistic == 'OptimisticPolicy.patchLocalCache' &&
-      idExpr != null) {
+  if (meta.optimistic == 'OptimisticPolicy.patchLocalCache' && idExpr != null) {
     return true;
   }
   if (meta.refetch == 'RefetchPolicy.mergeReturnedEntity' &&
@@ -194,8 +192,7 @@ String _mutationPostSuccessEntityCacheLines({
   final idExpr = _mutationIdExpression(meta, method);
   final byIdName = _resolvedByIdMethodName(meta, template);
   final byIdCf = _resolvedByIdClientField(meta, template, methodToClientField);
-  final canRefetchById =
-      idExpr != null && byIdName != null && byIdCf != null;
+  final canRefetchById = idExpr != null && byIdName != null && byIdCf != null;
   final returnMatches = _returnTypeMatchesEntityMerge(
     method.unwrappedReturnType,
     template.elementType,
@@ -209,9 +206,9 @@ String _mutationPostSuccessEntityCacheLines({
     if (nullableResult) {
       buf.writeln('${indent}if ($expr != null) {');
       buf.writeln(
-        '${indent}  await __mutEntityCache.putOne($expr, pendingSync: false);',
+        '$indent  await __mutEntityCache.putOne($expr, pendingSync: false);',
       );
-      buf.writeln('${indent}}');
+      buf.writeln('$indent}');
     } else {
       buf.writeln(
         '${indent}await __mutEntityCache.putOne($expr, pendingSync: false);',
@@ -225,9 +222,9 @@ String _mutationPostSuccessEntityCacheLines({
     );
     buf.writeln('${indent}if (__mutRefetched != null) {');
     buf.writeln(
-      '${indent}  await __mutEntityCache.putOne(__mutRefetched, pendingSync: false);',
+      '$indent  await __mutEntityCache.putOne(__mutRefetched, pendingSync: false);',
     );
-    buf.writeln('${indent}}');
+    buf.writeln('$indent}');
   }
 
   if (meta.refetch == 'RefetchPolicy.mergeReturnedEntity' && returnMatches) {
@@ -237,9 +234,10 @@ String _mutationPostSuccessEntityCacheLines({
       writePutResult('result');
     }
   } else if (meta.refetch == 'RefetchPolicy.byId' && idExpr != null) {
-    final prefersReturned = _cacheMergePolicyPrefersMutationResponse(template) &&
-        returnMatches &&
-        method.unwrappedReturnType != 'void';
+    final prefersReturned =
+        _cacheMergePolicyPrefersMutationResponse(template) &&
+            returnMatches &&
+            method.unwrappedReturnType != 'void';
     if (prefersReturned) {
       writePutResult('result');
     } else if (byIdName != null && byIdCf != null) {
@@ -247,7 +245,8 @@ String _mutationPostSuccessEntityCacheLines({
     }
   } else if (meta.optimistic == 'OptimisticPolicy.patchLocalCache' &&
       idExpr != null) {
-    buf.writeln('${indent}await __mutEntityCache.setPendingSync($idExpr, false);');
+    buf.writeln(
+        '${indent}await __mutEntityCache.setPendingSync($idExpr, false);');
   }
   return buf.toString();
 }
@@ -263,6 +262,7 @@ String buildMutationCommandMethod({
   final template = entityCacheTemplates[meta.affects];
   final hook = 'invalidateAfter${ReCase(method.name).pascalCase}';
   final refClass = 'Ref$endpointClassName';
+  final hookCall = '$refClass.$hook(read${_invalidateHookArgs(method)})';
   final retryEnabled = meta.retry != 'RetryPolicy.none';
   final queueId = _mutationQueueIdExpression(endpointClassName, method, meta);
   final timeoutSuffix =
@@ -300,7 +300,7 @@ String buildMutationCommandMethod({
   _writeMutationCommandValidations(buffer, method, indent: '    ');
 
   if (useOptimistic) {
-    buffer.writeln('    ${template!.elementType}? __mutOptimisticPrev;');
+    buffer.writeln('    ${template.elementType}? __mutOptimisticPrev;');
   }
 
   if (needsCache && template != null) {
@@ -315,7 +315,8 @@ String buildMutationCommandMethod({
     buffer.writeln("      entityType: r'${t.entityTypeKey}',");
     buffer.writeln('      cacheVersion: ${t.cacheVersion},');
     buffer.writeln('      idOf: (e) => e.${t.idField},');
-    buffer.writeln('      toJson: (e) => Map<String, Object?>.from(e.toJson()),');
+    buffer
+        .writeln('      toJson: (e) => Map<String, Object?>.from(e.toJson()),');
     buffer.writeln('      fromJson: ${t.elementType}.fromJson,');
     buffer.writeln('      maxItems: ${t.maxItems},');
     buffer.writeln('    );');
@@ -346,11 +347,11 @@ String buildMutationCommandMethod({
   if (method.unwrappedReturnType == 'void') {
     buffer.writeln('      await $readCall;');
     if (postSuccess.isNotEmpty) buffer.write(postSuccess);
-    buffer.writeln('      $refClass.$hook(read);');
+    buffer.writeln('      $hookCall;');
   } else {
     buffer.writeln('      final result = await $readCall;');
     if (postSuccess.isNotEmpty) buffer.write(postSuccess);
-    buffer.writeln('      $refClass.$hook(read);');
+    buffer.writeln('      $hookCall;');
     buffer.writeln('      return result;');
   }
 
@@ -394,7 +395,7 @@ String buildMutationCommandMethod({
     final retryPost = postSuccess.replaceAll('      ', '            ');
     buffer.write(retryPost);
   }
-  buffer.writeln('            $refClass.$hook(read);');
+  buffer.writeln('            $hookCall;');
   buffer.writeln('          },');
   buffer.writeln('        );');
   buffer.writeln(
@@ -414,10 +415,8 @@ String buildMutationCommandMethod({
 
 String _mutationPersistArgsMap(MyMethodMeta method) {
   final parts = <String>[
-    for (final p in method.positionalParams)
-      "r'${p.name}': ${p.name}",
-    for (final p in method.namedParams)
-      "r'${p.name}': ${p.name}",
+    for (final p in method.positionalParams) "r'${p.name}': ${p.name}",
+    for (final p in method.namedParams) "r'${p.name}': ${p.name}",
   ];
   return parts.join(', ');
 }
@@ -428,6 +427,24 @@ String _mutationCallArgs(MyMethodMeta method) {
     ...method.namedParams.map((p) => '${p.name}: ${p.name}'),
   ];
   return parts.join(', ');
+}
+
+String _invalidateHookArgs(MyMethodMeta method) {
+  final meta = method.mutationCommand;
+  if (meta == null) return '';
+  final methodArgNames = {
+    for (final p in method.positionalParams) p.name,
+    for (final p in method.namedParams) p.name,
+  };
+  final args = <String>{};
+  for (final invalidate in meta.invalidate) {
+    final argFrom = invalidate.argFrom;
+    if (argFrom != null && methodArgNames.contains(argFrom)) {
+      args.add(argFrom);
+    }
+  }
+  if (args.isEmpty) return '';
+  return ', ${args.join(', ')}';
 }
 
 String _mutationQueueIdExpression(

@@ -110,16 +110,41 @@ class MutationCommandMeta {
 }
 
 class InvalidateMeta {
-  final String provider;
+  final String? endpoint;
+  final String? provider;
   final String? argFrom;
   final bool family;
+  final String kind;
+
+  const InvalidateMeta.self(this.endpoint)
+      : provider = null,
+        argFrom = null,
+        family = false,
+        kind = 'self';
+
+  const InvalidateMeta.endpoint(this.endpoint)
+      : provider = null,
+        argFrom = null,
+        family = false,
+        kind = 'endpoint';
+
+  const InvalidateMeta.provider(
+    this.endpoint,
+    this.provider, {
+    this.argFrom,
+  })  : family = argFrom != null,
+        kind = 'provider';
 
   const InvalidateMeta.all(this.provider)
-      : argFrom = null,
-        family = false;
+      : endpoint = null,
+        argFrom = null,
+        family = false,
+        kind = 'provider';
 
   const InvalidateMeta.family(this.provider, {required this.argFrom})
-      : family = true;
+      : endpoint = null,
+        family = true,
+        kind = 'provider';
 }
 
 class ValidateStringMeta {

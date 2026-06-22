@@ -36,6 +36,7 @@ void main() {
                 idArg: 'userId',
                 invalidate: [
                   InvalidateMeta.all('listUsersByRole'),
+                  InvalidateMeta.endpoint('UserEndpoint'),
                   InvalidateMeta.family(
                     'getUserSummaryById',
                     argFrom: 'userId',
@@ -66,6 +67,8 @@ void main() {
       expect(code, contains('secure: true'));
       expect(code, contains('byIdMethod: "getUserSummaryById"'));
       expect(code, contains('mutationCommand: MutationCommandInfo'));
+      expect(code, contains('endpoint: "UserEndpoint"'));
+      expect(code, contains('kind: InvalidateKind.endpoint'));
       expect(code, contains('family: true'));
       expect(code, contains('optimistic: OptimisticPolicy.patchLocalCache'));
       expect(code, contains('maxLength: 50'));

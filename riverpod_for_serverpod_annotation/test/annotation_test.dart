@@ -5,6 +5,14 @@ class UserSummary {
   const UserSummary();
 }
 
+class AdminEndpoint {
+  const AdminEndpoint();
+}
+
+class UserEndpoint {
+  const UserEndpoint();
+}
+
 void main() {
   group('CachedQuery', () {
     test('uses V1 cache defaults', () {
@@ -68,8 +76,14 @@ void main() {
         idArg: 'userId',
         byIdMethod: 'getUserSummaryById',
         invalidate: [
-          Invalidate.all('listUsersByRole'),
-          Invalidate.family('getUserSummaryById', argFrom: 'userId'),
+          Invalidate.self(AdminEndpoint),
+          Invalidate.endpoint(UserEndpoint),
+          Invalidate.provider(AdminEndpoint, 'listUsersByRole'),
+          Invalidate.providerFamily(
+            AdminEndpoint,
+            'getUserSummaryById',
+            argFrom: 'userId',
+          ),
         ],
         optimistic: OptimisticPolicy.patchLocalCache,
         retry: RetryPolicy.connectionOnly,
@@ -80,9 +94,13 @@ void main() {
 
       expect(annotation.idArg, 'userId');
       expect(annotation.byIdMethod, 'getUserSummaryById');
-      expect(annotation.invalidate, hasLength(2));
-      expect(annotation.invalidate.first.provider, 'listUsersByRole');
-      expect(annotation.invalidate.first.family, isFalse);
+      expect(annotation.invalidate, hasLength(4));
+      expect(annotation.invalidate[0].kind, InvalidateKind.self);
+      expect(annotation.invalidate[0].endpoint, AdminEndpoint);
+      expect(annotation.invalidate[1].kind, InvalidateKind.endpoint);
+      expect(annotation.invalidate[1].endpoint, UserEndpoint);
+      expect(annotation.invalidate[2].provider, 'listUsersByRole');
+      expect(annotation.invalidate[2].family, isFalse);
       expect(annotation.invalidate.last.provider, 'getUserSummaryById');
       expect(annotation.invalidate.last.argFrom, 'userId');
       expect(annotation.invalidate.last.family, isTrue);

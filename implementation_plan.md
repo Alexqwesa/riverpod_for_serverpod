@@ -40,6 +40,7 @@ DONE:
   generated mutation commands record queued retry warnings through refreshWarningProvider
   mutationRetryQueueProvider keeps queued warning count synchronized after schedule, retry, cancel, and clear
   generated AsyncNotifier<void> mutation controllers delegate to Ref<Endpoint>Commands and expose loading/error state
+  typed MutationCommand.invalidate API supports endpoint/self/provider invalidation, including exact single-arg provider invalidation via argFrom
   manifest diagnostics warn when mutation-like method names lack @MutationCommand
   manifest diagnostics warn when create-like mutations enable retry without idempotencyKeyArg
   manifest diagnostics error when annotation argument references point to missing method parameters
@@ -367,9 +368,10 @@ class AdminEndpoint extends Endpoint {
     affects: UserSummary,
     idArg: 'userId',
     invalidate: [
-      Invalidate.all('listUsersByRole'),
-      Invalidate.all('listUsersByDepartment'),
-      Invalidate.family('getUserSummaryById', argFrom: 'userId'),
+      Invalidate.self(AdminEndpoint),
+      Invalidate.provider(AdminEndpoint, 'listUsersByRole'),
+      Invalidate.provider(AdminEndpoint, 'listUsersByDepartment'),
+      Invalidate.providerFamily(AdminEndpoint, 'getUserSummaryById', argFrom: 'userId'),
     ],
     optimistic: OptimisticPolicy.patchLocalCache,
     retry: RetryPolicy.connectionOnly,
@@ -1130,9 +1132,9 @@ Use annotation for precision:
   affects: UserSummary,
   idArg: 'userId',
   invalidate: [
-    Invalidate.family('getUserSummaryById', argFrom: 'userId'),
-    Invalidate.all('listUsersByRole'),
-    Invalidate.all('listUsersByDepartment'),
+    Invalidate.providerFamily(AdminEndpoint, 'getUserSummaryById', argFrom: 'userId'),
+    Invalidate.provider(AdminEndpoint, 'listUsersByRole'),
+    Invalidate.provider(AdminEndpoint, 'listUsersByDepartment'),
   ],
 )
 Future<UserSummary> updateUserRole(...)
@@ -1545,7 +1547,7 @@ Completed:
 ```text
 @CachedQuery
 @MutationCommand
-Invalidate.all / Invalidate.family
+Invalidate.self / Invalidate.endpoint / Invalidate.provider / Invalidate.providerFamily, plus legacy Invalidate.all / Invalidate.family
 CacheMergePolicy
 OptimisticPolicy
 RetryPolicy
@@ -1572,7 +1574,7 @@ Done:
 ```text
 AST metadata readers for @CachedQuery
 AST metadata readers for @MutationCommand
-AST metadata readers for Invalidate.all / Invalidate.family
+AST metadata readers for typed Invalidate.self / endpoint / provider / providerFamily and legacy Invalidate.all / family
 AST metadata readers for validation annotations
 internal endpoint manifest builder
 generatedEndpointManifest typed const object output
@@ -1685,7 +1687,7 @@ Done:
 ```text
 method-level invalidateAfter<MethodName>(ref.read) hooks
 endpoint-level updateAll(ref.read) hooks
-cross-endpoint invalidation via @RefInvalidate
+cross-endpoint invalidation via MutationCommand.invalidate (typed) and legacy @RefInvalidate
 abstract final class Ref<Endpoint>Commands with static async methods for @MutationCommand
 wiring to mutationRetryQueueProvider on connection-like failures (idempotent + retry enabled)
 queued retry warning reporting through refreshWarningProvider
@@ -1951,9 +1953,10 @@ class AdminEndpoint extends Endpoint {
     refetch: RefetchPolicy.mergeReturnedEntity,
     idempotent: true,
     invalidate: [
-      Invalidate.all('listUsersByRole'),
-      Invalidate.all('listUsersByDepartment'),
-      Invalidate.family('getUserSummaryById', argFrom: 'userId'),
+      Invalidate.self(AdminEndpoint),
+      Invalidate.provider(AdminEndpoint, 'listUsersByRole'),
+      Invalidate.provider(AdminEndpoint, 'listUsersByDepartment'),
+      Invalidate.providerFamily(AdminEndpoint, 'getUserSummaryById', argFrom: 'userId'),
     ],
   )
   Future<UserSummary> updateUserRole(

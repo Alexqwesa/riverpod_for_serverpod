@@ -95,9 +95,11 @@ ${meta.invalidate.map(_invalidateCode).join('\n')}
 String _invalidateCode(InvalidateMeta meta) {
   return '''
               InvalidateInfo(
-                provider: ${_string(meta.provider)},
+                endpoint: ${_nullableString(meta.endpoint)},
+                provider: ${_nullableString(meta.provider)},
                 argFrom: ${_nullableString(meta.argFrom)},
                 family: ${meta.family},
+                kind: InvalidateKind.${meta.kind},
               ),''';
 }
 

@@ -280,6 +280,17 @@ bool _needsTypedDataImport(String emittedCode) {
   return emittedCode.contains(RegExp(r'\b(ByteData|Uint8List)\b'));
 }
 
+List<String> buildGeneratedImportLines({
+  required Iterable<String> importPaths,
+  required bool emitProviderRetry,
+}) {
+  return [
+    ...importPaths.map((importPath) => "import '$importPath';"),
+    if (emitProviderRetry)
+      "import 'package:riverpod/misc.dart' show ProviderListenable;",
+  ];
+}
+
 List<String> normalizeHookTargets(Iterable<String> targets) {
   final normalized = <String>{};
   for (final raw in targets) {
@@ -308,7 +319,6 @@ String _buildLibrary({
   final baseDartImports = <String>['dart:async'];
   final basePackageImports = <String>[
     'package:riverpod/riverpod.dart',
-    'package:riverpod/misc.dart',
     'package:riverpod_for_serverpod_runtime/riverpod_for_serverpod_runtime.dart',
     'package:$clientPackageName/src/protocol/protocol.dart',
     'package:serverpod_auth_client/serverpod_auth_client.dart',
@@ -445,6 +455,7 @@ ${emitProviderRetry ? 'Duration? _noProviderRetry(int retryCount, Object error) 
                 (method) => _buildInvalidateHookMethod(
                   currentEndpoint: endpointClass,
                   method: method,
+                  endpoints: endpoints,
                 ),
               ),
             );
@@ -490,12 +501,16 @@ ${emitProviderRetry ? 'Duration? _noProviderRetry(int retryCount, Object error) 
     ...extraDartImports,
     ...basePackageImports,
   ];
+  final importLines = buildGeneratedImportLines(
+    importPaths: requiredImports,
+    emitProviderRetry: emitProviderRetry,
+  );
 
   final fullSource = '''
 // GENERATED - DO NOT MODIFY
 // @dart=3.0
 
-${requiredImports.map((importPath) => "import '$importPath';").join('\n')}
+${importLines.join('\n')}
 
 $emitted
 ''';
@@ -511,16 +526,42 @@ $emitted
 Method _buildInvalidateHookMethod({
   required String currentEndpoint,
   required MyMethodMeta method,
+  required List<_EndpointMeta> endpoints,
 }) {
   final methodName = 'invalidateAfter${ReCase(method.name).pascalCase}';
-  final targets = <String>{
+  final endpointTargets = <String>{
     if (method.includeSelfInHook) 'Ref$currentEndpoint',
     ...method.invalidateTargets,
   };
 
+  final endpointByName = {
+    for (final endpoint in endpoints) endpoint.name: endpoint,
+  };
+  final methodArgs = {
+    for (final p in method.positionalParams) p.name: p,
+    for (final p in method.namedParams) p.name: p,
+  };
+  final hookArgs = <String, MyParamMeta>{};
+  for (final invalidate in method.mutationCommand?.invalidate ?? const []) {
+    final argFrom = invalidate.argFrom;
+    if (argFrom == null) continue;
+    final arg = methodArgs[argFrom];
+    if (arg != null) hookArgs[argFrom] = arg;
+  }
+
   final body = StringBuffer();
-  for (final target in targets) {
+  final emitted = <String>{};
+  for (final target in endpointTargets) {
+    if (!emitted.add('$target.updateAll(read);')) continue;
     body.writeln('$target.updateAll(read);');
+  }
+  for (final line in _buildTypedInvalidationLines(
+    currentEndpoint: currentEndpoint,
+    method: method,
+    endpointByName: endpointByName,
+    methodArgs: methodArgs,
+  )) {
+    if (emitted.add(line)) body.writeln(line);
   }
 
   return Method((mb) {
@@ -534,9 +575,86 @@ Method _buildInvalidateHookMethod({
             ..name = 'read'
             ..type = refer('Reader'),
         ),
-      )
-      ..body = Code(body.toString());
+      );
+
+    for (final arg in hookArgs.values) {
+      mb.requiredParameters.add(
+        Parameter(
+          (p) => p
+            ..name = arg.name
+            ..type = refer(arg.type),
+        ),
+      );
+    }
+
+    mb.body = Code(body.toString());
   });
+}
+
+Iterable<String> _buildTypedInvalidationLines({
+  required String currentEndpoint,
+  required MyMethodMeta method,
+  required Map<String, _EndpointMeta> endpointByName,
+  required Map<String, MyParamMeta> methodArgs,
+}) sync* {
+  final invalidations = method.mutationCommand?.invalidate ?? const [];
+  for (final invalidate in invalidations) {
+    final endpointClass =
+        _targetEndpointClass(invalidate.endpoint, currentEndpoint);
+    final refClass = 'Ref$endpointClass';
+    switch (invalidate.kind) {
+      case 'self':
+      case 'endpoint':
+        yield '$refClass.updateAll(read);';
+      case 'provider':
+        final provider = invalidate.provider;
+        if (provider == null || provider.isEmpty) continue;
+        final targetMethod = _findEndpointMethod(
+          endpointByName[endpointClass],
+          provider,
+        );
+        final exactArg = _exactInvalidationArgExpression(
+          invalidate: invalidate,
+          targetMethod: targetMethod,
+          methodArgs: methodArgs,
+        );
+        if (exactArg == null) {
+          yield '$refClass.${provider}InvalidateAll(read);';
+        } else {
+          yield '$refClass.${provider}Invalidate(read, $exactArg);';
+        }
+    }
+  }
+}
+
+MyMethodMeta? _findEndpointMethod(_EndpointMeta? endpoint, String methodName) {
+  if (endpoint == null) return null;
+  for (final method in endpoint.methods) {
+    if (method.name == methodName) return method;
+  }
+  return null;
+}
+
+String _targetEndpointClass(String? endpoint, String currentEndpoint) {
+  final raw = endpoint?.trim();
+  if (raw == null || raw.isEmpty) return currentEndpoint;
+  final noPrefix = raw.startsWith('Ref') ? raw.substring(3) : raw;
+  final className =
+      noPrefix.contains('.') ? noPrefix.split('.').last : noPrefix;
+  return className.endsWith('Endpoint') ? className : '${className}Endpoint';
+}
+
+String? _exactInvalidationArgExpression({
+  required InvalidateMeta invalidate,
+  required MyMethodMeta? targetMethod,
+  required Map<String, MyParamMeta> methodArgs,
+}) {
+  final argFrom = invalidate.argFrom;
+  if (argFrom == null || !methodArgs.containsKey(argFrom)) return null;
+  if (targetMethod == null) return argFrom;
+  final targetArgCount =
+      targetMethod.positionalParams.length + targetMethod.namedParams.length;
+  return targetArgCount == 1 ? argFrom : null;
 }
 
 String _buildMutationRetryReplayBootstrap(List<_EndpointMeta> endpoints) {

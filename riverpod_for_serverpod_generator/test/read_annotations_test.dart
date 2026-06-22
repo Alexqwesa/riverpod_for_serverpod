@@ -183,6 +183,37 @@ Future<UserSummary> updateUser(Session session) async => UserSummary();
       expect(meta.idempotencyKeyArg, 'clientRequestId');
       expect(meta.closeDialog, 'DialogPolicy.never');
     });
+
+    test('extracts typed invalidation descriptors', () {
+      const source = '''
+@MutationCommand(
+  affects: Event,
+  invalidate: [
+    Invalidate.self(EventEndpoint),
+    Invalidate.endpoint(UserEndpoint),
+    Invalidate.provider(EventEndpoint, 'listEvents'),
+    Invalidate.providerFamily(EventEndpoint, 'getEventById', argFrom: 'eventId'),
+  ],
+)
+Future<void> updateEvent(Session session, int eventId) async {}
+''';
+      final parsed = parseString(content: source);
+      final node = parsed.unit.declarations.first;
+      final meta = extractMutationCommandMeta(node)!;
+
+      expect(meta.invalidate, hasLength(4));
+      expect(meta.invalidate[0].kind, 'self');
+      expect(meta.invalidate[0].endpoint, 'EventEndpoint');
+      expect(meta.invalidate[1].kind, 'endpoint');
+      expect(meta.invalidate[1].endpoint, 'UserEndpoint');
+      expect(meta.invalidate[2].kind, 'provider');
+      expect(meta.invalidate[2].endpoint, 'EventEndpoint');
+      expect(meta.invalidate[2].provider, 'listEvents');
+      expect(meta.invalidate[2].argFrom, isNull);
+      expect(meta.invalidate[3].provider, 'getEventById');
+      expect(meta.invalidate[3].argFrom, 'eventId');
+      expect(meta.invalidate[3].family, isTrue);
+    });
   });
 
   group('validation metadata extractors', () {

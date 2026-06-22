@@ -247,9 +247,10 @@ class MutationCommand {
 
   /// Cached query providers to invalidate when this mutation succeeds.
   ///
-  /// Each [Invalidate.provider] must be the **generated provider field name**,
-  /// which equals the **endpoint method name** (e.g. `listParents`, not a type
-  /// or class name).
+  /// Use [Invalidate.self] or [Invalidate.endpoint] for broad endpoint refresh,
+  /// and [Invalidate.provider] for one generated provider. Legacy
+  /// [Invalidate.all] / [Invalidate.family] entries target the current
+  /// endpoint.
   final List<Invalidate> invalidate;
 
   /// Whether to patch local entity cache optimistically.
@@ -292,24 +293,47 @@ class MutationCommand {
   });
 }
 
-/// Names one cached query provider to invalidate after a mutation succeeds.
+/// Target generated providers to invalidate after a mutation succeeds.
 ///
-/// Use inside [MutationCommand.invalidate]. [provider] must equal the target
-/// endpoint **method name** (the generated static provider field), not a class
-/// name.
+/// Use inside [MutationCommand.invalidate]. Typed constructors take the
+/// Serverpod endpoint class type:
 ///
-/// For [Invalidate.family], [argFrom] must name a parameter on the **mutation**
-/// method; its runtime value is passed as the family argument when invalidating
-/// the target family provider.
+/// ```dart
+/// Invalidate.self(AdminEndpoint)
+/// Invalidate.endpoint(UserEndpoint)
+/// Invalidate.provider(UserEndpoint, 'listUsers')
+/// Invalidate.providerFamily(UserEndpoint, 'getUserById', argFrom: 'userId')
+/// ```
+///
+/// For [Invalidate.providerFamily], [argFrom] must name a parameter on the
+/// **mutation** method; its runtime value is passed as the target provider's
+/// family argument when the target provider has a single generated argument.
+/// Use [Invalidate.provider] for broad invalidation of every family instance.
+///
+/// Legacy same-endpoint constructors remain supported:
 ///
 /// ```dart
 /// Invalidate.all('listUsers')
 /// Invalidate.family('listChildren', argFrom: 'parentId')
 /// ```
+enum InvalidateKind {
+  /// Invalidate one generated provider on an endpoint.
+  provider,
+
+  /// Invalidate all generated providers on a target endpoint.
+  endpoint,
+
+  /// Invalidate all generated providers on this endpoint.
+  self,
+}
+
 @immutable
 class Invalidate {
+  /// Target endpoint class for typed invalidation constructors.
+  final Type? endpoint;
+
   /// Target method name string (matches generated provider identifier).
-  final String provider;
+  final String? provider;
 
   /// Mutation parameter name supplying the family argument for family
   /// providers.
@@ -318,12 +342,60 @@ class Invalidate {
   /// True when invalidating a `.family` provider.
   final bool family;
 
-  const Invalidate.all(this.provider)
-      : argFrom = null,
-        family = false;
+  /// What kind of target this invalidation describes.
+  final InvalidateKind kind;
 
+  /// Invalidate all generated providers on the same endpoint.
+  ///
+  /// The endpoint type is explicit so generated code can verify/refactor names
+  /// without stringly typed endpoint lists.
+  const Invalidate.self(this.endpoint)
+      : provider = null,
+        argFrom = null,
+        family = false,
+        kind = InvalidateKind.self;
+
+  /// Invalidate all generated providers on [endpoint].
+  const Invalidate.endpoint(this.endpoint)
+      : provider = null,
+        argFrom = null,
+        family = false,
+        kind = InvalidateKind.endpoint;
+
+  /// Invalidate one generated provider on [endpoint].
+  ///
+  /// [provider] is the Serverpod endpoint method name. When [argFrom] is
+  /// omitted, every family instance is invalidated. When [argFrom] is supplied,
+  /// the generated hook tries to invalidate the exact single-argument provider
+  /// instance using the mutation parameter with that name.
+  const Invalidate.provider(this.endpoint, this.provider, {this.argFrom})
+      : family = argFrom != null,
+        kind = InvalidateKind.provider;
+
+  /// Invalidate one generated family provider instance on [endpoint].
+  ///
+  /// [provider] is the Serverpod endpoint method name. [argFrom] names the
+  /// mutation parameter whose runtime value should be used as the family
+  /// argument.
+  const Invalidate.providerFamily(
+    this.endpoint,
+    this.provider, {
+    required this.argFrom,
+  })  : family = true,
+        kind = InvalidateKind.provider;
+
+  /// Legacy same-endpoint broad provider invalidation.
+  const Invalidate.all(this.provider)
+      : endpoint = null,
+        argFrom = null,
+        family = false,
+        kind = InvalidateKind.provider;
+
+  /// Legacy same-endpoint exact family invalidation.
   const Invalidate.family(this.provider, {required this.argFrom})
-      : family = true;
+      : endpoint = null,
+        family = true,
+        kind = InvalidateKind.provider;
 }
 
 /// Client-side string validation run **before** the generated mutation command
@@ -459,6 +531,8 @@ class Timeout {
 ///   ...
 /// }
 /// ```
+@Deprecated(
+    'Use MutationCommand.invalidate with Invalidate.self/endpoint/provider.')
 @immutable
 class RefInvalidate {
   /// Endpoint class names (`'BankEndpoint'`) or `Ref...` names to refresh.

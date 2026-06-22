@@ -45,8 +45,13 @@ cached read provider.
   refetch: RefetchPolicy.mergeReturnedEntity,
   idempotent: true,
   invalidate: [
-    Invalidate.all('listUsersByRole'),
-    Invalidate.family('getUserSummaryById', argFrom: 'userId'),
+    Invalidate.self(AdminEndpoint),
+    Invalidate.provider(AdminEndpoint, 'listUsersByRole'),
+    Invalidate.providerFamily(
+      AdminEndpoint,
+      'getUserSummaryById',
+      argFrom: 'userId',
+    ),
   ],
 )
 Future<UserSummary> updateUserRole(
@@ -101,9 +106,11 @@ Future<String> importUnitsFromMssql(Session session) async {
 }
 ```
 
-### `@RefInvalidate`
+### `@RefInvalidate` legacy
 
-Declares generated invalidation hooks for successful mutations.
+Declares generated invalidation hooks for successful mutations. Prefer
+`MutationCommand.invalidate` with `Invalidate.self`, `Invalidate.endpoint`, and
+`Invalidate.provider` for new code.
 
 The generated `Ref...Endpoint.invalidateAfter<MethodName>(ref.read)` helper
 always refreshes the current endpoint. `endpoints` adds extra endpoint refs to

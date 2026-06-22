@@ -62,19 +62,20 @@ void main() {
       );
     });
 
-    test('with entity cache template and optimistic policy, opens GeneratedEntityCache',
+    test(
+        'with entity cache template and optimistic policy, opens GeneratedEntityCache',
         () {
       final templates = {
-          'UserSummary': const EntityCacheTemplate(
-            elementType: 'UserSummary',
-            entityTypeKey: 'UserSummary',
-            idField: 'id',
-            cacheVersion: 1,
-            maxItems: 100,
-            secure: false,
-            byIdMethod: 'getUser',
-            mergePolicy: 'CacheMergePolicy.refetchById',
-          ),
+        'UserSummary': const EntityCacheTemplate(
+          elementType: 'UserSummary',
+          entityTypeKey: 'UserSummary',
+          idField: 'id',
+          cacheVersion: 1,
+          maxItems: 100,
+          secure: false,
+          byIdMethod: 'getUser',
+          mergePolicy: 'CacheMergePolicy.refetchById',
+        ),
       };
       final methodToField = {'getUser': 'admin'};
       final code = buildMutationCommandsClass(
@@ -246,6 +247,40 @@ void main() {
           mutationMethods: const [],
         ),
         isEmpty,
+      );
+    });
+
+    test('passes exact invalidation hook args from mutation parameters', () {
+      final code = buildMutationCommandsClass(
+        endpointClassName: 'EventEndpoint',
+        clientField: 'event',
+        mutationMethods: [
+          MyMethodMeta(
+            'updateEvent',
+            'Future<void>',
+            [MyParamMeta('eventId', 'int', null)],
+            [],
+            true,
+            false,
+            innerProviderName: 'RefEventEndpoint',
+            mutationCommand: const MutationCommandMeta(
+              affects: 'Event',
+              retry: 'RetryPolicy.none',
+              invalidate: [
+                InvalidateMeta.provider(
+                  'EventEndpoint',
+                  'getEventById',
+                  argFrom: 'eventId',
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+
+      expect(
+        code,
+        contains('RefEventEndpoint.invalidateAfterUpdateEvent(read, eventId);'),
       );
     });
   });

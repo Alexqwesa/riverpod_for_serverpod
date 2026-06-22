@@ -49,6 +49,7 @@ void main() {
                 closeDialog: DialogPolicy.onSuccessOnly,
                 invalidate: [
                   InvalidateInfo.all('listUsers'),
+                  InvalidateInfo.endpoint('UserEndpoint'),
                   InvalidateInfo.family(
                     'getUserSummaryById',
                     argFrom: 'userId',
@@ -93,6 +94,8 @@ void main() {
       expect(mutation.affects, 'UserSummary');
       expect(mutation.optimistic, OptimisticPolicy.patchLocalCache);
       expect(mutation.refetch, RefetchPolicy.mergeReturnedEntity);
+      expect(mutation.invalidate[1].endpoint, 'UserEndpoint');
+      expect(mutation.invalidate[1].kind, InvalidateKind.endpoint);
       expect(mutation.invalidate.last.family, isTrue);
     });
   });

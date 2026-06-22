@@ -254,9 +254,10 @@ Use `@MutationCommand` for methods that change server state.
   refetch: RefetchPolicy.mergeReturnedEntity,
   idempotent: true,
   invalidate: [
-    Invalidate.all('listUsersByRole'),
-    Invalidate.all('listUsersByDepartment'),
-    Invalidate.family('getUserSummaryById', argFrom: 'userId'),
+    Invalidate.self(AdminEndpoint),
+    Invalidate.provider(AdminEndpoint, 'listUsersByRole'),
+    Invalidate.provider(AdminEndpoint, 'listUsersByDepartment'),
+    Invalidate.providerFamily(AdminEndpoint, 'getUserSummaryById', argFrom: 'userId'),
   ],
 )
 Future<UserSummary> updateUserRole(
@@ -728,8 +729,8 @@ Add precise invalidation:
 
 ```dart
 invalidate: [
-  Invalidate.family('getUserSummaryById', argFrom: 'userId'),
-  Invalidate.all('listUsersByRole'),
+  Invalidate.providerFamily(AdminEndpoint, 'getUserSummaryById', argFrom: 'userId'),
+  Invalidate.provider(AdminEndpoint, 'listUsersByRole'),
 ]
 ```
 

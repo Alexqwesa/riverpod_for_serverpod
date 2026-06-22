@@ -9,8 +9,8 @@ import 'package:riverpod_for_serverpod_runtime/src/warnings/refresh_warning_noti
 /// Same shape as generated `Reader`: `ref.read` from a [Ref].
 typedef MutationReader = T Function<T>(ProviderListenable<T> provider);
 
-typedef MutationReplayFn =
-    Future<void> Function(MutationReader read, Map<String, Object?> args);
+typedef MutationReplayFn = Future<void> Function(
+    MutationReader read, Map<String, Object?> args);
 
 /// Registers how to replay mutations stored by [InMemoryMutationRetryQueue].
 class MutationRetryReplayRegistry {

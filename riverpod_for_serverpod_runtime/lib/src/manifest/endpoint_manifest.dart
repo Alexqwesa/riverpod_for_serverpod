@@ -29,6 +29,12 @@ enum DialogPolicy {
   onSuccessOnly,
 }
 
+enum InvalidateKind {
+  provider,
+  endpoint,
+  self,
+}
+
 class EndpointManifest {
   final List<EndpointInfo> endpoints;
 
@@ -166,22 +172,49 @@ class MutationCommandInfo {
 }
 
 class InvalidateInfo {
-  final String provider;
+  final String? endpoint;
+  final String? provider;
   final String? argFrom;
   final bool family;
+  final InvalidateKind kind;
 
   const InvalidateInfo({
-    required this.provider,
+    this.endpoint,
+    this.provider,
     this.argFrom,
     required this.family,
+    this.kind = InvalidateKind.provider,
   });
 
   const InvalidateInfo.all(this.provider)
-      : argFrom = null,
-        family = false;
+      : endpoint = null,
+        argFrom = null,
+        family = false,
+        kind = InvalidateKind.provider;
 
   const InvalidateInfo.family(this.provider, {required this.argFrom})
-      : family = true;
+      : endpoint = null,
+        family = true,
+        kind = InvalidateKind.provider;
+
+  const InvalidateInfo.endpoint(this.endpoint)
+      : provider = null,
+        argFrom = null,
+        family = false,
+        kind = InvalidateKind.endpoint;
+
+  const InvalidateInfo.self(this.endpoint)
+      : provider = null,
+        argFrom = null,
+        family = false,
+        kind = InvalidateKind.self;
+
+  const InvalidateInfo.provider(
+    this.endpoint,
+    this.provider, {
+    this.argFrom,
+  })  : family = argFrom != null,
+        kind = InvalidateKind.provider;
 }
 
 class ValidateStringInfo {

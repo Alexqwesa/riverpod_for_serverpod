@@ -201,13 +201,61 @@ InvalidateMeta? _invalidateMeta(Expression expr) {
   if (expr is MethodInvocation &&
       expr.target?.toSource() == 'Invalidate' &&
       expr.argumentList.arguments.isNotEmpty) {
-    final provider = _stringExpression(expr.argumentList.arguments.first);
-    if (provider == null || provider.isEmpty) return null;
+    final positional = [
+      for (final arg in expr.argumentList.arguments)
+        if (arg is! NamedExpression) arg,
+    ];
+    final args = _expressionArgumentMap(expr.argumentList.arguments);
+
     switch (expr.methodName.name) {
+      case 'self':
+        final endpoint = _sourceExpression(_firstOrNull(positional));
+        if (endpoint == null || endpoint.isEmpty) return null;
+        return InvalidateMeta.self(endpoint);
+      case 'endpoint':
+        final endpoint = _sourceExpression(_firstOrNull(positional));
+        if (endpoint == null || endpoint.isEmpty) return null;
+        return InvalidateMeta.endpoint(endpoint);
+      case 'provider':
+        if (positional.length < 2) return null;
+        final endpoint = _sourceExpression(positional[0]);
+        final provider = _stringExpression(positional[1]);
+        if (endpoint == null ||
+            endpoint.isEmpty ||
+            provider == null ||
+            provider.isEmpty) {
+          return null;
+        }
+        return InvalidateMeta.provider(
+          endpoint,
+          provider,
+          argFrom: _stringArg(args, 'argFrom'),
+        );
+      case 'providerFamily':
+        if (positional.length < 2) return null;
+        final endpoint = _sourceExpression(positional[0]);
+        final provider = _stringExpression(positional[1]);
+        final argFrom = _stringArg(args, 'argFrom');
+        if (endpoint == null ||
+            endpoint.isEmpty ||
+            provider == null ||
+            provider.isEmpty ||
+            argFrom == null ||
+            argFrom.isEmpty) {
+          return null;
+        }
+        return InvalidateMeta.provider(
+          endpoint,
+          provider,
+          argFrom: argFrom,
+        );
       case 'all':
+        final provider = _stringExpression(_firstOrNull(positional));
+        if (provider == null || provider.isEmpty) return null;
         return InvalidateMeta.all(provider);
       case 'family':
-        final args = _expressionArgumentMap(expr.argumentList.arguments);
+        final provider = _stringExpression(_firstOrNull(positional));
+        if (provider == null || provider.isEmpty) return null;
         final argFrom = _stringArg(args, 'argFrom');
         if (argFrom == null || argFrom.isEmpty) return null;
         return InvalidateMeta.family(provider, argFrom: argFrom);
@@ -263,6 +311,14 @@ String? _stringExpression(Expression? expr) {
   if (expr is StringLiteral) return expr.stringValue;
   return null;
 }
+
+String? _sourceExpression(Expression? expr) {
+  if (expr == null) return null;
+  return _cleanSource(expr.toSource());
+}
+
+Expression? _firstOrNull(List<Expression> expressions) =>
+    expressions.isEmpty ? null : expressions.first;
 
 int? _intArg(Map<String, Expression> args, String name) {
   final expr = args[name];

@@ -64,6 +64,34 @@ void main() {
     });
   });
 
+  group('buildGeneratedImportLines', () {
+    test('Riverpod 3 imports ProviderListenable from misc', () {
+      expect(
+        buildGeneratedImportLines(
+          importPaths: const ['package:riverpod/riverpod.dart'],
+          emitProviderRetry: true,
+        ),
+        contains(
+          "import 'package:riverpod/misc.dart' show ProviderListenable;",
+        ),
+      );
+    });
+
+    test('Riverpod 2 does not import ProviderListenable from misc', () {
+      expect(
+        buildGeneratedImportLines(
+          importPaths: const ['package:riverpod/riverpod.dart'],
+          emitProviderRetry: false,
+        ),
+        isNot(
+          contains(
+            "import 'package:riverpod/misc.dart' show ProviderListenable;",
+          ),
+        ),
+      );
+    });
+  });
+
   group('emittedRefCacheForExtension', () {
     test('Riverpod 3 uses mounted guard', () {
       expect(

@@ -36,7 +36,7 @@ generated `Ref.cacheFor` behavior and Riverpod 3 automatic retry handling.
 - `@ValidateList(...)`
 - `@CacheTtl(...)`
 - `@Timeout(...)`
-- `@RefInvalidate([...])`
+- `@RefInvalidate([...])` (legacy; prefer `MutationCommand.invalidate`)
 - `@DoNotGenerate()`
 
 ## Server setup
@@ -66,8 +66,11 @@ class AdminEndpoint extends Endpoint {
   @MutationCommand(
     affects: User,
     retry: RetryPolicy.none,
+    invalidate: [
+      Invalidate.self(AdminEndpoint),
+      Invalidate.endpoint(UserEndpoint),
+    ],
   )
-  @RefInvalidate(['UserEndpoint'])
   Future<void> updateUsersRole(
     Session session,
     List<int> userIds,
@@ -161,9 +164,10 @@ await client.bankManager.upsertBankProfile(profile);
 RefBankManagerEndpoint.invalidateAfterUpsertBankProfile(ref.read);
 ```
 
-Because `upsertBankProfile` was annotated with
-`@RefInvalidate(['BankBalanceEndpoint'])`, that single call refreshes both
-`RefBankManagerEndpoint` and `RefBankBalanceEndpoint`.
+Because `upsertBankProfile` can declare
+`invalidate: [Invalidate.self(BankManagerEndpoint), Invalidate.endpoint(BankBalanceEndpoint)]`,
+that single call refreshes both `RefBankManagerEndpoint` and
+`RefBankBalanceEndpoint`.
 
 Methods annotated with `@MutationCommand` are generated as explicit command
 helpers instead of watched `FutureProvider` values:
@@ -193,5 +197,5 @@ retry is enabled without `idempotencyKeyArg`, because a retry after connection
 loss can create duplicates.
 
 Annotation fields that reference method parameters are validated. For example,
-`idArg`, `idempotencyKeyArg`, `Invalidate.family(argFrom: ...)`, and validation
-annotation `arg` values must match real endpoint method parameters.
+`idArg`, `idempotencyKeyArg`, `Invalidate.providerFamily(..., argFrom: ...)`, and
+validation annotation `arg` values must match real endpoint method parameters.

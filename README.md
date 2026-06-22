@@ -41,8 +41,11 @@ class AdminEndpoint extends Endpoint {
   @MutationCommand(
     affects: User,
     retry: RetryPolicy.none,
+    invalidate: [
+      Invalidate.self(AdminEndpoint),
+      Invalidate.endpoint(UserEndpoint),
+    ],
   )
-  @RefInvalidate(['UserEndpoint'])
   Future<void> updateUsersRole(
     Session session,
     List<int> userIds,
@@ -267,7 +270,8 @@ await clearGeneratedCacheNamespace(
 ```
 
 When calling the Serverpod client directly instead of a generated mutation
-command, call the generated invalidation hook after success:
+command, call the generated invalidation hook after success. The hook includes
+the entries from `MutationCommand.invalidate`:
 
 ```dart
 await client.admin.updateUsersRole(userIds, roleName);
