@@ -668,10 +668,10 @@ String _buildMutationRetryReplayBootstrap(List<_EndpointMeta> endpoints) {
       if (!meta.idempotent || meta.retry == 'RetryPolicy.none') continue;
       any = true;
       buf.writeln(
-        "  MutationRetryReplayRegistry.register(r'${ep.name}.${m.name}', (read, args) async {",
+        "  MutationRetryReplayRegistry.register(r'${ep.name}.${m.name}', (ref, args) async {",
       );
       buf.writeln(
-        '    await Ref${ep.name}Commands.${m.name}(read${_replayMutationArgsFromMap(m)});',
+        '    await Ref${ep.name}Commands.${m.name}(ref.read${_replayMutationArgsFromMap(m)});',
       );
       buf.writeln('  });');
     }

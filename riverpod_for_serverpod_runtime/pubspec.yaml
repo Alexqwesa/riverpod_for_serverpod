@@ -1,4 +1,4 @@
-name: riverpod_for_serverpod_runtime
+﻿name: riverpod_for_serverpod_runtime
 description: Runtime cache primitives used by generated Riverpod providers for Serverpod endpoints.
 version: 3.0.0
 # repository: https://github.com/my_org/my_repo
@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   meta: any
-  riverpod: #^3.0.0
+  riverpod: ">=2.0.0 <4.0.0"
 
 dev_dependencies:
   lints:

@@ -1,9 +1,19 @@
-import 'package:riverpod/misc.dart' show ProviderListenable;
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_for_serverpod_runtime/riverpod_for_serverpod_runtime.dart';
 import 'package:test/test.dart';
 
-T _rejectingRead<T>(ProviderListenable<T> provider) {
-  throw UnimplementedError('$provider');
+Ref _hydrationRef() {
+  late Ref ref;
+  final container = ProviderContainer();
+  addTearDown(container.dispose);
+  container.listen(
+    Provider<void>((r) {
+      ref = r;
+    }),
+    (_, __) {},
+    fireImmediately: true,
+  );
+  return ref;
 }
 
 void main() {
@@ -145,7 +155,7 @@ void main() {
     });
 
     test('persists idempotent entries and hydrates replay runners', () async {
-      MutationRetryReplayRegistry.register('E.m', (read, args) async {
+      MutationRetryReplayRegistry.register('E.m', (ref, args) async {
         expect(args['x'], 1);
       });
 
@@ -174,7 +184,7 @@ void main() {
         persistenceStorage: kv,
         onChanged: (_) {},
       );
-      await q2.hydrateFromPersistence(_rejectingRead);
+      await q2.hydrateFromPersistence(_hydrationRef());
 
       expect(q2.length, 1);
       await q2.retryNow('a');

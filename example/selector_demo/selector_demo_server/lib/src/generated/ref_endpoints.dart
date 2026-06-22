@@ -591,8 +591,8 @@ final class SelectorMutationController extends AsyncNotifier<void> {
 
 bool _riverpodForServerpodRegisterMutationReplays() {
   MutationRetryReplayRegistry.register(r'SelectorEndpoint.saveSelection',
-      (read, args) async {
-    await RefSelectorEndpointCommands.saveSelection(read,
+      (ref, args) async {
+    await RefSelectorEndpointCommands.saveSelection(ref.read,
         args[r'parentId'] as String, args[r'selectedChildIds'] as List<String>);
   });
   return true;

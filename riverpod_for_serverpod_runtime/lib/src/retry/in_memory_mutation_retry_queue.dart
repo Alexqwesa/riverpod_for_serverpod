@@ -1,16 +1,12 @@
 import 'dart:async';
 
-import 'package:riverpod/misc.dart' show ProviderListenable;
 import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_for_serverpod_runtime/src/cache/generated_key_value_storage.dart';
 import 'package:riverpod_for_serverpod_runtime/src/retry/mutation_retry_persistence.dart';
 import 'package:riverpod_for_serverpod_runtime/src/warnings/refresh_warning_notifier.dart';
 
-/// Same shape as generated `Reader`: `ref.read` from a [Ref].
-typedef MutationReader = T Function<T>(ProviderListenable<T> provider);
-
 typedef MutationReplayFn = Future<void> Function(
-    MutationReader read, Map<String, Object?> args);
+    Ref ref, Map<String, Object?> args);
 
 /// Registers how to replay mutations stored by [InMemoryMutationRetryQueue].
 class MutationRetryReplayRegistry {
@@ -164,8 +160,8 @@ class InMemoryMutationRetryQueue {
   }
 
   /// Loads persisted idempotent entries from [persistenceStorage]. Safe to
-  /// call once; later calls no-op. [read] must match the generator `Reader`.
-  Future<void> hydrateFromPersistence(MutationReader read) async {
+  /// call once; later calls no-op. [ref] is used to replay via [Ref.read].
+  Future<void> hydrateFromPersistence(Ref ref) async {
     final storage = _persistenceStorage;
     if (storage == null || _hydratedFromDisk) return;
     _hydratedFromDisk = true;
@@ -181,7 +177,7 @@ class InMemoryMutationRetryQueue {
         id: disk.id,
         label: disk.label,
         idempotent: disk.idempotent,
-        run: () => replay(read, disk.payload.args),
+        run: () => replay(ref, disk.payload.args),
         nextRetryAt: disk.nextRetryAt ?? _now(),
       );
       entry.attemptCount = disk.attemptCount;
@@ -315,8 +311,7 @@ final mutationRetryQueueProvider = Provider<InMemoryMutationRetryQueue>((ref) {
 
   if (storage != null) {
     scheduleMicrotask(() {
-      T read<T>(ProviderListenable<T> provider) => ref.read(provider);
-      queue.hydrateFromPersistence(read);
+      queue.hydrateFromPersistence(ref);
     });
   }
 
