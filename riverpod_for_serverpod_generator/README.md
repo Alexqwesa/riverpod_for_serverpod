@@ -15,17 +15,25 @@ supported Riverpod line, starting at `3.0.0`.
 
 For Riverpod `2.6.x`, use the `2.6.x` package line/branch.
 
+See [Riverpod 2 and 3 compatibility](../riverpod_2_and_3_compatibility.md) for
+generated `Ref.cacheFor` behavior and Riverpod 3 automatic retry handling.
+
 ## What it generates
 
 - `Ref...Endpoint` classes for Serverpod endpoint classes
-- `FutureProvider` / `FutureProvider.family` wrappers for endpoint methods
+- read providers and cached-query notifiers
+- mutation command helpers and mutation controllers
 - endpoint-level `updateAll(ref.read)` invalidation hooks
 - method-level `invalidateAfter<MethodName>(ref.read)` hooks
-- a small `Ref.cacheFor(...)` extension used by generated providers after a
-  request succeeds
+- typed endpoint manifest metadata
 
 ## Supported annotations
 
+- `@CachedQuery(...)`
+- `@MutationCommand(...)`
+- `@ValidateString(...)`
+- `@ValidateNumber(...)`
+- `@ValidateList(...)`
 - `@CacheTtl(...)`
 - `@Timeout(...)`
 - `@RefInvalidate([...])`
@@ -55,6 +63,10 @@ class AdminEndpoint extends Endpoint {
     ...
   }
 
+  @MutationCommand(
+    affects: User,
+    retry: RetryPolicy.none,
+  )
   @RefInvalidate(['UserEndpoint'])
   Future<void> updateUsersRole(
     Session session,
@@ -65,28 +77,6 @@ class AdminEndpoint extends Endpoint {
   }
 }
 ```
-
-The generated file includes providers like:
-
-```dart
-static final listRoles = FutureProvider.autoDispose<List<Role>>((ref) async {
-  ref
-    ..watch(refUpdateAllGeneratedProviders)
-    ..watch(refUpdateAll);
-
-  final result = await ref.watch(clientProvider).admin.listRoles();
-
-  ref.cacheFor(const Duration(minutes: 10));
-
-  return result;
-});
-```
-
-`ref.cacheFor(...)` is generated after the awaited client call, so only
-successful endpoint responses are kept alive.
-Generated endpoint providers also set `retry: _noProviderRetry` to disable
-Riverpod 3's default automatic retry; explicit offline/retry behavior belongs
-in the future generated retry queue.
 
 Generate:
 

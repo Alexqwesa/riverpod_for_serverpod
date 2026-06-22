@@ -2,7 +2,7 @@
 
 Generate Riverpod providers for Serverpod endpoint methods.
 
-This repository contains two Dart packages:
+This repository contains four Dart packages:
 
 - `riverpod_for_serverpod_annotation`: annotations you add to Serverpod endpoints.
 - `riverpod_for_serverpod_generator`: a `build_runner` builder that generates Riverpod providers.
@@ -21,6 +21,9 @@ This line targets Riverpod `3.x`. Package versions are aligned with the supporte
 
 For Riverpod `2.6.x`, use the `2.6.x` package line/branch.
 
+See [Riverpod 2 and 3 compatibility](riverpod_2_and_3_compatibility.md) for
+generated `Ref.cacheFor` behavior and Riverpod 3 automatic retry handling.
+
 ## You Write
 
 Annotate your Serverpod endpoint methods:
@@ -35,6 +38,10 @@ class AdminEndpoint extends Endpoint {
     return Role.db.find(session);
   }
 
+  @MutationCommand(
+    affects: User,
+    retry: RetryPolicy.none,
+  )
   @RefInvalidate(['UserEndpoint'])
   Future<void> updateUsersRole(
     Session session,
@@ -48,46 +55,99 @@ class AdminEndpoint extends Endpoint {
 
 ## Generated
 
-The generator creates a typed endpoint manifest, Riverpod providers, and invalidation helpers. Generated code is not hand-written and should be regenerated instead of edited directly.
+The generator creates a typed endpoint manifest, read providers, mutation
+commands/controllers, cache integration, and invalidation helpers. Generated
+code should be regenerated instead of edited directly.
 
-When `pubspec.yaml` allows Riverpod **3.x**, `Ref.cacheFor` uses `if (!mounted) return` before `keepAlive` / `onDispose`. When all listed `riverpod` / `flutter_riverpod` constraints exclude 3.x, `cacheFor` uses a `try` / `on StateError` workaround instead (Riverpod 2 has no `Ref.mounted`).
+<details>
+<summary>Show representative generated output</summary>
 
 ```dart
-extension RefCacheForExtension on Ref {
-  void cacheFor(Duration duration) {
-    if (!mounted) return;
-    final link = keepAlive();
-    final timer = Timer(duration, link.close);
-
-    onDispose(timer.cancel);
-  }
-}
+const generatedEndpointManifest = EndpointManifest(
+  endpoints: [
+    EndpointInfo(
+      name: 'AdminEndpoint',
+      methods: [
+        MethodInfo(name: 'listRoles', /* generated metadata */),
+        MethodInfo(
+          name: 'updateUsersRole',
+          mutationCommand: MutationCommandInfo(
+            affects: 'User',
+            retry: RetryPolicy.none,
+          ),
+          /* generated parameter and invalidation metadata */
+        ),
+      ],
+    ),
+  ],
+);
 
 abstract class RefAdminEndpoint {
-  static final listRoles = FutureProvider.autoDispose<List<Role>>((ref) async {
-    ref
-      ..watch(refUpdateAllGeneratedProviders)
-      ..watch(refUpdateAll);
+  static final refUpdateAll = NotifierProvider<Counter, int>(Counter.new);
 
-    final result = await ref.watch(clientProvider).admin.listRoles();
+  static final listRoles = FutureProvider.autoDispose<List<Role>>(
+    (ref) async {
+      ref
+        ..watch(refUpdateAllGeneratedProviders)
+        ..watch(refUpdateAll);
 
-    ref.cacheFor(const Duration(minutes: 3));
+      final result = await ref.watch(clientProvider).admin.listRoles();
+      ref.cacheFor(const Duration(minutes: 3));
+      return result;
+    },
+    retry: _noProviderRetry,
+  );
 
-    return result;
-  });
+  static void updateAll(Reader read) {
+    read(refUpdateAll.notifier).updateAll();
+  }
 
   static void invalidateAfterUpdateUsersRole(Reader read) {
     RefAdminEndpoint.updateAll(read);
     RefUserEndpoint.updateAll(read);
   }
 }
+
+abstract final class RefAdminEndpointCommands {
+  static Future<void> updateUsersRole(
+    Reader read,
+    List<int> userIds,
+    String roleName,
+  ) async {
+    await read(clientProvider).admin.updateUsersRole(userIds, roleName);
+    RefAdminEndpoint.invalidateAfterUpdateUsersRole(read);
+  }
+}
+
+final adminMutationControllerProvider =
+    AsyncNotifierProvider<AdminMutationController, void>(
+  AdminMutationController.new,
+);
+
+final class AdminMutationController extends AsyncNotifier<void> {
+  @override
+  Future<void> build() async {}
+
+  Future<void> updateUsersRole(
+    List<int> userIds,
+    String roleName,
+  ) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await RefAdminEndpointCommands.updateUsersRole(
+        ref.read,
+        userIds,
+        roleName,
+      );
+    });
+  }
+}
 ```
 
-`cacheFor` is called after the endpoint call succeeds, so failed requests are not kept alive as successful cached values.
+The full generated file also includes shared client/provider plumbing,
+compatibility helpers, diagnostics metadata, and retry/warning integration.
 
-Generated endpoint providers also disable Riverpod 3's default automatic retry
-with `retry: _noProviderRetry`; explicit offline/retry behavior belongs in the
-future generated retry queue.
+</details>
 
 ## Install
 
@@ -166,7 +226,10 @@ await ref
 
 On connection-like failures, the command can enqueue work on `mutationRetryQueueProvider` (from `riverpod_for_serverpod_runtime`) when the mutation is **idempotent** and retry is enabled.
 
-**[@CachedQuery](riverpod_for_serverpod_annotation)** reads still use `FutureProvider` fields; on failure they report once to `refreshWarningProvider` (also from the runtime package) and rethrow, so `AsyncValue` stays in error while the notifier records a global warning.
+**[@CachedQuery](riverpod_for_serverpod_annotation)** reads use generated cache-aware
+providers. Background-refresh queries use stale-while-revalidate
+`AsyncNotifier` providers; other cached queries use `FutureProvider`. Refresh
+failures are aggregated through `refreshWarningProvider`.
 
 Generated cached queries read from `generatedCacheStorageProvider`, or
 `generatedSecureCacheStorageProvider` when `secure: true`. The runtime exports
@@ -203,7 +266,8 @@ await clearGeneratedCacheNamespace(
 );
 ```
 
-After successful mutations, call the generated invalidation hook:
+When calling the Serverpod client directly instead of a generated mutation
+command, call the generated invalidation hook after success:
 
 ```dart
 await client.admin.updateUsersRole(userIds, roleName);
@@ -214,6 +278,7 @@ RefAdminEndpoint.invalidateAfterUpdateUsersRole(ref.read);
 
 See package-level documentation:
 
+- [Riverpod 2 and 3 compatibility](riverpod_2_and_3_compatibility.md)
 - [`riverpod_for_serverpod_annotation`](riverpod_for_serverpod_annotation/README.md)
 - [`riverpod_for_serverpod_runtime`](riverpod_for_serverpod_runtime/README.md)
 - [`riverpod_for_serverpod_hive_storage`](riverpod_for_serverpod_hive_storage/README.md)

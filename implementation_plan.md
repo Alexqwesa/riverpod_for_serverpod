@@ -28,7 +28,7 @@ DONE:
   @DoNotGenerate skip support
   auto-apply builder for dependent packages
   copy_ref_endpoints helper
-  README / NEW_README / MIT license / Riverpod 3 release-line notes
+  README / NEW_README / riverpod_2_and_3_compatibility / MIT license / Riverpod 3 release-line notes
   Riverpod 3 provider auto-retry is explicitly disabled for generated endpoint providers
   generated command helpers run ValidateString / ValidateNumber / ValidateList before RPC (runtime helpers)
   generated @CachedQuery read providers use GeneratedEntityCache (readList on fresh index; putList after successful fetch; index key from provider id + json-encoded args; secure flag selects storage provider)
@@ -1828,6 +1828,7 @@ Done:
 root README
 package READMEs
 NEW_README design draft
+riverpod_2_and_3_compatibility guide
 MIT licenses
 Riverpod 2.6 compatibility notes
 ```
