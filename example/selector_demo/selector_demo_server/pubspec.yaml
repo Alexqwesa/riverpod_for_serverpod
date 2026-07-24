@@ -11,8 +11,6 @@ resolution: workspace
 dependencies:
   riverpod_for_serverpod_annotation:
     path: ../../../riverpod_for_serverpod_annotation
-  riverpod_for_serverpod_runtime:
-    path: ../../../riverpod_for_serverpod_runtime
   serverpod: 3.4.4
 
 dev_dependencies:

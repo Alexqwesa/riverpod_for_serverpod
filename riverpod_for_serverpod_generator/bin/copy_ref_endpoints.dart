@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
-import 'package:riverpod_for_serverpod_generator/src/generator.dart';
+import 'package:riverpod_for_serverpod_generator/src/ensure_dependencies.dart';
+import 'package:riverpod_for_serverpod_generator/src/serverpod_packages.dart';
 import 'package:yaml/yaml.dart';
 
 Future<void> main(List<String> args) async {
+  final ensureDeps = !args.contains('--no-ensure-deps');
   final serverDir = Directory.current;
   final pubspecFile = File(p.join(serverDir.path, 'pubspec.yaml'));
 
@@ -20,6 +22,24 @@ Future<void> main(List<String> args) async {
     stderr.writeln('Unable to determine server package name from pubspec.yaml.');
     exitCode = 1;
     return;
+  }
+
+  if (ensureDeps) {
+    final added = await ensureServerpodTrioDependencies(
+      serverDir: serverDir,
+      serverPackageName: serverPackageName,
+    );
+    if (added.isEmpty) {
+      stdout.writeln('Serverpod trio dependencies already look complete.');
+    } else {
+      stdout.writeln('Added missing dependencies:');
+      for (final dep in added) {
+        stdout.writeln('  - $dep');
+      }
+      stdout.writeln(
+        'Run `dart pub get` in each updated package (server / client / flutter).',
+      );
+    }
   }
 
   final clientPackageName = deriveClientPackageName(serverPackageName);
@@ -45,7 +65,9 @@ Future<void> main(List<String> args) async {
   if (await targetFile.exists()) {
     final targetText = await targetFile.readAsString();
     if (targetText == sourceText) {
-      stdout.writeln('ref_endpoints.dart already up to date at ${targetFile.path}.');
+      stdout.writeln(
+        'ref_endpoints.dart already up to date at ${targetFile.path}.',
+      );
       return;
     }
   }

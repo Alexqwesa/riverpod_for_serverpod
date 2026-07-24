@@ -19,7 +19,11 @@ import 'package:riverpod_for_serverpod_generator/src/manifest_builder.dart';
 import 'package:riverpod_for_serverpod_generator/src/manifest_emitter.dart';
 import 'package:riverpod_for_serverpod_generator/src/read_annotations.dart';
 import 'package:riverpod_for_serverpod_generator/src/riverpod_pubspec.dart';
+import 'package:riverpod_for_serverpod_generator/src/serverpod_packages.dart';
 import 'package:riverpod_for_serverpod_generator/src/types.dart';
+
+export 'package:riverpod_for_serverpod_generator/src/serverpod_packages.dart'
+    show deriveClientPackageName, deriveFlutterPackageName;
 
 const _providerWatchesCode = '''
 ref
@@ -33,7 +37,8 @@ ref
   ..watch($refInnerProviderName.refUpdateAll);
 ''';
 
-/// [emitProviderRetry] matches [inferEmitProviderRetry]: true when pubspec allows Riverpod 3+.
+/// [emitProviderRetry] matches [resolveEmitProviderRetry]: true when the Flutter
+/// (or client) pubspec allows Riverpod 3+.
 ///
 /// Riverpod 3: guard with [Ref.mounted]. Riverpod 2: no `mounted`; use [StateError] try/catch
 /// after async gaps with `autoDispose`.
@@ -179,8 +184,12 @@ class RefEndpointBuilder implements Builder {
 
     if (endpoints.isEmpty) return;
 
-    final emitProviderRetry =
-        inferEmitProviderRetry(await buildStep.readAsString(buildStep.inputId));
+    final serverPubspecYaml = await buildStep.readAsString(buildStep.inputId);
+    final emitProviderRetry = await resolveEmitProviderRetry(
+      serverDir: resolveServerPackageDir(),
+      serverPackageName: serverPackageName,
+      serverPubspecYaml: serverPubspecYaml,
+    );
 
     final manifest = EndpointManifestMeta(manifestEndpoints);
     for (final diagnostic in validateEndpointManifest(manifest)) {
@@ -210,13 +219,6 @@ class RefEndpointBuilder implements Builder {
     );
     await buildStep.writeAsString(out, code);
   }
-}
-
-String deriveClientPackageName(String serverPackageName) {
-  if (serverPackageName.endsWith('_server')) {
-    return '${serverPackageName.substring(0, serverPackageName.length - 7)}_client';
-  }
-  return '${serverPackageName}_client';
 }
 
 Map<String, EntityCacheTemplate> _collectEntityCacheTemplates(

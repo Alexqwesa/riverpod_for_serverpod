@@ -18,6 +18,9 @@ For Riverpod `2.6.x`, use the `2.6.x` package line/branch.
 See [Riverpod 2 and 3 compatibility](../riverpod_2_and_3_compatibility.md) for
 generated `Ref.cacheFor` behavior and Riverpod 3 automatic retry handling.
 
+Riverpod 2 vs 3 codegen is chosen from sibling pubspecs next to the server
+package: `*_flutter` first, then `*_client`, then the server pubspec.
+
 ## What it generates
 
 - `Ref...Endpoint` classes for Serverpod endpoint classes
@@ -39,9 +42,9 @@ generated `Ref.cacheFor` behavior and Riverpod 3 automatic retry handling.
 - `@RefInvalidate([...])` (legacy; prefer `MutationCommand.invalidate`)
 - `@DoNotGenerate()`
 
-## Server setup
+## Serverpod trio setup
 
-Add to server `pubspec.yaml`:
+### Server (`*_server`)
 
 ```yaml
 dependencies:
@@ -81,11 +84,15 @@ class AdminEndpoint extends Endpoint {
 }
 ```
 
-Generate:
+Generate and copy into the client:
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
+dart run riverpod_for_serverpod_generator:copy_ref_endpoints
 ```
+
+`copy_ref_endpoints` also fills missing dependencies across server / client /
+Flutter by default. Use `--no-ensure-deps` to skip that.
 
 No project-level `build.yaml` is required. The builder auto-applies to packages
 that depend on `riverpod_for_serverpod_generator`, then only writes output when
@@ -102,8 +109,7 @@ targets:
         enabled: false
 ```
 
-Or define a Serverpod script so generation also copies the file into the client
-package:
+Or define a Serverpod script:
 
 ```yaml
 serverpod:
@@ -111,7 +117,7 @@ serverpod:
     ref_endpoints:
       windows: >-
         dart run build_runner build --delete-conflicting-outputs
-        && dart run riverpod_for_serverpod_generator:copy_ref_endpoints
+        & dart run riverpod_for_serverpod_generator:copy_ref_endpoints
       posix: |
         dart run build_runner build --delete-conflicting-outputs &&
         dart run riverpod_for_serverpod_generator:copy_ref_endpoints
@@ -123,20 +129,29 @@ Then run:
 serverpod run ref_endpoints
 ```
 
-## Client setup
-
-Add to client `pubspec.yaml`:
+### Client (`*_client`)
 
 ```yaml
 dependencies:
   riverpod: ^3.0.0
-  serverpod_auth_client: 3.4.4
+  riverpod_for_serverpod_runtime: ^3.0.0
+  serverpod_auth_client: 3.4.4 # match serverpod_client
+  serverpod_client: 3.4.4
 ```
 
 Export the copied generated file from the client library:
 
 ```dart
 export 'ref_endpoints.dart';
+```
+
+### Flutter app (`*_flutter`)
+
+```yaml
+dependencies:
+  flutter_riverpod: ^3.0.0
+  your_project_client:
+    path: ../your_project_client
 ```
 
 Override the generated `clientProvider` in your app:

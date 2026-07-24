@@ -3,13 +3,15 @@
 The `3.x` package line targets Riverpod `3.x`. For Riverpod `2.6.x`, use the
 `2.6.x` package line or branch.
 
-The generator inspects the host package's `pubspec.yaml` when emitting
-compatibility-sensitive code.
+The generator inspects sibling Serverpod package pubspecs when emitting
+compatibility-sensitive code: `*_flutter` first, then `*_client`, then the
+server package.
 
 ## Ref.cacheFor
 
-When `pubspec.yaml` allows Riverpod `3.x`, generated `Ref.cacheFor` code checks
-`Ref.mounted` before calling `keepAlive` and `onDispose`:
+When `*_flutter` / `*_client` pubspecs allow Riverpod `3.x`, generated
+`Ref.cacheFor` code checks `Ref.mounted` before calling `keepAlive` and
+`onDispose`:
 
 ```dart
 extension RefCacheForExtension on Ref {

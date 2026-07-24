@@ -24,6 +24,20 @@ For Riverpod `2.6.x`, use the `2.6.x` package line/branch.
 See [Riverpod 2 and 3 compatibility](riverpod_2_and_3_compatibility.md) for
 generated `Ref.cacheFor` behavior and Riverpod 3 automatic retry handling.
 
+### Version Detection
+
+Codegen chooses Riverpod 2 vs 3 output by reading sibling package pubspecs
+(from the server package directory):
+
+1. `*_flutter` — `flutter_riverpod` / `riverpod`
+2. `*_client` — `riverpod`
+3. server pubspec (fallback)
+
+If none declare a Riverpod constraint, the generator assumes Riverpod 3.
+
+You do **not** need `riverpod` on the server package for version detection when
+the Flutter or client package already declares it.
+
 ## You Write
 
 Annotate your Serverpod endpoint methods:
@@ -154,24 +168,94 @@ compatibility helpers, diagnostics metadata, and retry/warning integration.
 
 ## Install
 
-In the Serverpod server package:
+Serverpod projects are three packages. Dependencies belong in different places:
+
+| Package | Role |
+|---|---|
+| `*_server` | Annotate endpoints; run `build_runner` + copy script |
+| `*_client` | Owns generated `ref_endpoints.dart` (Riverpod code compiles here) |
+| `*_flutter` | App UI; `flutter_riverpod` + optional Hive storage |
+
+### 1. Server (`*_server`)
 
 ```yaml
 dependencies:
   riverpod_for_serverpod_annotation: ^3.0.0
-  riverpod_for_serverpod_runtime: ^3.0.0
-  riverpod_for_serverpod_hive_storage: ^3.0.0
 
 dev_dependencies:
   build_runner: ^2.5.0
   riverpod_for_serverpod_generator: ^3.0.0
 ```
 
-Generate:
+Keep Serverpod’s usual analyzer exclude so the intermediate generated file is
+not type-checked as server code:
+
+```yaml
+analyzer:
+  exclude:
+    - lib/src/generated/**
+```
+
+Optional Serverpod script:
+
+```yaml
+serverpod:
+  scripts:
+    ref_endpoints:
+      windows: >-
+        dart run build_runner build --delete-conflicting-outputs
+        & dart run riverpod_for_serverpod_generator:copy_ref_endpoints
+      posix: |
+        dart run build_runner build --delete-conflicting-outputs &&
+        dart run riverpod_for_serverpod_generator:copy_ref_endpoints
+```
+
+### 2. Client (`*_client`)
+
+```yaml
+dependencies:
+  riverpod: ^3.0.0
+  riverpod_for_serverpod_runtime: ^3.0.0
+  serverpod_auth_client: 3.4.4 # match your serverpod_client version
+  serverpod_client: 3.4.4
+```
+
+Export the copied file from the client library:
+
+```dart
+export 'ref_endpoints.dart';
+```
+
+### 3. Flutter app (`*_flutter`)
+
+```yaml
+dependencies:
+  flutter_riverpod: ^3.0.0
+  your_project_client:
+    path: ../your_project_client
+  # optional persistent cache:
+  # riverpod_for_serverpod_hive_storage: ^3.0.0
+```
+
+Do **not** put `riverpod_for_serverpod_runtime`, Hive storage, or
+`flutter_riverpod` on the server. Do **not** put the generator on the client
+or Flutter package (`auto_apply: dependents` would try to run it there).
+
+### Generate
+
+From the server package:
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
+dart run riverpod_for_serverpod_generator:copy_ref_endpoints
+# or: serverpod run ref_endpoints
 ```
+
+`copy_ref_endpoints` copies `lib/src/generated/ref_endpoints.dart` into the
+sibling `*_client` package as `lib/ref_endpoints.dart`, and by default **fills
+missing trio dependencies** (annotation/generator on server, riverpod+runtime
+on client, `flutter_riverpod` on Flutter) plus a client `export` when needed.
+Pass `--no-ensure-deps` to only copy.
 
 No project-level `build.yaml` is required. The builder auto-applies to packages
 that depend on `riverpod_for_serverpod_generator`, then only writes output when
@@ -186,12 +270,6 @@ targets:
     builders:
       riverpod_for_serverpod_generator|ref_endpoint:
         enabled: false
-```
-
-To copy the generated file into the matching client package:
-
-```bash
-dart run riverpod_for_serverpod_generator:copy_ref_endpoints
 ```
 
 ## Client Usage
