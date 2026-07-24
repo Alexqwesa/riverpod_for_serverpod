@@ -42,7 +42,54 @@ void main() {
       final mapper = buildProviderInvalidatorMethods(m).firstWhere(
         (meth) => meth.name != null && meth.name!.contains('ToGetByIdArgs'),
       );
-      expect(mapper.accept(DartEmitter()).toString(), contains('final id = args;'));
+      expect(
+        mapper.accept(DartEmitter()).toString(),
+        contains('final id = args;'),
+      );
+    });
+  });
+
+  group('buildProviderInvalidatorMethods canonical shapes', () {
+    test('zero-arg exact and broad invalidators take ProviderInvalidator', () {
+      final m = MyMethodMeta(
+        'listRoles',
+        'Future<List<Role>>',
+        [],
+        [],
+        false,
+        false,
+        innerProviderName: 'RefAdminEndpoint',
+      );
+      final methods = buildProviderInvalidatorMethods(m).toList();
+      final exact = methods.firstWhere((m) => m.name == 'listRolesInvalidate');
+      final broad =
+          methods.firstWhere((m) => m.name == 'listRolesInvalidateAll');
+
+      final exactSrc = exact.accept(DartEmitter()).toString();
+      expect(exactSrc, contains('ProviderInvalidator invalidate'));
+      expect(exactSrc, contains('invalidate(listRoles);'));
+
+      final broadSrc = broad.accept(DartEmitter()).toString();
+      expect(broadSrc, contains('ProviderInvalidator invalidate'));
+      expect(broadSrc, contains('invalidate(listRoles);'));
+    });
+
+    test('family exact invalidator invalidates provider with args', () {
+      final m = MyMethodMeta(
+        'getById',
+        'Future<User?>',
+        [MyParamMeta('id', 'int', null)],
+        [],
+        true,
+        false,
+        innerProviderName: 'RefUserEndpoint',
+      );
+      final exact = buildProviderInvalidatorMethods(m).firstWhere(
+        (meth) => meth.name == 'getByIdInvalidate',
+      );
+      final src = exact.accept(DartEmitter()).toString();
+      expect(src, contains('ProviderInvalidator invalidate'));
+      expect(src, contains('invalidate(getById(args));'));
     });
   });
 }

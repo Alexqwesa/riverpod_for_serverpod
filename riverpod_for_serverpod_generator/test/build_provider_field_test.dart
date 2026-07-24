@@ -192,6 +192,55 @@ void main() {
       expect(code, contains('clearRefreshFailures'));
     });
 
+    test('cacheFor and putList use CachedQuery.ttl over cacheTtl', () {
+      final m = MyMethodMeta(
+        'listRoles',
+        'Future<List<Role>>',
+        [],
+        [],
+        false,
+        false,
+        cacheTtl: 'Duration(minutes: 3)',
+        innerProviderName: 'RefAdminEndpoint',
+        cachedQuery: const CachedQueryMeta(
+          entity: 'Role',
+          ttl: 'Duration(minutes: 10)',
+          backgroundRefresh: false,
+        ),
+      );
+      final code =
+          buildZeroParamField(m, 'List<Role>', '', 'admin').assignment.toString();
+      expect(code, contains('ref.cacheFor(const Duration(minutes: 10))'));
+      expect(code, contains('ttl: Duration(minutes: 10)'));
+      expect(code, isNot(contains('ref.cacheFor(const Duration(minutes: 3))')));
+    });
+
+    test('SWR notifier cacheFor uses CachedQuery.ttl', () {
+      final m = MyMethodMeta(
+        'listRoles',
+        'Future<List<Role>>',
+        [],
+        [],
+        false,
+        false,
+        cacheTtl: 'Duration(minutes: 3)',
+        innerProviderName: 'RefAdminEndpoint',
+        cachedQuery: const CachedQueryMeta(
+          entity: 'Role',
+          ttl: 'Duration(minutes: 10)',
+        ),
+      );
+      final src = buildCachedQueryNotifierSource(
+        m: m,
+        clientField: 'admin',
+        returnType: 'List<Role>',
+        host: swrNotifierHostParams(m),
+        refWatchBlock: '',
+      )!;
+      expect(src, contains('ref.cacheFor(const Duration(minutes: 10))'));
+      expect(src, contains('ttl: Duration(minutes: 10)'));
+    });
+
     test('CachedQuery secure SWR notifier reads secure storage', () {
       final m = MyMethodMeta(
         'listRoles',

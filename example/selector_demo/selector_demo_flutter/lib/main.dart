@@ -82,7 +82,7 @@ class _SelectorHomePageState extends ConsumerState<SelectorHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (warning.hasWarning) _SyncWarningBanner(warning: warning),
+            if (warning.hasWarning) SyncWarningBanner(warning: warning),
             Text(
               'Department',
               style: Theme.of(context).textTheme.titleMedium,
@@ -145,8 +145,8 @@ class _SelectorHomePageState extends ConsumerState<SelectorHomePage> {
   }
 }
 
-class _SyncWarningBanner extends ConsumerWidget {
-  const _SyncWarningBanner({required this.warning});
+class SyncWarningBanner extends ConsumerWidget {
+  const SyncWarningBanner({super.key, required this.warning});
 
   final RefreshWarningState warning;
 

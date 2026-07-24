@@ -9,6 +9,7 @@ import 'package:glob/glob.dart';
 import 'package:recase/recase.dart';
 import 'package:riverpod_for_serverpod_generator/src/ast_helpers.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_cached_query_notifier.dart';
+import 'package:riverpod_for_serverpod_generator/src/build_invalidate_hook.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_mutation_command.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_field.dart';
 import 'package:riverpod_for_serverpod_generator/src/build_provider_invalidator.dart';
@@ -454,10 +455,13 @@ ${emitProviderRetry ? 'Duration? _noProviderRetry(int retryCount, Object error) 
             )
             ..methods.addAll(
               endpoint.methods.map(
-                (method) => _buildInvalidateHookMethod(
+                (method) => buildInvalidateHookMethod(
                   currentEndpoint: endpointClass,
                   method: method,
-                  endpoints: endpoints,
+                  endpoints: [
+                    for (final e in endpoints)
+                      InvalidateHookEndpoint(e.name, e.methods),
+                  ],
                 ),
               ),
             );
@@ -523,147 +527,6 @@ $emitted
   } catch (_) {
     return fullSource;
   }
-}
-
-Method _buildInvalidateHookMethod({
-  required String currentEndpoint,
-  required MyMethodMeta method,
-  required List<_EndpointMeta> endpoints,
-}) {
-  final methodName = 'invalidateAfter${ReCase(method.name).pascalCase}';
-  final endpointTargets = <String>{
-    if (method.includeSelfInHook) 'Ref$currentEndpoint',
-    ...method.invalidateTargets,
-  };
-
-  final endpointByName = {
-    for (final endpoint in endpoints) endpoint.name: endpoint,
-  };
-  final methodArgs = {
-    for (final p in method.positionalParams) p.name: p,
-    for (final p in method.namedParams) p.name: p,
-  };
-  final hookArgs = <String, MyParamMeta>{};
-  for (final invalidate in method.mutationCommand?.invalidate ?? const []) {
-    final argFrom = invalidate.argFrom;
-    if (argFrom == null) continue;
-    final arg = methodArgs[argFrom];
-    if (arg != null) hookArgs[argFrom] = arg;
-  }
-
-  final body = StringBuffer();
-  final emitted = <String>{};
-  for (final target in endpointTargets) {
-    if (!emitted.add('$target.updateAll(read);')) continue;
-    body.writeln('$target.updateAll(read);');
-  }
-  for (final line in _buildTypedInvalidationLines(
-    currentEndpoint: currentEndpoint,
-    method: method,
-    endpointByName: endpointByName,
-    methodArgs: methodArgs,
-  )) {
-    if (emitted.add(line)) body.writeln(line);
-  }
-
-  return Method((mb) {
-    mb
-      ..name = methodName
-      ..static = true
-      ..returns = refer('void')
-      ..requiredParameters.add(
-        Parameter(
-          (p) => p
-            ..name = 'read'
-            ..type = refer('Reader'),
-        ),
-      )
-      ..requiredParameters.add(
-        Parameter(
-          (p) => p
-            ..name = 'invalidate'
-            ..type = refer('ProviderInvalidator'),
-        ),
-      );
-
-    for (final arg in hookArgs.values) {
-      mb.requiredParameters.add(
-        Parameter(
-          (p) => p
-            ..name = arg.name
-            ..type = refer(arg.type),
-        ),
-      );
-    }
-
-    mb.body = Code(body.toString());
-  });
-}
-
-Iterable<String> _buildTypedInvalidationLines({
-  required String currentEndpoint,
-  required MyMethodMeta method,
-  required Map<String, _EndpointMeta> endpointByName,
-  required Map<String, MyParamMeta> methodArgs,
-}) sync* {
-  final invalidations = method.mutationCommand?.invalidate ?? const [];
-  for (final invalidate in invalidations) {
-    final endpointClass =
-        _targetEndpointClass(invalidate.endpoint, currentEndpoint);
-    final refClass = 'Ref$endpointClass';
-    switch (invalidate.kind) {
-      case 'self':
-      case 'endpoint':
-        yield '$refClass.updateAll(read);';
-      case 'provider':
-        final provider = invalidate.provider;
-        if (provider == null || provider.isEmpty) continue;
-        final targetMethod = _findEndpointMethod(
-          endpointByName[endpointClass],
-          provider,
-        );
-        final exactArg = _exactInvalidationArgExpression(
-          invalidate: invalidate,
-          targetMethod: targetMethod,
-          methodArgs: methodArgs,
-        );
-        if (exactArg == null) {
-          yield '$refClass.${provider}InvalidateAll(invalidate);';
-        } else {
-          yield '$refClass.${provider}Invalidate(invalidate, $exactArg);';
-        }
-    }
-  }
-}
-
-MyMethodMeta? _findEndpointMethod(_EndpointMeta? endpoint, String methodName) {
-  if (endpoint == null) return null;
-  for (final method in endpoint.methods) {
-    if (method.name == methodName) return method;
-  }
-  return null;
-}
-
-String _targetEndpointClass(String? endpoint, String currentEndpoint) {
-  final raw = endpoint?.trim();
-  if (raw == null || raw.isEmpty) return currentEndpoint;
-  final noPrefix = raw.startsWith('Ref') ? raw.substring(3) : raw;
-  final className =
-      noPrefix.contains('.') ? noPrefix.split('.').last : noPrefix;
-  return className.endsWith('Endpoint') ? className : '${className}Endpoint';
-}
-
-String? _exactInvalidationArgExpression({
-  required InvalidateMeta invalidate,
-  required MyMethodMeta? targetMethod,
-  required Map<String, MyParamMeta> methodArgs,
-}) {
-  final argFrom = invalidate.argFrom;
-  if (argFrom == null || !methodArgs.containsKey(argFrom)) return null;
-  if (targetMethod == null) return argFrom;
-  final targetArgCount =
-      targetMethod.positionalParams.length + targetMethod.namedParams.length;
-  return targetArgCount == 1 ? argFrom : null;
 }
 
 String _buildMutationRetryReplayBootstrap(List<_EndpointMeta> endpoints) {
