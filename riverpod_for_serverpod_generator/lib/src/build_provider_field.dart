@@ -21,7 +21,7 @@ String _successfulResultBody(
   String args,
 ) {
   final call = _clientCall(m, clientField, args);
-  final cacheFor = 'ref.cacheFor(const ${m.cacheTtl});';
+  final cacheFor = 'ref.cacheFor(const ${keepAliveTtlExpression(m)});';
   final cachedShape =
       m.cachedQuery == null ? null : parseCachedQueryReturnType(returnType);
 

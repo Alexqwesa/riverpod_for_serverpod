@@ -21,7 +21,7 @@ String? buildCachedQueryNotifierSource({
   final timeout = m.timeout != null ? '.timeout(const ${m.timeout})' : '';
   final rpc =
       'ref.watch(clientProvider).$clientField.${m.name}(${host.rpcArgs})$timeout';
-  final cacheFor = 'ref.cacheFor(const ${m.cacheTtl});';
+  final cacheFor = 'ref.cacheFor(const ${keepAliveTtlExpression(m)});';
   final srcKey = '${m.innerProviderName}.${m.name}';
 
   final ctor = host.instanceFields.isEmpty

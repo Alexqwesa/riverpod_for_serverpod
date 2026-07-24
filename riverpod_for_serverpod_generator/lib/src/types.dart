@@ -247,6 +247,12 @@ class MyParamMeta {
   bool get isDefaultable => isNullable || hasDefault;
 }
 
+/// Duration literal for generated `ref.cacheFor`.
+///
+/// [@CachedQuery.ttl] wins when present; otherwise [@CacheTtl] / [MyMethodMeta.cacheTtl].
+String keepAliveTtlExpression(MyMethodMeta m) =>
+    m.cachedQuery?.ttl ?? m.cacheTtl;
+
 class MyMethodMeta {
   final String name;
   final String returnType; // may be 'Future<T>'

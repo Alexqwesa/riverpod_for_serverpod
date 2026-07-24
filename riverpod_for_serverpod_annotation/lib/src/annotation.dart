@@ -164,7 +164,9 @@ class CachedQuery {
   /// Soft cap on how many distinct entities this cache tracks before eviction.
   final int maxItems;
 
-  /// Duration passed to generated `cacheFor` after a successful fetch.
+  /// Duration for entity-index TTL and generated `ref.cacheFor` after a
+  /// successful fetch. Prefer this over a separate [@CacheTtl] on the same
+  /// `@CachedQuery` method.
   final Duration ttl;
 
   /// When true, generated storage uses the secure cache flavor from runtime
@@ -485,11 +487,12 @@ class ValidateList {
   });
 }
 
-/// Overrides default `cacheFor` duration on a generated read provider.
+/// Overrides default `cacheFor` duration on a generated **plain** read provider
+/// (methods without [@CachedQuery]).
 ///
 /// **Where:** Serverpod endpoint **methods** whose first parameter is
-/// `Session session`. Changes how long Riverpod keeps a successful response
-/// alive after the fetch completes.
+/// `Session session`. For `@CachedQuery` methods, use [CachedQuery.ttl] instead
+/// (it drives both entity-index TTL and Riverpod keepAlive).
 @immutable
 class CacheTtl {
   /// TTL applied via generated `ref.cacheFor(value)`.

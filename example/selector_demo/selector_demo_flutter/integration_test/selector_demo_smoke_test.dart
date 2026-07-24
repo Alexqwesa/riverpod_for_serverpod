@@ -10,5 +10,6 @@ void main() {
     await app.bootstrap();
     await tester.pumpAndSettle(const Duration(seconds: 3));
     expect(find.byKey(const Key('app_title')), findsOneWidget);
+    expect(find.byKey(const Key('selector_scaffold')), findsOneWidget);
   });
 }

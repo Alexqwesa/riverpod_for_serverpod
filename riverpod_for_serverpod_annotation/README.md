@@ -12,7 +12,10 @@ package line/branch.
 
 ### `@CachedQuery`
 
-Marks a read endpoint for future generated entity/index cache support.
+Marks a read endpoint for generated entity/index cache providers (SWR
+`AsyncNotifier` by default, or `FutureProvider` when `backgroundRefresh: false`).
+
+`ttl` drives both the entity-index TTL and Riverpod `ref.cacheFor` keepAlive.
 
 ```dart
 @CachedQuery(
@@ -33,8 +36,8 @@ Future<List<UserSummary>> listUsersByRole(
 
 ### `@MutationCommand`
 
-Marks a state-changing endpoint as a future generated command instead of a
-cached read provider.
+Marks a state-changing endpoint as a generated command helper (plus optional
+mutation controller) instead of a watched read provider.
 
 ```dart
 @MutationCommand(
@@ -63,10 +66,21 @@ Future<UserSummary> updateUserRole(
 }
 ```
 
+Generated client usage (Riverpod 2/3–friendly tear-offs):
+
+```dart
+await RefAdminEndpointCommands.updateUserRole(
+  ref.read,
+  ref.invalidate,
+  userId,
+  roleName,
+);
+```
+
 ### `@ValidateString`, `@ValidateNumber`, `@ValidateList`
 
-Stores simple input validation metadata for future generated client-side checks.
-Business validation should stay on the server.
+Client-side validation helpers run in generated mutation commands before the
+RPC. Business validation should stay on the server.
 
 ```dart
 @ValidateString(
@@ -85,8 +99,8 @@ Future<UserSummary> updateUserRole(
 
 ### `@CacheTtl`
 
-Controls how long the generated Riverpod provider stays alive before it can be
-disposed when unused.
+Controls Riverpod `cacheFor` keepAlive on **plain** read providers (methods
+without `@CachedQuery`). For `@CachedQuery` methods, use `CachedQuery.ttl`.
 
 ```dart
 @CacheTtl(Duration(minutes: 30))
@@ -110,11 +124,7 @@ Future<String> importUnitsFromMssql(Session session) async {
 
 Declares generated invalidation hooks for successful mutations. Prefer
 `MutationCommand.invalidate` with `Invalidate.self`, `Invalidate.endpoint`, and
-`Invalidate.provider` for new code.
-
-The generated `Ref...Endpoint.invalidateAfter<MethodName>(ref.read)` helper
-always refreshes the current endpoint. `endpoints` adds extra endpoint refs to
-refresh too.
+`Invalidate.provider` / `Invalidate.providerFamily` for new code.
 
 ```dart
 @RefInvalidate(['UserSummaryEndpoint'])
@@ -131,7 +141,7 @@ Generated client usage:
 
 ```dart
 await client.admin.updateUsersRole(userIds, roleName);
-RefAdminEndpoint.invalidateAfterUpdateUsersRole(ref.read);
+RefAdminEndpoint.invalidateAfterUpdateUsersRole(ref.read, ref.invalidate);
 ```
 
 ### `@DoNotGenerate`

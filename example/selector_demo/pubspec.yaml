@@ -9,3 +9,9 @@ workspace:
   - selector_demo_server
   - selector_demo_flutter
 
+dependency_overrides:
+  riverpod_for_serverpod_runtime:
+    path: ../../riverpod_for_serverpod_runtime
+  riverpod_for_serverpod_hive_storage:
+    path: ../../riverpod_for_serverpod_hive_storage
+

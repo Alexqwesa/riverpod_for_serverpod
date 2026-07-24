@@ -65,14 +65,15 @@ void main() {
   });
 
   group('buildGeneratedImportLines', () {
-    test('Riverpod 3 imports ProviderListenable from misc', () {
+    test('Riverpod 3 imports ProviderListenable and ProviderOrFamily from misc',
+        () {
       expect(
         buildGeneratedImportLines(
           importPaths: const ['package:riverpod/riverpod.dart'],
           emitProviderRetry: true,
         ),
         contains(
-          "import 'package:riverpod/misc.dart' show ProviderListenable;",
+          "import 'package:riverpod/misc.dart' show ProviderListenable, ProviderOrFamily;",
         ),
       );
     });
@@ -85,7 +86,7 @@ void main() {
         ),
         isNot(
           contains(
-            "import 'package:riverpod/misc.dart' show ProviderListenable;",
+            "import 'package:riverpod/misc.dart' show ProviderListenable, ProviderOrFamily;",
           ),
         ),
       );

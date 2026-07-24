@@ -4,16 +4,8 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="riverpod Version Detection">
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="riverpod Version Detection + update readme">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_server/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_2_and_3_compatibility.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_2_and_3_compatibility.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/bin/copy_ref_endpoints.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/bin/copy_ref_endpoints.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/riverpod_pubspec.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/riverpod_pubspec.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/riverpod_pubspec_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/riverpod_pubspec_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,14 +106,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1776430508006</updated>
-    </task>
-    <task id="LOCAL-00001" summary="init">
-      <option name="closed" value="true" />
-      <created>1777466851358</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1777466851358</updated>
     </task>
     <task id="LOCAL-00002" summary="init">
       <option name="closed" value="true" />
@@ -507,7 +491,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784894221069</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="riverpod Version Detection + update readme">
+      <option name="closed" value="true" />
+      <created>1784895829692</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1784895829693</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -522,7 +514,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="generated @CachedQuery read providers use GeneratedEntityCache" />
     <MESSAGE value="@CachedQuery with backgroundRefresh + buildCachedQueryNotifierSource" />
     <MESSAGE value="add invalidator generation" />
     <MESSAGE value="fixes(destructure args), + riverpod 2 support" />
@@ -547,6 +538,7 @@
     <MESSAGE value="MutationCommand: rework invalidate parameter, deprecate RefInvalidate()" />
     <MESSAGE value="Removed the misc.dart dependency from runtime" />
     <MESSAGE value="riverpod Version Detection" />
-    <option name="LAST_COMMIT_MESSAGE" value="riverpod Version Detection" />
+    <MESSAGE value="riverpod Version Detection + update readme" />
+    <option name="LAST_COMMIT_MESSAGE" value="riverpod Version Detection + update readme" />
   </component>
 </project>

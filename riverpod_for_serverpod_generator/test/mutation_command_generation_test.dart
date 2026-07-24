@@ -53,6 +53,16 @@ void main() {
       expect(code, contains('persistPayload:'));
       expect(code, contains("'AdminEndpoint.updateUserRole'"));
       expect(code, contains('invalidateAfterUpdateUserRole'));
+      expect(
+        code,
+        contains('Reader read, ProviderInvalidator invalidate'),
+      );
+      expect(
+        code,
+        contains(
+          'RefAdminEndpoint.invalidateAfterUpdateUserRole(read, invalidate)',
+        ),
+      );
       expect(code, contains("'AdminEndpoint.updateUserRole.\$userId'"));
       expect(
         code,
@@ -280,7 +290,9 @@ void main() {
 
       expect(
         code,
-        contains('RefEventEndpoint.invalidateAfterUpdateEvent(read, eventId);'),
+        contains(
+          'RefEventEndpoint.invalidateAfterUpdateEvent(read, invalidate, eventId);',
+        ),
       );
     });
   });
@@ -317,7 +329,7 @@ void main() {
       expect(
         code,
         contains(
-          'await RefAdminEndpointCommands.updateUserRole(ref.read, userId, roleName);',
+          'await RefAdminEndpointCommands.updateUserRole(ref.read, ref.invalidate, userId, roleName);',
         ),
       );
     });

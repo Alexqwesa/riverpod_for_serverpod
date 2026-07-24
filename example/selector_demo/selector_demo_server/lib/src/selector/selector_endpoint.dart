@@ -34,8 +34,16 @@ class SelectorEndpoint extends Endpoint {
     idempotent: true,
     refetch: RefetchPolicy.none,
     invalidate: [
-      Invalidate.family('listChildren', argFrom: 'parentId'),
-      Invalidate.family('getSelection', argFrom: 'parentId'),
+      Invalidate.providerFamily(
+        SelectorEndpoint,
+        'listChildren',
+        argFrom: 'parentId',
+      ),
+      Invalidate.providerFamily(
+        SelectorEndpoint,
+        'getSelection',
+        argFrom: 'parentId',
+      ),
     ],
   )
   Future<void> saveSelection(

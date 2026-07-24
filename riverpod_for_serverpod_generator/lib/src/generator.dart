@@ -289,7 +289,7 @@ List<String> buildGeneratedImportLines({
   return [
     ...importPaths.map((importPath) => "import '$importPath';"),
     if (emitProviderRetry)
-      "import 'package:riverpod/misc.dart' show ProviderListenable;",
+      "import 'package:riverpod/misc.dart' show ProviderListenable, ProviderOrFamily;",
   ];
 }
 
@@ -577,6 +577,13 @@ Method _buildInvalidateHookMethod({
             ..name = 'read'
             ..type = refer('Reader'),
         ),
+      )
+      ..requiredParameters.add(
+        Parameter(
+          (p) => p
+            ..name = 'invalidate'
+            ..type = refer('ProviderInvalidator'),
+        ),
       );
 
     for (final arg in hookArgs.values) {
@@ -621,9 +628,9 @@ Iterable<String> _buildTypedInvalidationLines({
           methodArgs: methodArgs,
         );
         if (exactArg == null) {
-          yield '$refClass.${provider}InvalidateAll(read);';
+          yield '$refClass.${provider}InvalidateAll(invalidate);';
         } else {
-          yield '$refClass.${provider}Invalidate(read, $exactArg);';
+          yield '$refClass.${provider}Invalidate(invalidate, $exactArg);';
         }
     }
   }
@@ -673,7 +680,7 @@ String _buildMutationRetryReplayBootstrap(List<_EndpointMeta> endpoints) {
         "  MutationRetryReplayRegistry.register(r'${ep.name}.${m.name}', (ref, args) async {",
       );
       buf.writeln(
-        '    await Ref${ep.name}Commands.${m.name}(ref.read${_replayMutationArgsFromMap(m)});',
+        '    await Ref${ep.name}Commands.${m.name}(ref.read, ref.invalidate${_replayMutationArgsFromMap(m)});',
       );
       buf.writeln('  });');
     }

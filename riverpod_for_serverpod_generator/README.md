@@ -27,7 +27,7 @@ package: `*_flutter` first, then `*_client`, then the server pubspec.
 - read providers and cached-query notifiers
 - mutation command helpers and mutation controllers
 - endpoint-level `updateAll(ref.read)` invalidation hooks
-- method-level `invalidateAfter<MethodName>(ref.read)` hooks
+- method-level `invalidateAfter<MethodName>(ref.read, ref.invalidate)` hooks
 - typed endpoint manifest metadata
 
 ## Supported annotations
@@ -176,7 +176,10 @@ Use generated hooks after successful mutations:
 
 ```dart
 await client.bankManager.upsertBankProfile(profile);
-RefBankManagerEndpoint.invalidateAfterUpsertBankProfile(ref.read);
+RefBankManagerEndpoint.invalidateAfterUpsertBankProfile(
+  ref.read,
+  ref.invalidate,
+);
 ```
 
 Because `upsertBankProfile` can declare
@@ -188,7 +191,12 @@ Methods annotated with `@MutationCommand` are generated as explicit command
 helpers instead of watched `FutureProvider` values:
 
 ```dart
-await RefAdminEndpointCommands.updateUserRole(ref.read, userId, roleName);
+await RefAdminEndpointCommands.updateUserRole(
+  ref.read,
+  ref.invalidate,
+  userId,
+  roleName,
+);
 ```
 
 For UI loading/error state, the generator also emits one mutation controller per

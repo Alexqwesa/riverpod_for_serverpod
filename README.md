@@ -119,7 +119,10 @@ abstract class RefAdminEndpoint {
     read(refUpdateAll.notifier).updateAll();
   }
 
-  static void invalidateAfterUpdateUsersRole(Reader read) {
+  static void invalidateAfterUpdateUsersRole(
+    Reader read,
+    ProviderInvalidator invalidate,
+  ) {
     RefAdminEndpoint.updateAll(read);
     RefUserEndpoint.updateAll(read);
   }
@@ -128,11 +131,12 @@ abstract class RefAdminEndpoint {
 abstract final class RefAdminEndpointCommands {
   static Future<void> updateUsersRole(
     Reader read,
+    ProviderInvalidator invalidate,
     List<int> userIds,
     String roleName,
   ) async {
     await read(clientProvider).admin.updateUsersRole(userIds, roleName);
-    RefAdminEndpoint.invalidateAfterUpdateUsersRole(read);
+    RefAdminEndpoint.invalidateAfterUpdateUsersRole(read, invalidate);
   }
 }
 
@@ -153,6 +157,7 @@ final class AdminMutationController extends AsyncNotifier<void> {
     state = await AsyncValue.guard(() async {
       await RefAdminEndpointCommands.updateUsersRole(
         ref.read,
+        ref.invalidate,
         userIds,
         roleName,
       );
@@ -293,7 +298,12 @@ final roles = ref.watch(RefAdminEndpoint.listRoles);
 **[@MutationCommand](riverpod_for_serverpod_annotation)** methods no longer get `FutureProvider` fields (mutations are not passive reads). Call the generated command instead:
 
 ```dart
-await RefAdminEndpointCommands.updateUserRole(ref.read, userId, roleName);
+await RefAdminEndpointCommands.updateUserRole(
+  ref.read,
+  ref.invalidate,
+  userId,
+  roleName,
+);
 ```
 
 The generator also emits an `AsyncNotifier<void>` mutation controller per
@@ -353,7 +363,7 @@ the entries from `MutationCommand.invalidate`:
 
 ```dart
 await client.admin.updateUsersRole(userIds, roleName);
-RefAdminEndpoint.invalidateAfterUpdateUsersRole(ref.read);
+RefAdminEndpoint.invalidateAfterUpdateUsersRole(ref.read, ref.invalidate);
 ```
 
 ## Packages

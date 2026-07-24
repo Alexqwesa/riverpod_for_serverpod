@@ -84,7 +84,7 @@ String _buildMutationControllerMethod({
   buf.writeln(') async {');
   buf.writeln('    state = const AsyncLoading();');
   buf.writeln('    state = await AsyncValue.guard(() async {');
-  buf.write('      await $commandsClass.${method.name}(ref.read');
+  buf.write('      await $commandsClass.${method.name}(ref.read, ref.invalidate');
   for (final p in method.positionalParams) {
     buf.write(', ${p.name}');
   }
@@ -262,7 +262,8 @@ String buildMutationCommandMethod({
   final template = entityCacheTemplates[meta.affects];
   final hook = 'invalidateAfter${ReCase(method.name).pascalCase}';
   final refClass = 'Ref$endpointClassName';
-  final hookCall = '$refClass.$hook(read${_invalidateHookArgs(method)})';
+  final hookCall =
+      '$refClass.$hook(read, invalidate${_invalidateHookArgs(method)})';
   final retryEnabled = meta.retry != 'RetryPolicy.none';
   final queueId = _mutationQueueIdExpression(endpointClassName, method, meta);
   final timeoutSuffix =
@@ -289,7 +290,7 @@ String buildMutationCommandMethod({
   );
   buffer.writeln();
   buffer.write('  static ${method.returnType} ${method.name}(');
-  buffer.write('Reader read');
+  buffer.write('Reader read, ProviderInvalidator invalidate');
   for (final p in method.positionalParams) {
     buffer.write(', ${p.type} ${p.name}');
   }

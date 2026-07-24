@@ -34,6 +34,11 @@ dependencies:
     git:
       url: https://github.com/Alexqwesa/generic_search_selector.git
       ref: main
+  hive_flutter: ^1.1.0
+  riverpod_for_serverpod_hive_storage:
+    path: ../../../riverpod_for_serverpod_hive_storage
+  riverpod_for_serverpod_runtime:
+    path: ../../../riverpod_for_serverpod_runtime
   selector_demo_client:
     path: ../selector_demo_client
   serverpod_flutter: 3.4.4

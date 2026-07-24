@@ -63,4 +63,38 @@ void main() {
       );
     });
   });
+
+  group('keepAliveTtlExpression', () {
+    test('uses CachedQuery.ttl when present', () {
+      final m = MyMethodMeta(
+        'listRoles',
+        'Future<List<Role>>',
+        [],
+        [],
+        false,
+        false,
+        cacheTtl: 'Duration(minutes: 3)',
+        innerProviderName: 'RefAdminEndpoint',
+        cachedQuery: const CachedQueryMeta(
+          entity: 'Role',
+          ttl: 'Duration(minutes: 10)',
+        ),
+      );
+      expect(keepAliveTtlExpression(m), 'Duration(minutes: 10)');
+    });
+
+    test('falls back to CacheTtl / cacheTtl without CachedQuery', () {
+      final m = MyMethodMeta(
+        'listRoles',
+        'Future<List<Role>>',
+        [],
+        [],
+        false,
+        false,
+        cacheTtl: 'Duration(hours: 1)',
+        innerProviderName: 'RefAdminEndpoint',
+      );
+      expect(keepAliveTtlExpression(m), 'Duration(hours: 1)');
+    });
+  });
 }

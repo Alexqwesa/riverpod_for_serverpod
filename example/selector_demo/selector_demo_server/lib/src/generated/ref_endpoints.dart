@@ -4,10 +4,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:riverpod/riverpod.dart';
-import 'package:riverpod/misc.dart';
 import 'package:riverpod_for_serverpod_runtime/riverpod_for_serverpod_runtime.dart';
 import 'package:selector_demo_client/src/protocol/protocol.dart';
 import 'package:serverpod_auth_client/serverpod_auth_client.dart';
+import 'package:riverpod/misc.dart' show ProviderListenable, ProviderOrFamily;
 
 const generatedEndpointManifest = EndpointManifest(
   endpoints: [
@@ -113,14 +113,18 @@ const generatedEndpointManifest = EndpointManifest(
             byIdMethod: null,
             invalidate: [
               InvalidateInfo(
+                endpoint: "SelectorEndpoint",
                 provider: "listChildren",
                 argFrom: "parentId",
                 family: true,
+                kind: InvalidateKind.provider,
               ),
               InvalidateInfo(
+                endpoint: "SelectorEndpoint",
                 provider: "getSelection",
                 argFrom: "parentId",
                 family: true,
+                kind: InvalidateKind.provider,
               ),
             ],
             optimistic: OptimisticPolicy.none,
@@ -505,20 +509,35 @@ abstract class RefSelectorEndpoint {
     invalidate(getSelection(getSelection0ToGetSelectionArgs(args)));
   }
 
-  static void invalidateAfterListParents(Reader read) {
+  static void invalidateAfterListParents(
+    Reader read,
+    ProviderInvalidator invalidate,
+  ) {
     RefSelectorEndpoint.updateAll(read);
   }
 
-  static void invalidateAfterListChildren(Reader read) {
+  static void invalidateAfterListChildren(
+    Reader read,
+    ProviderInvalidator invalidate,
+  ) {
     RefSelectorEndpoint.updateAll(read);
   }
 
-  static void invalidateAfterGetSelection(Reader read) {
+  static void invalidateAfterGetSelection(
+    Reader read,
+    ProviderInvalidator invalidate,
+  ) {
     RefSelectorEndpoint.updateAll(read);
   }
 
-  static void invalidateAfterSaveSelection(Reader read) {
+  static void invalidateAfterSaveSelection(
+    Reader read,
+    ProviderInvalidator invalidate,
+    String parentId,
+  ) {
     RefSelectorEndpoint.updateAll(read);
+    RefSelectorEndpoint.listChildrenInvalidate(invalidate, parentId);
+    RefSelectorEndpoint.getSelectionInvalidate(invalidate, parentId);
   }
 }
 
@@ -526,13 +545,14 @@ abstract final class RefSelectorEndpointCommands {
   static const DialogPolicy dialogPolicyAfterSaveSelection =
       DialogPolicy.onSuccessOnly;
 
-  static Future<void> saveSelection(
-      Reader read, String parentId, List<String> selectedChildIds) async {
+  static Future<void> saveSelection(Reader read, ProviderInvalidator invalidate,
+      String parentId, List<String> selectedChildIds) async {
     try {
       await read(clientProvider)
           .selector
           .saveSelection(parentId, selectedChildIds);
-      RefSelectorEndpoint.invalidateAfterSaveSelection(read);
+      RefSelectorEndpoint.invalidateAfterSaveSelection(
+          read, invalidate, parentId);
     } catch (e, st) {
       final __enqueue = mutationFailureShouldEnqueue(
         error: e,
@@ -555,7 +575,8 @@ abstract final class RefSelectorEndpointCommands {
             await read(clientProvider)
                 .selector
                 .saveSelection(parentId, selectedChildIds);
-            RefSelectorEndpoint.invalidateAfterSaveSelection(read);
+            RefSelectorEndpoint.invalidateAfterSaveSelection(
+                read, invalidate, parentId);
           },
         );
         read(refreshWarningProvider.notifier).recordQueuedMutation(
@@ -584,7 +605,7 @@ final class SelectorMutationController extends AsyncNotifier<void> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await RefSelectorEndpointCommands.saveSelection(
-          ref.read, parentId, selectedChildIds);
+          ref.read, ref.invalidate, parentId, selectedChildIds);
     });
   }
 }
@@ -592,7 +613,7 @@ final class SelectorMutationController extends AsyncNotifier<void> {
 bool _riverpodForServerpodRegisterMutationReplays() {
   MutationRetryReplayRegistry.register(r'SelectorEndpoint.saveSelection',
       (ref, args) async {
-    await RefSelectorEndpointCommands.saveSelection(ref.read,
+    await RefSelectorEndpointCommands.saveSelection(ref.read, ref.invalidate,
         args[r'parentId'] as String, args[r'selectedChildIds'] as List<String>);
   });
   return true;
