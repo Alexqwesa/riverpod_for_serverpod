@@ -92,12 +92,19 @@ flutter test integration_test/selector_demo_smoke_test.dart -d windows
 
 Use `-d <deviceId>` if multiple devices are connected (`flutter devices`).
 
-Generator / copy CLI e2e (from repo packages):
+Generator / copy CLI e2e (regenerates committed demo `ref_endpoints.dart`):
 
 ```bash
 cd ../../riverpod_for_serverpod_generator
 dart test test/selector_demo_codegen_e2e_test.dart test/copy_ref_endpoints_e2e_test.dart
 ```
+
+That generator e2e deletes and rewrites:
+
+- `selector_demo_server/lib/src/generated/ref_endpoints.dart`
+- `selector_demo_client/lib/ref_endpoints.dart`
+
+Then fails if those files differ from git HEAD — so after generator changes, re-run the test (or `serverpod run ref_endpoints`), review the diff, and commit both files.
 
 ## Server tests
 

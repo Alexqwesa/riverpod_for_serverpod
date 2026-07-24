@@ -94,6 +94,20 @@ dart run riverpod_for_serverpod_generator:copy_ref_endpoints
 `copy_ref_endpoints` also fills missing dependencies across server / client /
 Flutter by default. Use `--no-ensure-deps` to skip that.
 
+Committed goldens for the example live at:
+
+- `example/selector_demo/selector_demo_server/lib/src/generated/ref_endpoints.dart`
+- `example/selector_demo/selector_demo_client/lib/ref_endpoints.dart`
+
+Regenerate them and assert they match git HEAD:
+
+```bash
+cd riverpod_for_serverpod_generator
+dart test test/selector_demo_codegen_e2e_test.dart
+```
+
+If that test reports drift, commit both regenerated files.
+
 No project-level `build.yaml` is required. The builder auto-applies to packages
 that depend on `riverpod_for_serverpod_generator`, then only writes output when
 it finds Serverpod endpoint methods with `Session` as the first parameter.
