@@ -4,12 +4,18 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="Invalidation (kept Reader)&#10;Commands/hooks now take Reader read, ProviderInvalidator invalidate. Call sites use ref.read, ref.invalidate. Precise hooks call …Invalidate(invalidate, …).&#10;&#10;TTL&#10;CachedQuery.ttl drives both entity-index TTL and ref.cacheFor; @CacheTtl remains for plain reads.&#10;&#10;Demo&#10;Hive cache + retry persistence overrides, sync warning banner with Retry now, save via selectorMutationControllerProvider, modern Invalidate.providerFamily, regenerated endpoints.&#10;&#10;Docs&#10;Annotation README/CHANGELOGs and root/generator samples updated for the new API.&#10;&#10;Generator + runtime tests pass; Flutter analyze is clean. Generated client still has a few unused-import/st warnings from codegen.">
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="Test coverage for invalidation, TTL, and demo UI">
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/dart_test.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/test/ref_endpoints_live_e2e_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/dart_test.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/integration_test/selector_demo_flow_e2e_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/test/selector_home_flow_e2e_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/copy_ref_endpoints_e2e_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/selector_demo_codegen_e2e_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/lib/src/generator.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_field_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_field_test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_invalidator_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/build_provider_invalidator_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_client/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/integration_test/selector_demo_smoke_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/selector_demo_flutter/integration_test/selector_demo_smoke_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,14 +116,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1776430508006</updated>
-    </task>
-    <task id="LOCAL-00003" summary="init">
-      <option name="closed" value="true" />
-      <created>1777467203112</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1777467203112</updated>
     </task>
     <task id="LOCAL-00004" summary="v2.6.0+">
       <option name="closed" value="true" />
@@ -503,7 +501,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784900925612</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="Test coverage for invalidation, TTL, and demo UI">
+      <option name="closed" value="true" />
+      <created>1784902292707</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1784902292707</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -518,7 +524,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add invalidator generation" />
     <MESSAGE value="fixes(destructure args), + riverpod 2 support" />
     <MESSAGE value="fixes(destructure args), + riverpod 2 support" />
     <MESSAGE value="fix Ref.cacheFor - only if mount" />
@@ -543,6 +548,7 @@
     <MESSAGE value="riverpod Version Detection" />
     <MESSAGE value="riverpod Version Detection + update readme" />
     <MESSAGE value="Invalidation (kept Reader)&#10;Commands/hooks now take Reader read, ProviderInvalidator invalidate. Call sites use ref.read, ref.invalidate. Precise hooks call …Invalidate(invalidate, …).&#10;&#10;TTL&#10;CachedQuery.ttl drives both entity-index TTL and ref.cacheFor; @CacheTtl remains for plain reads.&#10;&#10;Demo&#10;Hive cache + retry persistence overrides, sync warning banner with Retry now, save via selectorMutationControllerProvider, modern Invalidate.providerFamily, regenerated endpoints.&#10;&#10;Docs&#10;Annotation README/CHANGELOGs and root/generator samples updated for the new API.&#10;&#10;Generator + runtime tests pass; Flutter analyze is clean. Generated client still has a few unused-import/st warnings from codegen." />
-    <option name="LAST_COMMIT_MESSAGE" value="Invalidation (kept Reader)&#10;Commands/hooks now take Reader read, ProviderInvalidator invalidate. Call sites use ref.read, ref.invalidate. Precise hooks call …Invalidate(invalidate, …).&#10;&#10;TTL&#10;CachedQuery.ttl drives both entity-index TTL and ref.cacheFor; @CacheTtl remains for plain reads.&#10;&#10;Demo&#10;Hive cache + retry persistence overrides, sync warning banner with Retry now, save via selectorMutationControllerProvider, modern Invalidate.providerFamily, regenerated endpoints.&#10;&#10;Docs&#10;Annotation README/CHANGELOGs and root/generator samples updated for the new API.&#10;&#10;Generator + runtime tests pass; Flutter analyze is clean. Generated client still has a few unused-import/st warnings from codegen." />
+    <MESSAGE value="Test coverage for invalidation, TTL, and demo UI" />
+    <option name="LAST_COMMIT_MESSAGE" value="Test coverage for invalidation, TTL, and demo UI" />
   </component>
 </project>

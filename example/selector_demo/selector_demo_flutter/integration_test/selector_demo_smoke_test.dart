@@ -11,5 +11,14 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 3));
     expect(find.byKey(const Key('app_title')), findsOneWidget);
     expect(find.byKey(const Key('selector_scaffold')), findsOneWidget);
+
+    // With a live server: parent picker. Without: error text.
+    final picker = find.byKey(const Key('parent_picker'));
+    final error = find.byKey(const Key('parents_error'));
+    expect(
+      picker.evaluate().isNotEmpty || error.evaluate().isNotEmpty,
+      isTrue,
+      reason: 'Expected parent_picker or parents_error after boot',
+    );
   });
 }

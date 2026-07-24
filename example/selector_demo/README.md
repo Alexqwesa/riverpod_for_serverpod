@@ -58,19 +58,46 @@ flutter run --dart-define=SERVER_URL=http://localhost:8080/
 
 On a physical device, set `SERVER_URL` to your machine’s LAN IP (same pattern as the stock Serverpod Flutter template).
 
-## Integration test (smoke)
+## Integration / e2e tests
 
-1. Start the server (see above).
-2. Run:
+Widget e2e (Flutter stubs HTTP — unreachable host → error UI only):
+
+```bash
+cd selector_demo_flutter
+flutter test test/selector_home_flow_e2e_test.dart
+```
+
+Live provider e2e (real HTTP; spawns Mini server if needed):
+
+```bash
+cd selector_demo_client
+dart test test/ref_endpoints_live_e2e_test.dart
+# skip on machines without a free :8080 / dart server tooling:
+dart test --exclude-tags live-server
+```
+
+Integration UI e2e (real device/desktop HTTP; spawns Mini server when needed):
+
+```bash
+cd selector_demo_flutter
+flutter test integration_test/selector_demo_flow_e2e_test.dart -d windows
+```
+
+Smoke (boot only):
 
 ```bash
 cd selector_demo_flutter
 flutter test integration_test/selector_demo_smoke_test.dart -d windows
 ```
 
-Use `-d <deviceId>` if multiple devices are connected (`flutter devices`). On CI, pick Chrome or Linux/Windows explicitly.
+Use `-d <deviceId>` if multiple devices are connected (`flutter devices`).
 
-The smoke test boots the app and looks for the app title. Full picker flows assume a reachable server.
+Generator / copy CLI e2e (from repo packages):
+
+```bash
+cd ../../riverpod_for_serverpod_generator
+dart test test/selector_demo_codegen_e2e_test.dart test/copy_ref_endpoints_e2e_test.dart
+```
 
 ## Server tests
 
