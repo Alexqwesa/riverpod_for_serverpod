@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="e2e test selector_demo">
+    <list default="true" id="eeea534f-94a0-4223-a3fb-d20831381ce9" name="Changes" comment="e2e should generate ref_endpoints.dart file">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/selector_demo/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/selector_demo_codegen_e2e_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/riverpod_for_serverpod_generator/test/selector_demo_codegen_e2e_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/selector_demo/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/example/selector_demo/.idea/misc.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,14 +108,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1776430508006</updated>
-    </task>
-    <task id="LOCAL-00005" summary="working on new api">
-      <option name="closed" value="true" />
-      <created>1778139118245</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1778139118245</updated>
     </task>
     <task id="LOCAL-00006" summary="working on new api2">
       <option name="closed" value="true" />
@@ -502,7 +493,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784905188522</updated>
     </task>
-    <option name="localTasksCounter" value="54" />
+    <task id="LOCAL-00054" summary="e2e should generate ref_endpoints.dart file">
+      <option name="closed" value="true" />
+      <created>1784907660246</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1784907660246</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -517,7 +516,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fixes(destructure args), + riverpod 2 support" />
     <MESSAGE value="fix Ref.cacheFor - only if mount" />
     <MESSAGE value="added generatedCacheStorageProvider to runtime" />
     <MESSAGE value="NamespacedGeneratedCacheStorage" />
@@ -542,6 +540,7 @@
     <MESSAGE value="Invalidation (kept Reader)&#10;Commands/hooks now take Reader read, ProviderInvalidator invalidate. Call sites use ref.read, ref.invalidate. Precise hooks call …Invalidate(invalidate, …).&#10;&#10;TTL&#10;CachedQuery.ttl drives both entity-index TTL and ref.cacheFor; @CacheTtl remains for plain reads.&#10;&#10;Demo&#10;Hive cache + retry persistence overrides, sync warning banner with Retry now, save via selectorMutationControllerProvider, modern Invalidate.providerFamily, regenerated endpoints.&#10;&#10;Docs&#10;Annotation README/CHANGELOGs and root/generator samples updated for the new API.&#10;&#10;Generator + runtime tests pass; Flutter analyze is clean. Generated client still has a few unused-import/st warnings from codegen." />
     <MESSAGE value="Test coverage for invalidation, TTL, and demo UI" />
     <MESSAGE value="e2e test selector_demo" />
-    <option name="LAST_COMMIT_MESSAGE" value="e2e test selector_demo" />
+    <MESSAGE value="e2e should generate ref_endpoints.dart file" />
+    <option name="LAST_COMMIT_MESSAGE" value="e2e should generate ref_endpoints.dart file" />
   </component>
 </project>
